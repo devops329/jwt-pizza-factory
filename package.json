@@ -1,0 +1,14 @@
+{
+  "name": "nft-pizza-factory",
+  "version": "1.0.0",
+  "description": "Factory service for making NFT pizzas",
+  "main": "index.js",
+  "scripts": {
+    "run": "node index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
