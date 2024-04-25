@@ -2,9 +2,31 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const config = require('./config.json');
 
+const fs = require('fs');
+const path = require('path');
+const jose = require('node-jose');
+
+const pubKeyPath = path.resolve(__dirname, 'jwt.key.pub');
+const pubKey = fs.readFileSync(pubKeyPath, 'utf8');
+let jwks;
+jose.JWK.asKey(pubKey, 'pem')
+  .then((jwk) => {
+    console.log('Successfully imported JWK:', jwk);
+    jwks = [jwk];
+  })
+  .catch((error) => {
+    console.error('Error importing JWK:', error);
+  });
+
 const app = express();
 
 app.use(express.json());
+
+app.get('/.well-known/jwks.json', (req, res) => {
+  res.json({
+    keys: jwks,
+  });
+});
 
 const getFranchiseInfo = (req, res, next) => {
   const franchiseInfo = config.apiKeys[(req.headers.authorization || '').replace(/bearer /i, '')];

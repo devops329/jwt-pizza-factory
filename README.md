@@ -32,3 +32,7 @@ Factory service for making NFT pizzas
     const k = require('crypto').randomBytes(64).toString('hex');
     console.log(k);
     ```
+
+## JWKS
+
+https://thomasstep.com/blog/a-guide-to-using-jwt-in-javascript
