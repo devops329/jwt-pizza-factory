@@ -9,7 +9,7 @@ Factory service for making NFT pizzas
 - Create JWT given an order
 
   ```sh
-   curl -X POST localhost:3000/order -H 'authorization: abce4567-dddd-eeee-a345-996141749213' -d '{"store": "storeId-zzz", "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'
+   curl -X POST localhost:3000/order -H 'authorization: Bearer abce4567-dddd-eeee-a345-996141749213' -d '{"store": "storeId-zzz", "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'
   ```
 
 - Verify and order JWT
@@ -19,11 +19,16 @@ Factory service for making NFT pizzas
 
 ## Development notes
 
-1. Initialize node.js
-   ```sh
-   npm init
-   ```
-1. Install Express and jsonwebtoken. Express gives us a wrapper for HTTP communication. Jsonwebtoken helps us generate and validate our JWTs.
-   ```sh
-   npm install express jsonwebtoken
-   ```
+1.  Initialize node.js
+    ```sh
+    npm init
+    ```
+1.  Install Express and jsonwebtoken. Express gives us a wrapper for HTTP communication. Jsonwebtoken helps us generate and validate our JWTs.
+    ```sh
+    npm install express jsonwebtoken
+    ```
+1.  Generate a secret used to sign the JWT
+    ```js
+    const k = require('crypto').randomBytes(64).toString('hex');
+    console.log(k);
+    ```
