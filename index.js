@@ -3,24 +3,20 @@ const jwt = require('jsonwebtoken');
 const config = require('./config.json');
 
 const app = express();
-const apiKeys = {
-  'abce4567-dddd-eeee-a345-996141749213': { id: '12344567-ffff-zzzz-a345-99614192abcd', name: 'SuperPie' },
-  '99999999-dddd-eeee-a345-996141749213': { id: '99999999-ffff-zzzz-a345-99614192abcd', name: 'NTFPizza-Factory' },
-};
 
 app.use(express.json());
 
-const verifyApiKey = (req, res, next) => {
-  const apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
-  if (apiKeys[apiKey]) {
-    req.franchiseInfo = apiKeys[apiKey];
+const getFranchiseInfo = (req, res, next) => {
+  const franchiseInfo = config.apiKeys[(req.headers.authorization || '').replace(/bearer /i, '')];
+  if (franchiseInfo) {
+    req.franchiseInfo = franchiseInfo;
     next();
   } else {
     return res.status(401).json({ message: 'invalid authentication' });
   }
 };
 
-app.post('/order', verifyApiKey, (req, res) => {
+app.post('/order', getFranchiseInfo, (req, res) => {
   const { store, order } = req.body;
   if (!store || !order) {
     return res.status(400).json({ message: 'Missing required parameters' });
@@ -48,6 +44,11 @@ app.post('/order/verify', (req, res) => {
 
 app.get('*', (_, res) => {
   res.send({ message: 'NFT Pizza Factory' });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: err.message });
 });
 
 app.listen(3000, () => {
