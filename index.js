@@ -1,22 +1,7 @@
 const express = require('express');
-const jwt = require('jsonwebtoken');
-const config = require('./config.json');
-
-const fs = require('fs');
-const path = require('path');
 const jose = require('node-jose');
-
-const pubKeyPath = path.resolve(__dirname, 'jwt.key.pub');
-const pubKey = fs.readFileSync(pubKeyPath, 'utf8');
-let jwks;
-jose.JWK.asKey(pubKey, 'pem')
-  .then((jwk) => {
-    console.log('Successfully imported JWK:', jwk);
-    jwks = [jwk];
-  })
-  .catch((error) => {
-    console.error('Error importing JWK:', error);
-  });
+const { keys } = require('./keys');
+const config = require('./config.json');
 
 const app = express();
 
@@ -24,7 +9,7 @@ app.use(express.json());
 
 app.get('/.well-known/jwks.json', (req, res) => {
   res.json({
-    keys: jwks,
+    keys: keys.jwks,
   });
 });
 
@@ -44,24 +29,39 @@ app.post('/order', getFranchiseInfo, (req, res) => {
     return res.status(400).json({ message: 'Missing required parameters' });
   }
 
-  const token = jwt.sign({ franchise: req.franchiseInfo, store, order }, config.jwtSecret, {
-    expiresIn: '1d',
-    issuer: 'cs329.click',
-  });
-
-  res.json({ token });
+  const nowSecs = Math.floor(Date.now() / 1000);
+  const payload = { franchise: req.franchiseInfo, store, order };
+  const options = {
+    format: 'compact',
+    fields: {
+      iat: nowSecs,
+      exp: nowSecs + 24 * 60 * 60,
+      iss: 'cs329.click',
+    },
+  };
+  jose.JWS.createSign(options, keys.privateKey)
+    .update(JSON.stringify(payload))
+    .final()
+    .then((token) => {
+      res.json({ token });
+    })
+    .catch(() => {
+      res.status(500).json({ message: 'unable to process order' });
+    });
 });
 
 app.post('/order/verify', (req, res) => {
   const orderJwt = req.body.order;
 
-  const d = jwt.decode(orderJwt);
-  jwt.verify(orderJwt, jwtSecret, (err, decodedJwt) => {
-    const status = err ? 403 : 200;
-    const message = err ? 'invalid order' : 'valid order';
-    const result = { message: message, order: d };
-    res.status(status).json(result);
-  });
+  jose.JWS.createVerify(keys.privateKey)
+    .verify(orderJwt)
+    .then((r) => {
+      const payload = JSON.parse(r.payload.toString());
+      res.status(200).json({ message: 'order is valid', order: payload });
+    })
+    .catch(() => {
+      res.status(403).json({ message: 'order is invalid' });
+    });
 });
 
 app.get('*', (_, res) => {
