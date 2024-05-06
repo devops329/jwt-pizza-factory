@@ -18,7 +18,7 @@ Factory service for making JWT pizzas
    curl -X POST localhost:3000/order/verify -d '{"order":"eyJpYXQiOjE3MTUwMTI5NTYsImV4cCI6MTcxNTA5OTM1NiwiaXNzIjoiY3MzMjkuY2xpY2siLCJhbGciOiJSUzI1NiIsImtpZCI6IjE0bk5YT21jaWt6emlWZWNIcWE1UmMzOENPM1BVSmJuT2MzazJJdEtDZlEifQ.eyJmYWN0b3J5QXV0aCI6eyJpZCI6InN0dWRlbnQtbmV0aWQiLCJuYW1lIjoiU3R1ZGVudCBOYW1lIiwiY3JlYXRlZCI6IjIwMjQtMDYtMDFUMDA6MDA6MDBaIiwidmFsaWRVbnRpbCI6IjIwMjUtMTItMzFUMjM6NTk6NTlaIn0sImRpbmVyIjp7Im5hbWUiOiJqb2UifSwib3JkZXIiOnsicGl6emFzIjpbInBlcCIsImNoZWVzZSJdfX0.MTGE6-SvbDpxO6tr6f-57CDfnaqTdwryxjS3RFRaKu8pUemG43k15Nxx4-3SFMU0eULU_JMVrEq8fWJ82-0XV9UwLMxsZHc9R5xhdcvLg0fScAvg3SaC8ZVui1AqIt_yUw79-AABEIlaYx-2dhdJKhZQhM9QFSpRKF3DmYXkOpN6VGw8kMCo-kAra9W_H3kzD52vY_3QWiB6uO4V14p8U7Caz9cDPnEvRJKE3CjC0vJh-d5MF0O3z80ajcCx0GRIv8BIpy8ca1Xg-CyqGEx6YH2oqV9QFLNQfzj5Aba_AonTAAMDtQMpVwbrNizFDKXF75-9FcX1_PdtjfX_YUhEpZBQ-Y7peODb0dp29i-7HrWWhAUH_bvR_c9i8PXVw4YBBJV5tpKhN0aw-Fj4ZfV7ZoK_y5WWQvb-zvYoLp4mb5i6btLvS7AEdDCy7RqSyeatNYPK2AifHbJmaKpXiV-d5vMXSuHHcjTM4_BWPXX6sb_5R_nr5rKWH7_aJO2zNDtR5GXY5P-4SatlfjTCu5vaYIcCxCM7BajMQOg5R8iE4hrI4q0Qdw4vOIe5gM3yeAkaqlQiMFH8EnJkV1qdmApEO7P9QTG6rc7toG5LwJkjHWFfV7ETSWfCw0u9Jacwozbp1KrMcGdXvlLVyTM3i5f5OazqrZJNLsbBEX2euhTYh_w"}' -H 'Content-Type: application/json'
   ```
 
-- Get the JWKS for independent validation.
+- Get the JWKS for independent validation. You can use this with a tool such as [JWT.io](https://jwt.io). Paste the JWT order into the interface and then supply the first key returned from the JWKS endpoint in the public key verify signature input.
 
   ```sh
   curl localhost:3000/.well-known/jwks.json
