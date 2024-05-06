@@ -39,7 +39,7 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
   }
 
   const nowSecs = Math.floor(Date.now() / 1000);
-  const payload = { factoryAuth: req.factoryAuth, diner, order };
+  const payload = { vendor: req.factoryAuth, diner, order };
   const options = {
     format: 'compact',
     fields: {
@@ -51,8 +51,8 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
   jose.JWS.createSign(options, keys.privateKey)
     .update(JSON.stringify(payload))
     .final()
-    .then((order) => {
-      res.json({ order });
+    .then((jwt) => {
+      res.json({ jwt });
     })
     .catch(() => {
       res.status(500).json({ message: 'unable to process order' });
@@ -60,16 +60,16 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
 });
 
 orderRouter.post('/verify', (req, res) => {
-  const orderJwt = req.body.order;
+  const jwt = req.body.jwt;
 
   jose.JWS.createVerify(keys.privateKey)
-    .verify(orderJwt)
+    .verify(jwt)
     .then((r) => {
-      const order = JSON.parse(r.payload.toString());
-      res.status(200).json({ message: 'order is valid', order });
+      const payload = JSON.parse(r.payload.toString());
+      res.status(200).json({ message: 'valid', payload: payload });
     })
     .catch(() => {
-      res.status(403).json({ message: 'order is invalid' });
+      res.status(403).json({ message: 'invalid' });
     });
 });
 
