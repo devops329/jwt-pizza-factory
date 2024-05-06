@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Factory service for making NFT pizzas",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "run": "node index.js"
   },

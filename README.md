@@ -1,4 +1,4 @@
-# nft-pizza-factory
+# JWT Pizza Factory
 
 Factory service for making JWT pizzas
 
@@ -9,13 +9,13 @@ Factory service for making JWT pizzas
 - Create JWT given an order
 
   ```sh
-   curl -X POST localhost:3000/order -H 'authorization: Bearer abce4567-dddd-eeee-a345-996141749213' -d '{"store": "storeId-zzz", "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'
+   curl -X POST localhost:3000/order -H 'authorization: Bearer 123456' -d '{"diner": {"name":"joe"}, "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'
   ```
 
 - Verify and order JWT
 
   ```sh
-   curl -X POST localhost:3000/order/verify -d '{"order":"eyJpYXQiOjE3MTQwODUxMjIsImV4cCI6MTcxNDE3MTUyMiwiaXNzIjoiY3MzMjkuY2xpY2siLCJhbGciOiJSUzI1NiIsImtpZCI6IkxmcF83eUpTTnV1WG4zVkdRS1FTcjNnZTNBZmFaV2JFTi1GTEpmM3N4NTAifQ.eyJmcmFuY2hpc2UiOnsiaWQiOiJzdXBlcnBpZS1mZmZmLXp6enotYTM0NS05OTYxNDE5MmFiY2QiLCJuYW1lIjoiU3VwZXJQaWUifSwic3RvcmUiOiJzdG9yZUlkLXp6eiIsIm9yZGVyIjp7InBpenphcyI6WyJwZXAiLCJjaGVlc2UiXX19.sww0ieFQWy9RL3z2zx5t0LzkdEFXDH7sGivyAj5YpYD4zfUE3oEmb88SNqSo_v1ODzZm3FUNw40V6PhM9e54DWa80kNkTiXxBCkoOWeLfr_ag495fmk3wLf_LJR1tdnIe7sjrwVVwqoUL3WpLTVq7KoHAy2Gt3p6iesQS6hYHj47S1y26WVILZMEBm8SyHLS0MNTEm15G5-5XIcgTUkjswj6zOlpW2e6yw97F5hvAUoulTD3rB1PStDx845I8K2Yp3uxS0LZ3IoBh768jJKo5t2rQoCFRDyevcS2zBqUxXpvW1eoIb4NQlsP9TDNrSucYwkIE1KjQiMLRsgR-0xOc9Qo7h2PRd8Er8qmWX93urVVVFxrlo95HC19I2CuBNS2d7ACOgjHL_0tT0JzmHaMFtRZZjucudFcaBn-wdB2xjghCpDCpkkzTSqOTlmHTMgpTtvrhKcAAEozJrW9dI_z1E4HnzyEc9Lkouj0gwB1aiHuVXr0V45NIvZZua_A1u971kybQpgozpvJbS4zyR7It48-zUOCVmgG6hutCWLaytNTB1IXmr-EUldvsqt2TcUbTEhxjmBHealjEE9VgquiI_eEyyc_OKmzzRGqeRrPBLE0zAV6x2oijSMR_FfVc2Mdgun6cohFlmxJXpAbyVJJvsPti7Mj4LLZ8nlIKB9H3uI"}' -H 'Content-Type: application/json'
+   curl -X POST localhost:3000/order/verify -d '{"order":"eyJpYXQiOjE3MTUwMTI5NTYsImV4cCI6MTcxNTA5OTM1NiwiaXNzIjoiY3MzMjkuY2xpY2siLCJhbGciOiJSUzI1NiIsImtpZCI6IjE0bk5YT21jaWt6emlWZWNIcWE1UmMzOENPM1BVSmJuT2MzazJJdEtDZlEifQ.eyJmYWN0b3J5QXV0aCI6eyJpZCI6InN0dWRlbnQtbmV0aWQiLCJuYW1lIjoiU3R1ZGVudCBOYW1lIiwiY3JlYXRlZCI6IjIwMjQtMDYtMDFUMDA6MDA6MDBaIiwidmFsaWRVbnRpbCI6IjIwMjUtMTItMzFUMjM6NTk6NTlaIn0sImRpbmVyIjp7Im5hbWUiOiJqb2UifSwib3JkZXIiOnsicGl6emFzIjpbInBlcCIsImNoZWVzZSJdfX0.MTGE6-SvbDpxO6tr6f-57CDfnaqTdwryxjS3RFRaKu8pUemG43k15Nxx4-3SFMU0eULU_JMVrEq8fWJ82-0XV9UwLMxsZHc9R5xhdcvLg0fScAvg3SaC8ZVui1AqIt_yUw79-AABEIlaYx-2dhdJKhZQhM9QFSpRKF3DmYXkOpN6VGw8kMCo-kAra9W_H3kzD52vY_3QWiB6uO4V14p8U7Caz9cDPnEvRJKE3CjC0vJh-d5MF0O3z80ajcCx0GRIv8BIpy8ca1Xg-CyqGEx6YH2oqV9QFLNQfzj5Aba_AonTAAMDtQMpVwbrNizFDKXF75-9FcX1_PdtjfX_YUhEpZBQ-Y7peODb0dp29i-7HrWWhAUH_bvR_c9i8PXVw4YBBJV5tpKhN0aw-Fj4ZfV7ZoK_y5WWQvb-zvYoLp4mb5i6btLvS7AEdDCy7RqSyeatNYPK2AifHbJmaKpXiV-d5vMXSuHHcjTM4_BWPXX6sb_5R_nr5rKWH7_aJO2zNDtR5GXY5P-4SatlfjTCu5vaYIcCxCM7BajMQOg5R8iE4hrI4q0Qdw4vOIe5gM3yeAkaqlQiMFH8EnJkV1qdmApEO7P9QTG6rc7toG5LwJkjHWFfV7ETSWfCw0u9Jacwozbp1KrMcGdXvlLVyTM3i5f5OazqrZJNLsbBEX2euhTYh_w"}' -H 'Content-Type: application/json'
   ```
 
 - Get the JWKS for independent validation.
@@ -34,7 +34,14 @@ Factory service for making JWT pizzas
     ```sh
     npm install express node-jose
     ```
-1.  Generate a secret used to sign the JWT
+1.  Key pairs are expected to be in the working directory. You can generate the keys with the following.
+
+    ```sh
+    ssh-keygen -t rsa -b 4096 -m PEM -f jwt.key
+    openssl rsa -in jwt.key -pubout -outform PEM -out jwt.key.pub
+    ```
+
+1.  Generate a secret you can use to sign a JWT
     ```js
     const k = require('crypto').randomBytes(64).toString('hex');
     console.log(k);
