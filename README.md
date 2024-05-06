@@ -54,3 +54,26 @@ A JWT Pizza is a JWT signed with an asymmetric key.
 You can get the JWKS to verify JWTs using the `/.well-known/jwks.json` endpoint.
 
 https://www.npmjs.com/package/node-jose
+
+## Configuration
+
+You must have key files and a configuration file for the factory to work. Eventually this will be moved to the database.
+
+```js
+const config = {
+  apiKeys: {
+    42nkl3fdsf-agfdagnvcaklfdsa-fdsa9: {
+      id: 'student-netid',
+      name: 'Student Name',
+      created: '2024-06-01T00:00:00Z',
+      validUntil: '2025-12-31T23:59:59Z',
+    },
+  },
+  admin: {
+    email: 'admin@example.com',
+    password: '$2b$10$DF3Z64Z5WFVI6a2C3WuTveOJlIEnRc36J8v9WxhAqf7qlukfS2YRa',
+  },
+};
+
+export default config;
+```
