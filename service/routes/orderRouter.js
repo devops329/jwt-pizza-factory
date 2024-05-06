@@ -18,7 +18,7 @@ orderRouter.endpoints = [
     path: '/api/order/verify',
     requiresAuth: true,
     description: 'Verifies a pizza order',
-    example: `curl -X POST localhost:3000/order/verify -d '{"order":"JWT here"}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST localhost:3000/order/verify -d '{"jwt":"JWT here"}' -H 'Content-Type: application/json'`,
   },
 ];
 

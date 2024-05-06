@@ -16,7 +16,7 @@ const apiRouter = express.Router();
 app.use('/api', apiRouter);
 apiRouter.use('/order', orderRouter);
 
-apiRouter.use('docs', (_req, res) => {
+apiRouter.use('/docs', (_req, res) => {
   res.json({
     message: 'welcome to JWT Pizza Factory',
     endpoints: [...orderRouter.endpoints],
