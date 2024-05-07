@@ -7,7 +7,7 @@
       "name": "nodemon",
       "program": "index.js",
       "request": "launch",
-      "cwd": "${workspaceFolder}/service",
+      "cwd": "${workspaceFolder}/src",
       "restart": true,
       "runtimeExecutable": "nodemon",
       "args": ["4000"],

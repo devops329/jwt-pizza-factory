@@ -10,15 +10,15 @@ orderRouter.endpoints = [
     method: 'POST',
     path: '/api/order',
     requiresAuth: true,
-    description: 'Fulfill a pizza order',
-    example: `curl -X POST localhost:3000/order -H 'authorization: Bearer 123456' -d '{"diner": {"name":"joe"}, "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'`,
+    description: 'Create a JWT pizza',
+    example: `curl -X POST localhost:3000/api/order -H 'authorization: Bearer a42nkl3fdsfagfdagnvcaklfdsafdsa9' -d '{"diner": {"name":"joe"}, "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'`,
   },
   {
     method: 'POST',
     path: '/api/order/verify',
     requiresAuth: true,
     description: 'Verifies a pizza order',
-    example: `curl -X POST localhost:3000/order/verify -d '{"jwt":"JWT here"}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST localhost:3000/api/order/verify -d '{"jwt":"JWT here"}' -H 'Content-Type: application/json'`,
   },
 ];
 
@@ -32,6 +32,7 @@ const getAuthorizationInfo = (req, res, next) => {
   }
 };
 
+// create a JWT order
 orderRouter.post('/', getAuthorizationInfo, (req, res) => {
   const { diner, order } = req.body;
   if (!diner || !order) {
@@ -41,6 +42,7 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
   const nowSecs = Math.floor(Date.now() / 1000);
   const payload = { vendor: req.factoryAuth, diner, order };
   const options = {
+    alg: 'HS256',
     format: 'compact',
     fields: {
       iat: nowSecs,
@@ -48,6 +50,7 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
       iss: 'cs329.click',
     },
   };
+  console.log('payload:', JSON.stringify(payload));
   jose.JWS.createSign(options, keys.privateKey)
     .update(JSON.stringify(payload))
     .final()
@@ -59,6 +62,7 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
     });
 });
 
+// verify a JWT order
 orderRouter.post('/verify', (req, res) => {
   const jwt = req.body.jwt;
 
