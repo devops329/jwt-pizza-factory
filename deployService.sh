@@ -19,7 +19,7 @@ printf "\n----> Deploying $service to $hostname with $key\n"
 printf "\n----> Build the distribution package\n"
 rm -rf dist
 mkdir dist
-cp -r service/* dist
+cp -r src/* dist
 cp *.json dist
 
 # Step 2
@@ -37,7 +37,7 @@ scp -r -i "$key" dist/* ubuntu@$hostname:services/$service
 printf "\n----> Deploy the service on the target\n"
 ssh -i "$key" ubuntu@$hostname << ENDSSH
 bash -i
-cd src/${service}
+cd services/${service}
 npm install
 pm2 restart ${service}
 ENDSSH
