@@ -52,7 +52,7 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
   };
   console.log('payload:', JSON.stringify(payload));
   jose.JWS.createSign(options, keys.privateKey)
-    .update(JSON.stringify(payload))
+    .update(Buffer.from(JSON.stringify(payload), 'utf8'))
     .final()
     .then((jwt) => {
       res.json({ jwt });
