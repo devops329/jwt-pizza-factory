@@ -20,6 +20,13 @@ orderRouter.endpoints = [
     description: 'Verifies a pizza order',
     example: `curl -X POST localhost:3000/api/order/verify -d '{"jwt":"JWT here"}' -H 'Content-Type: application/json'`,
   },
+  {
+    method: 'GET',
+    path: '/.well-known/jwks.json',
+    requiresAuth: true,
+    description: 'Get the JSON Web Key Set (JWKS) for independent JWT verification',
+    example: `curl -X POST localhost:3000/.well-known/jwks.json`,
+  },
 ];
 
 const getAuthorizationInfo = (req, res, next) => {
