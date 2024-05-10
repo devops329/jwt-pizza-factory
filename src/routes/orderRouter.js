@@ -23,7 +23,7 @@ orderRouter.endpoints = [
   {
     method: 'GET',
     path: '/.well-known/jwks.json',
-    requiresAuth: true,
+    requiresAuth: false,
     description: 'Get the JSON Web Key Set (JWKS) for independent JWT verification',
     example: `curl -X POST localhost:3000/.well-known/jwks.json`,
   },
