@@ -11,7 +11,7 @@ supportRouter.endpoints = [
     description: 'Report a problem',
     example: `curl -X POST localhost:3000/api/admin/vendor/abcxyz/ticket/123`,
     response: {
-      jwt: 'JWT here',
+      message: 'ticket status',
     },
   },
 ];
