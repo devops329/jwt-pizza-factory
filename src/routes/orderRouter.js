@@ -63,7 +63,7 @@ const getAuthorizationInfo = async (req, res, next) => {
 
 const injectChaos = async (req, res, next) => {
   if (req.vendor.chaos && req.vendor.chaos.type !== 'none') {
-    const reportUrl = `${req.protocol}://${req.hostname}:${req.socket.localPort}/api/support/${req.apiKey}/report/${req.vendor.chaos.fixCode}`;
+    const reportUrl = `${req.protocol}://${req.hostname}/api/support/${req.apiKey}/report/${req.vendor.chaos.fixCode}`;
     switch (req.vendor.chaos.type) {
       case 'badjwt':
         res.json({

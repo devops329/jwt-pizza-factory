@@ -22,7 +22,7 @@ supportRouter.get('/:vendorToken/report/:fixCode', async (req, res) => {
   if (vendor && vendor.chaos) {
     if (req.params.fixCode === vendor.chaos.fixCode) {
       delete vendor.chaos.fixCode;
-      vendor.chaos.fixedDate = new Date().toISOString();
+      vendor.chaos.fixDate = new Date().toISOString();
       vendor.chaos.type = 'none';
       await DB.updateVendor(req.params.vendorToken, { chaos: vendor.chaos });
     }
