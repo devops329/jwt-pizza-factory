@@ -72,7 +72,7 @@ const injectChaos = async (req, res, next) => {
         });
         return;
       case 'throttle':
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 32000));
         req.reportUrl = reportUrl;
         next();
         return;
