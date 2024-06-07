@@ -37,7 +37,7 @@ class DB {
         }
       }
 
-      if (changes.chaos) {
+      if (changes.chaos && changes.chaos.type !== 'none') {
         vendor.chaos.fixCode = uuid().replace(/-/g, '');
         vendor.chaos.errorDate = new Date().toISOString();
       }
