@@ -10,19 +10,28 @@ adminRouter.endpoints = [
     path: '/api/vendor',
     requiresAuth: true,
     description: 'Add a new vendor',
-    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer a42nkl3fdsfagfdagnvcaklfdsafdsa9' -d '{"vendor": {"id":"byustudent27", "name":"cs student"}}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer abcxyz' -d '{"id":"byustudent27", "name":"cs student", "website":"pizza.byucsstudent.click"}' -H 'Content-Type: application/json'`,
     response: {
-      jwt: 'JWT here',
+      vendor: {
+        id: 'byustudent27',
+        name: 'cs student',
+        website: 'pizza.byucsstudent.click',
+      },
     },
   },
   {
     method: 'PUT',
-    path: '/api/vendor/:apiKey',
+    path: '/api/vendor/:vendorToken',
     requiresAuth: true,
-    description: 'Updates a vendor',
-    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer a42nkl3fdsfagfdagnvcaklfdsafdsa9' -d '{"vendor": {"id":"byustudent27", "name":"cs student", "chaos":"throttle"}}' -H 'Content-Type: application/json'`,
+    description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
+    example: `curl -X POST localhost:3000/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -d '{"chaos":{"type":"throttle"}}' -H 'Content-Type: application/json'`,
     response: {
-      jwt: 'JWT here',
+      vendor: {
+        id: 'byustudent27',
+        name: 'cs student',
+        website: 'pizza.byucsstudent.click',
+        chaos: 'fail',
+      },
     },
   },
 ];
@@ -32,15 +41,14 @@ const getAuthorizationInfo = async (req, res, next) => {
   if (await DB.verifyAuthToken(authToken)) {
     next();
   } else {
-    return res.status(401).json({ message: 'invalid authentication' });
+    res.status(401).json({ message: 'invalid authentication' });
   }
 };
 
 // create a new vendor
 adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
-  const body = req.body;
-  if (body.vendor && body.vendor.id && body.vendor.name) {
-    const vendor = body.vendor;
+  const vendor = req.body;
+  if (vendor.id && vendor.name && vendor.website) {
     const now = new Date();
     vendor.created = now.toISOString();
     now.setMonth(now.getMonth() + 6);
@@ -49,24 +57,20 @@ adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
 
     await DB.addVendor(apiKey, vendor);
 
-    res.json({ apiKey, vendor });
+    res.json({ apiKey, vendor: vendor });
   } else {
-    return res.status(400).json({ message: 'missing vendor' });
+    res.status(400).json({ message: 'Missing param. Must have id, name, website' });
   }
 });
 
 // update a vendor
-adminRouter.put('/vendor/:apiKey', getAuthorizationInfo, async (req, res) => {
-  const body = req.body;
-  if (body.vendor && body.vendor.id && body.vendor.name) {
-    const vendor = body.vendor;
-    if (await DB.updateVendor(req.params.apiKey, vendor)) {
-      res.json({ vendor });
-    } else {
-      res.status(404).json({ message: 'Unknown vendor' });
-    }
+adminRouter.put('/vendor/:vendorToken', getAuthorizationInfo, async (req, res) => {
+  const changes = req.body;
+  const vendor = await DB.updateVendor(req.params.vendorToken, changes);
+  if (vendor) {
+    res.json({ vendor: vendor });
   } else {
-    return res.status(400).json({ message: 'missing vendor' });
+    res.status(404).json({ message: 'Unknown vendor' });
   }
 });
 

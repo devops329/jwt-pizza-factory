@@ -66,8 +66,4 @@ export default config;
 
 Insert an administrative apiKey directly into the `auth` table of the database.
 
-All vendor tokens are inserted through the admin endpoints.
-
-```sh
-curl -s -X POST http://localhost:4000/api/admin/vendor -H "Content-Type:application/json" -H "authorization:Bearer 111111" -d '{"vendor":{"id":"student2334", "name":"Juan Gonzales"}}' | jq '.'
-```
+All vendors are inserted through the admin endpoints.

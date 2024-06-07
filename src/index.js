@@ -1,8 +1,9 @@
 import express from 'express';
 import { keys } from './keys.js';
 import orderRouter from './routes/orderRouter.js';
-import { readFile } from 'fs/promises';
 import adminRouter from './routes/adminRouter.js';
+import supportRouter from './routes/supportRouter.js';
+import { readFile } from 'fs/promises';
 const version = JSON.parse(await readFile(new URL('./version.json', import.meta.url)));
 
 const app = express();
@@ -19,12 +20,13 @@ const apiRouter = express.Router();
 app.use('/api', apiRouter);
 apiRouter.use('/order', orderRouter);
 apiRouter.use('/admin', adminRouter);
+apiRouter.use('/support', supportRouter);
 
 apiRouter.use('/docs', (_req, res) => {
   res.json({
     message: 'welcome to JWT Pizza Factory',
     version: version.version,
-    endpoints: [...orderRouter.endpoints, ...adminRouter.endpoints],
+    endpoints: [...orderRouter.endpoints, ...adminRouter.endpoints, ...supportRouter.endpoints],
   });
 });
 

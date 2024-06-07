@@ -1,6 +1,7 @@
 import mysql from 'mysql2/promise';
 import config from '../config.js';
 import dbModel from './dbModel.js';
+import { v4 as uuid } from 'uuid';
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
@@ -25,7 +26,30 @@ class DB {
     }
   }
 
-  async updateVendor(apiKey, vendor) {
+  async updateVendor(apiKey, changes) {
+    const vendor = await this.getVendor(apiKey);
+    if (vendor) {
+      for (const key in changes) {
+        if (changes[key] === null) {
+          delete vendor[key];
+        } else {
+          vendor[key] = changes[key];
+        }
+      }
+
+      if (changes.chaos) {
+        vendor.chaos.fixCode = uuid().replace(/-/g, '');
+        vendor.chaos.errorDate = new Date().toISOString();
+      }
+
+      if (await this.writeVendor(apiKey, vendor)) {
+        return vendor;
+      }
+    }
+    return null;
+  }
+
+  async writeVendor(apiKey, vendor) {
     const connection = await this.getConnection();
     try {
       const result = await this.query(connection, `UPDATE vendor SET body=? WHERE apiKey=?`, [JSON.stringify(vendor), apiKey]);
