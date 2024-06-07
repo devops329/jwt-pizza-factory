@@ -10,15 +10,8 @@ Factory service for making JWT pizzas
 
 You can get the documentation for all endpoints by making the following request.
 
-```sh
+````sh
 curl localhost:3000/api/docs
-```
-
-- Get the JWKS for independent validation. You can use this with a tool such as [JWT.io](https://jwt.io). Paste the JWT order into the interface and then supply the first key returned from the JWKS endpoint in the public key verify signature input.
-
-  ```sh
-  curl localhost:3000/.well-known/jwks.json
-  ```
 
 ## Development notes
 
@@ -28,7 +21,7 @@ curl localhost:3000/api/docs
     ```
 1.  Install Express and jsonwebtoken. Express gives us a wrapper for HTTP communication. Jsonwebtoken helps us generate and validate our JWTs.
     ```sh
-    npm install express node-jose
+    npm install express node-jose mysql2 uuid
     ```
 1.  Key pairs are expected to be in the working directory. You can generate the keys with the following.
 
@@ -53,23 +46,26 @@ https://www.npmjs.com/package/node-jose
 
 ## Configuration
 
-You must have key files and a configuration file for the factory to work. Eventually this will be moved to the database.
+You must have a database available for use by the factory. You configure the connection to the database with a config file.
 
 ```js
 const config = {
-  apiKeys: {
-    a42nkl3fdsfagfdagnvcaklfdsafdsa9: {
-      id: 'student-netid',
-      name: 'Student Name',
-      created: '2024-06-01T00:00:00Z',
-      validUntil: '2025-12-31T23:59:59Z',
+  db: {
+    connection: {
+      host: 'localhost',
+      user: 'dbuser',
+      password: 'toomanysecrets',
+      database: 'pizza_factory',
+      connectTimeout: 60000,
     },
-  },
-  admin: {
-    email: 'admin@example.com',
-    password: '$2b$10$DF3Z64Z5WFVI6a2C3WuTveOJlIEnRc36J8v9WxhAqf7qlukfS2YRa',
   },
 };
 
 export default config;
+````
+
+Insert an administrative apiKey directly into the `auth` table of the database. All vendor tokens are inserted through the admin endpoints.
+
+```sh
+curl -s -X POST http://localhost:4000/api/admin/vendor -H "Content-Type:application/json" -H "authorization:Bearer 111111" -d '{"vendor":{"id":"student2334", "name":"Juan Gonzales"}}' | jq '.'
 ```

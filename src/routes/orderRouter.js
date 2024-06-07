@@ -1,7 +1,7 @@
 import express from 'express';
 import jose from 'node-jose';
 import { keys } from '../keys.js';
-import config from '../config.js';
+import DB from '../database/database.js';
 
 const orderRouter = express.Router();
 
@@ -50,10 +50,11 @@ orderRouter.endpoints = [
   },
 ];
 
-const getAuthorizationInfo = (req, res, next) => {
-  const factoryAuth = config.apiKeys[(req.headers.authorization || '').replace(/bearer /i, '')];
-  if (factoryAuth) {
-    req.factoryAuth = factoryAuth;
+const getAuthorizationInfo = async (req, res, next) => {
+  const apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
+  const vendor = await DB.getVendor(apiKey);
+  if (vendor) {
+    req.vendor = vendor;
     next();
   } else {
     return res.status(401).json({ message: 'invalid authentication' });
@@ -68,7 +69,7 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
   }
 
   const nowSecs = Math.floor(Date.now() / 1000);
-  const payload = { vendor: req.factoryAuth, diner, order };
+  const payload = { vendor: req.vendor, diner, order };
   const options = {
     alg: 'HS256',
     format: 'compact',
@@ -78,7 +79,6 @@ orderRouter.post('/', getAuthorizationInfo, (req, res) => {
       iss: 'cs329.click',
     },
   };
-  console.log('payload:', JSON.stringify(payload));
   jose.JWS.createSign(options, keys.privateKey)
     .update(Buffer.from(JSON.stringify(payload), 'utf8'))
     .final()
