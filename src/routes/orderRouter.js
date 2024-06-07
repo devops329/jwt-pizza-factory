@@ -91,7 +91,7 @@ orderRouter.post('/', getAuthorizationInfo, injectChaos, (req, res) => {
   }
 
   const nowSecs = Math.floor(Date.now() / 1000);
-  const payload = { vendor: req.vendor, diner, order };
+  const payload = { vendor: { id: req.vendor.id, name: req.vendor.name }, diner, order };
   const options = {
     alg: 'HS256',
     format: 'compact',
