@@ -15,6 +15,16 @@ adminRouter.endpoints = [
       jwt: 'JWT here',
     },
   },
+  {
+    method: 'PUT',
+    path: '/api/vendor/:apiKey',
+    requiresAuth: true,
+    description: 'Updates a vendor',
+    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer a42nkl3fdsfagfdagnvcaklfdsafdsa9' -d '{"vendor": {"id":"byustudent27", "name":"cs student", "chaos":"throttle"}}' -H 'Content-Type: application/json'`,
+    response: {
+      jwt: 'JWT here',
+    },
+  },
 ];
 
 const getAuthorizationInfo = async (req, res, next) => {
@@ -28,16 +38,36 @@ const getAuthorizationInfo = async (req, res, next) => {
 
 // create a new vendor
 adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
-  const vendor = req.body;
-  const now = new Date();
-  vendor.created = now.toISOString();
-  now.setMonth(now.getMonth() + 6);
-  vendor.validUntil = now.toISOString();
-  const apiKey = uuid().replace(/-/g, '');
+  const body = req.body;
+  if (body.vendor && body.vendor.id && body.vendor.name) {
+    const vendor = body.vendor;
+    const now = new Date();
+    vendor.created = now.toISOString();
+    now.setMonth(now.getMonth() + 6);
+    vendor.validUntil = now.toISOString();
+    const apiKey = uuid().replace(/-/g, '');
 
-  await DB.addVendor(apiKey, vendor);
+    await DB.addVendor(apiKey, vendor);
 
-  res.json({ apiKey, vendor });
+    res.json({ apiKey, vendor });
+  } else {
+    return res.status(400).json({ message: 'missing vendor' });
+  }
+});
+
+// update a vendor
+adminRouter.put('/vendor/:apiKey', getAuthorizationInfo, async (req, res) => {
+  const body = req.body;
+  if (body.vendor && body.vendor.id && body.vendor.name) {
+    const vendor = body.vendor;
+    if (await DB.updateVendor(req.params.apiKey, vendor)) {
+      res.json({ vendor });
+    } else {
+      res.status(404).json({ message: 'Unknown vendor' });
+    }
+  } else {
+    return res.status(400).json({ message: 'missing vendor' });
+  }
 });
 
 export default adminRouter;

@@ -4,7 +4,7 @@ const tableCreateStatements = [
   )`,
 
   `CREATE TABLE IF NOT EXISTS vendor (
-    apiKey VARCHAR(255) NOT NULL,
+    apiKey VARCHAR(255) PRIMARY KEY,
     body TEXT NOT NULL,
     INDEX(apiKey)
   )`,

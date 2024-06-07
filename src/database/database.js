@@ -25,6 +25,16 @@ class DB {
     }
   }
 
+  async updateVendor(apiKey, vendor) {
+    const connection = await this.getConnection();
+    try {
+      const result = await this.query(connection, `UPDATE vendor SET body=? WHERE apiKey=?`, [JSON.stringify(vendor), apiKey]);
+      return result.affectedRows > 0;
+    } finally {
+      connection.end();
+    }
+  }
+
   async getVendor(apiKey) {
     const connection = await this.getConnection();
     try {
