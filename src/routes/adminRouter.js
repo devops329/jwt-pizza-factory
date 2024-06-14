@@ -10,12 +10,15 @@ adminRouter.endpoints = [
     path: '/api/vendor',
     requiresAuth: true,
     description: 'Add a new vendor',
-    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer abcxyz' -d '{"id":"byustudent27", "name":"cs student", "website":"pizza.byucsstudent.click"}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student", "website":"pizza.byucsstudent.click"}'`,
     response: {
+      apiKey: 'abcxyz',
       vendor: {
         id: 'byustudent27',
         name: 'cs student',
         website: 'pizza.byucsstudent.click',
+        created: '2024-06-14T16:43:23.754Z',
+        validUntil: '2024-12-14T16:43:23.754Z',
       },
     },
   },
@@ -24,7 +27,7 @@ adminRouter.endpoints = [
     path: '/api/vendor/:vendorToken',
     requiresAuth: true,
     description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
-    example: `curl -X POST localhost:3000/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -d '{"chaos":{"type":"throttle"}}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST localhost:3000/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle"}}'`,
     response: {
       vendor: {
         id: 'byustudent27',
