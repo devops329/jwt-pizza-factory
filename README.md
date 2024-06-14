@@ -1,4 +1,4 @@
-# JWT Pizza Factory
+# 🍕 JWT Pizza Factory
 
 Factory service for making JWT pizzas
 
