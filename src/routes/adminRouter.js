@@ -10,13 +10,12 @@ adminRouter.endpoints = [
     path: '/api/vendor',
     requiresAuth: true,
     description: 'Add a new vendor',
-    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student", "website":"pizza.byucsstudent.click"}'`,
+    example: `curl -X POST localhost:3000/api/admin/vendor -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student"}'`,
     response: {
       apiKey: 'abcxyz',
       vendor: {
         id: 'byustudent27',
         name: 'cs student',
-        website: 'pizza.byucsstudent.click',
         created: '2024-06-14T16:43:23.754Z',
         validUntil: '2024-12-14T16:43:23.754Z',
       },
@@ -51,7 +50,7 @@ const getAuthorizationInfo = async (req, res, next) => {
 // create a new vendor
 adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
   const vendor = req.body;
-  if (vendor.id && vendor.name && vendor.website) {
+  if (vendor.id && vendor.name) {
     const now = new Date();
     vendor.created = now.toISOString();
     now.setMonth(now.getMonth() + 6);
@@ -62,7 +61,7 @@ adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
 
     res.json({ apiKey, vendor: vendor });
   } else {
-    res.status(400).json({ message: 'Missing param. Must have id, name, website' });
+    res.status(400).json({ message: 'Missing param. Must have id and name' });
   }
 });
 
