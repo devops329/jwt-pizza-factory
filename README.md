@@ -10,8 +10,25 @@ Factory service for making JWT pizzas
 
 You can get the documentation for all endpoints by making the following request.
 
-````sh
+```sh
 curl localhost:3000/api/docs
+```
+
+## Chaos flow
+
+```mermaid
+sequenceDiagram
+    participant Learner
+    participant Grader
+    participant Factory
+    Learner->>Grader: Ready for grading
+    Grader->>Factory:Start chaos  (grader-resolution-url)
+    Learner->>Factory: make pizza
+    Factory-->>Learner: Error (grader-resolution-url?apiKey=abcxyz&fixCode=123)
+    Learner->>Grader: grader-resolution-url?apiKey=abcxyz&fixCode=123
+    Grader->>Factory:Stop chaos: /api/support/abcxyz/report/123
+    Grader-->>Learner: Grade
+```
 
 ## Development notes
 
@@ -62,7 +79,7 @@ const config = {
 };
 
 export default config;
-````
+```
 
 Insert an administrative apiKey directly into the `auth` table of the database.
 
