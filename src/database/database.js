@@ -59,10 +59,23 @@ class DB {
     }
   }
 
-  async getVendor(apiKey) {
+  async getVendorByApiKey(apiKey) {
     const connection = await this.getConnection();
     try {
       const vendorResult = await this.query(connection, `SELECT body FROM vendor WHERE apiKey=?`, [apiKey]);
+      if (vendorResult.length === 0) {
+        return null;
+      }
+      return JSON.parse(vendorResult[0].body);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async getVendorByNetId(netId) {
+    const connection = await this.getConnection();
+    try {
+      const vendorResult = await this.query(connection, `SELECT body FROM vendor WHERE netId=?`, [netId]);
       if (vendorResult.length === 0) {
         return null;
       }

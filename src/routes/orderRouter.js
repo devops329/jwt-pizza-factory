@@ -52,7 +52,7 @@ orderRouter.endpoints = [
 
 const getAuthorizationInfo = async (req, res, next) => {
   req.apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
-  const vendor = await DB.getVendor(req.apiKey);
+  const vendor = await DB.getVendorByApiKey(req.apiKey);
   if (vendor) {
     req.vendor = vendor;
     next();

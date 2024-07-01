@@ -18,7 +18,7 @@ supportRouter.endpoints = [
 
 // Report a problem
 supportRouter.get('/:vendorToken/report/:fixCode', async (req, res) => {
-  const vendor = await DB.getVendor(req.params.vendorToken);
+  const vendor = await DB.getVendorByApiKey(req.params.vendorToken);
   if (vendor && vendor.chaos) {
     if (req.params.fixCode === vendor.chaos.fixCode) {
       delete vendor.chaos.fixCode;
