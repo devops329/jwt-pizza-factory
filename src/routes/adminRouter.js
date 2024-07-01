@@ -51,9 +51,9 @@ const getAuthorizationInfo = async (req, res, next) => {
 adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
   const vendor = req.body;
   if (vendor.id) {
-    const vendor = await DB.getVendorByNetId(vendor.id);
-    if (vendor) {
-      return res.json({ apiKey: vendor.apiKey, vendor: vendor });
+    const existingApiKey = await DB.getApiKeyByNetId(vendor.id);
+    if (existingApiKey) {
+      return res.json({ apiKey: existingApiKey, vendor: vendor });
     } else if (vendor.name) {
       const now = new Date();
       vendor.created = now.toISOString();
@@ -61,7 +61,7 @@ adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
       vendor.validUntil = now.toISOString();
       const apiKey = uuid().replace(/-/g, '');
 
-      await DB.addVendor(apiKey, vendor);
+      await DB.addVendor(apiKey, vendor.id, vendor);
 
       res.json({ apiKey, vendor: vendor });
     }

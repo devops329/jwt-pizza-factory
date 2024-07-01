@@ -17,17 +17,17 @@ class DB {
     }
   }
 
-  async addVendor(apiKey, vendor) {
+  async addVendor(apiKey, netId, vendor) {
     const connection = await this.getConnection();
     try {
-      await this.query(connection, `INSERT INTO vendor (apiKey, body) VALUES (?, ?)`, [apiKey, JSON.stringify(vendor)]);
+      await this.query(connection, `INSERT INTO vendor (apiKey, netId, body) VALUES (?, ?, ?)`, [apiKey, netId, JSON.stringify(vendor)]);
     } finally {
       connection.end();
     }
   }
 
   async updateVendor(apiKey, changes) {
-    const vendor = await this.getVendor(apiKey);
+    const vendor = await this.getVendorByApiKey(apiKey);
     if (vendor) {
       for (const key in changes) {
         if (changes[key] === null) {
@@ -72,14 +72,14 @@ class DB {
     }
   }
 
-  async getVendorByNetId(netId) {
+  async getApiKeyByNetId(netId) {
     const connection = await this.getConnection();
     try {
-      const vendorResult = await this.query(connection, `SELECT body FROM vendor WHERE netId=?`, [netId]);
+      const vendorResult = await this.query(connection, `SELECT apiKey FROM vendor WHERE netId=?`, [netId]);
       if (vendorResult.length === 0) {
         return null;
       }
-      return JSON.parse(vendorResult[0].body);
+      return vendorResult[0].apiKey;
     } finally {
       connection.end();
     }
