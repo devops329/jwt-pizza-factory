@@ -11,7 +11,7 @@ orderRouter.endpoints = [
     path: '/api/order',
     requiresAuth: true,
     description: 'Create a JWT pizza',
-    example: `curl -X POST localhost:3000/api/order -H 'authorization: Bearer a42nkl3fdsfagfdagnvcaklfdsafdsa9' -d '{"diner": {"name":"joe"}, "order": {"pizzas":["pep", "cheese"]}}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST $host/api/order -H 'authorization: Bearer xyz' -d '{"diner":{"id":719,"name":"j","email":"j@jwt.com"},"order":{"items":[{"menuId":1,"description":"Veggie","price":0.0038}],"storeId":"5","franchiseId":4,"id":278}}' -H 'Content-Type: application/json'`,
     response: {
       jwt: 'JWT here',
     },
@@ -21,7 +21,7 @@ orderRouter.endpoints = [
     path: '/api/order/verify',
     requiresAuth: true,
     description: 'Verifies a pizza order',
-    example: `curl -X POST localhost:3000/api/order/verify -d '{"jwt":"JWT here"}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST $host/api/order/verify -d '{"jwt":"JWT here"}' -H 'Content-Type: application/json'`,
     response: {
       message: 'valid',
       payload: {
@@ -36,7 +36,7 @@ orderRouter.endpoints = [
     path: '/.well-known/jwks.json',
     requiresAuth: false,
     description: 'Get the JSON Web Key Set (JWKS) for independent JWT verification',
-    example: `curl -X POST localhost:3000/.well-known/jwks.json`,
+    example: `curl -X POST $host/.well-known/jwks.json`,
     response: {
       keys: [
         {
@@ -88,6 +88,11 @@ orderRouter.post('/', getAuthorizationInfo, injectChaos, (req, res) => {
   const { diner, order } = req.body;
   if (!diner || !order) {
     return res.status(400).json({ message: 'Missing required parameters' });
+  } else if (order.items.length === 0 || order.items.length > 20) {
+    setTimeout(() => {
+      res.status(503).json({ message: 'Unable to satisfy pizza order. The oven is full.' });
+    }, 10000);
+    return;
   }
 
   const nowSecs = Math.floor(Date.now() / 1000);

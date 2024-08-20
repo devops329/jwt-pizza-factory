@@ -11,7 +11,7 @@ Factory service for making JWT pizzas
 You can get the documentation for all endpoints by making the following request.
 
 ```sh
-curl localhost:3000/api/docs
+curl $host/api/docs
 ```
 
 ## Chaos flow
