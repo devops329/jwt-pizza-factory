@@ -3,6 +3,7 @@ import { keys } from './keys.js';
 import orderRouter from './routes/orderRouter.js';
 import adminRouter from './routes/adminRouter.js';
 import supportRouter from './routes/supportRouter.js';
+import logRouter from './routes/logRouter.js';
 import { readFile } from 'fs/promises';
 const version = JSON.parse(await readFile(new URL('./version.json', import.meta.url)));
 
@@ -21,6 +22,7 @@ app.use('/api', apiRouter);
 apiRouter.use('/order', orderRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/support', supportRouter);
+apiRouter.use('/log', logRouter);
 
 apiRouter.use('/docs', (_req, res) => {
   res.json({
