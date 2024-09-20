@@ -16,7 +16,7 @@ logRouter.endpoints = [
   },
   {
     method: 'PUT',
-    path: '/api/log/update',
+    path: '/api/log',
     requiresAuth: true,
     description: 'Update the log response',
     example: `curl -X PUT $host/api/log -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"message": "Updated Log Response"}'`,
@@ -33,7 +33,7 @@ const getAuthorizationInfo = async (req, res, next) => {
   }
 };
 
-logRouter.put('/update', getAuthorizationInfo, (req, res) => {
+logRouter.put('/', getAuthorizationInfo, (req, res) => {
   const resMessage = req.body.message;
   logRes = resMessage;
   res.send(logRes);
