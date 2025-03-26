@@ -26,7 +26,7 @@ adminRouter.endpoints = [
     path: '/api/vendor/:vendorToken',
     requiresAuth: true,
     description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
-    example: `curl -X POST $host/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle"}}'`,
+    example: `curl -X POST $host/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle", "resolveUrl":"http://resolve.me"}}'`,
     response: {
       vendor: {
         id: 'byustudent27',

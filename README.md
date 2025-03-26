@@ -16,13 +16,15 @@ curl $host/api/docs
 
 ## Chaos flow
 
+The pizza factory supports injecting chaos in to the application as throttled requests, bad JWT tokens, or pizza creation failure.
+
 ```mermaid
 sequenceDiagram
     participant Learner
     participant Grader
     participant Factory
     Learner->>Grader: Ready for grading
-    Grader->>Factory:Start chaos  (grader-resolution-url)
+    Grader->>Factory:Start chaos:  [PUT] /api/vendor/:apiKey ({"chaos":{"type":"fail", "resolveUrl":"grader-resolution-url"}})
     Learner->>Factory: make pizza
     Factory-->>Learner: Error (grader-resolution-url?apiKey=abcxyz&fixCode=123)
     Learner->>Grader: grader-resolution-url?apiKey=abcxyz&fixCode=123
@@ -36,7 +38,7 @@ sequenceDiagram
     ```sh
     npm init
     ```
-1.  Install Express and jsonwebtoken. Express gives us a wrapper for HTTP communication. Jsonwebtoken helps us generate and validate our JWTs.
+1.  Install dependencies. Express gives us a wrapper for HTTP communication. node-jose helps us generate and validate our JWTs. UUID generates unique tokens for apiKeys. MySQL provides database support.
     ```sh
     npm install express node-jose mysql2 uuid
     ```
