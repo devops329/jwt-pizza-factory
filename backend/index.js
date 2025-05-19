@@ -8,6 +8,8 @@ import { readFile } from 'fs/promises';
 const version = JSON.parse(await readFile(new URL('./version.json', import.meta.url)));
 
 const app = express();
+
+app.use(express.static('public'));
 app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');

@@ -4,12 +4,13 @@
     {
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
-      "name": "nodemon",
+      "name": "debug",
       "program": "index.js",
       "request": "launch",
-      "cwd": "${workspaceFolder}/src",
+      "cwd": "${workspaceFolder}/backend",
       "restart": true,
-      "runtimeExecutable": "nodemon",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--watch"],
       "args": ["4000"],
       "skipFiles": ["<node_internals>/**"],
       "type": "node"

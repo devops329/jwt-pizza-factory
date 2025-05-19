@@ -32,28 +32,29 @@ sequenceDiagram
     Grader-->>Learner: Grade
 ```
 
-## Development notes
+## Backend Development notes
 
-1.  Initialize node.js
-    ```sh
-    npm init
-    ```
-1.  Install dependencies. Express gives us a wrapper for HTTP communication. node-jose helps us generate and validate our JWTs. UUID generates unique tokens for apiKeys. MySQL provides database support.
-    ```sh
-    npm install express node-jose mysql2 uuid
-    ```
-1.  Key pairs are expected to be in the working directory. You can generate the keys with the following.
+1. Create project
+   ```sh
+   mkdir backend && cd backend
+   npm init
+   ```
+1. Install dependencies. Express gives us a wrapper for HTTP communication. node-jose helps us generate and validate our JWTs. UUID generates unique tokens for apiKeys. MySQL provides database support.
+   ```sh
+   npm install express node-jose mysql2 uuid
+   ```
+1. Key pairs are expected to be in the working directory. You can generate the keys with the following.
 
-    ```sh
-    ssh-keygen -t rsa -b 4096 -m PEM -f jwt.key
-    openssl rsa -in jwt.key -pubout -outform PEM -out jwt.key.pub
-    ```
+   ```sh
+   ssh-keygen -t rsa -b 4096 -m PEM -f jwt.key
+   openssl rsa -in jwt.key -pubout -outform PEM -out jwt.key.pub
+   ```
 
-1.  Generate a secret you can use to sign a JWT
-    ```js
-    const k = require('crypto').randomBytes(64).toString('hex');
-    console.log(k);
-    ```
+1. Generate a secret you can use to sign a JWT
+   ```js
+   const k = require('crypto').randomBytes(64).toString('hex');
+   console.log(k);
+   ```
 
 ## JWT
 

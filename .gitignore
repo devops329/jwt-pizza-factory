@@ -3,3 +3,4 @@ config.js
 jwt.key
 jwt.key.pub
 dist
+backend/public
