@@ -84,6 +84,23 @@ const config = {
 export default config;
 ```
 
-Insert an administrative apiKey directly into the `auth` table of the database.
+## Administrative auth token
+
+The auth table must contain an authorization key that allows administrative requests. When the database is created for the first time, it will automatically create the token. You can manually read the value out of the database, or add other tokens.
+
+```js
+if (!dbExists) {
+  const adminAuth = require('crypto').randomBytes(64).toString('hex');
+  await connection.query(`INSERT INTO auth (token) VALUES (?)`, [adminAuth]);
+}
+```
 
 All vendors are inserted through the admin endpoints.
+
+## Vendor access
+
+When an admin registers a vendor they are assigned an apiKey. They can make order requests using that key. For example, the following orders a pizza using the apiKey `xyz`.
+
+```sh
+curl -X POST $host/api/order -H 'authorization: Bearer xyz' -d '{"diner":{"id":719,"name":"j","email":"j@jwt.com"},"order":{"items":[{"menuId":1,"description":"Veggie","price":0.0038}],"storeId":"5","franchiseId":4,"id":278}}' -H 'Content-Type: application/json'
+```

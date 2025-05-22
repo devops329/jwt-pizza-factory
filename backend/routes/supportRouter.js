@@ -1,5 +1,5 @@
-import express from 'express';
-import DB from '../database/database.js';
+const express = require('express');
+const DB = require('../database/database.js');
 
 const supportRouter = express.Router();
 
@@ -32,4 +32,4 @@ supportRouter.get('/:vendorToken/report/:fixCode', async (req, res) => {
   }
 });
 
-export default supportRouter;
+module.exports = supportRouter;

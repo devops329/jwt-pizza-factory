@@ -1,7 +1,7 @@
-import express from 'express';
-import jose from 'node-jose';
-import { keys } from '../keys.js';
-import DB from '../database/database.js';
+const express = require('express');
+const jose = require('node-jose');
+const { keys } = require('../keys');
+const DB = require('../database/database');
 
 const orderRouter = express.Router();
 
@@ -136,4 +136,4 @@ orderRouter.post('/verify', (req, res) => {
   }
 });
 
-export default orderRouter;
+module.exports = orderRouter;

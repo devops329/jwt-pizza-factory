@@ -11,4 +11,4 @@ const tableCreateStatements = [
   )`,
 ];
 
-export default { tableCreateStatements };
+module.exports = { tableCreateStatements };

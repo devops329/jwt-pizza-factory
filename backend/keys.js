@@ -1,9 +1,9 @@
-import fs from 'fs';
-import jose from 'node-jose';
-
+const fs = require('fs');
+const jose = require('node-jose');
+const path = require('path');
 const keys = { privateKey: undefined, jwks: undefined };
 
-const privateKeyPath = new URL('jwt.key', import.meta.url);
+const privateKeyPath = path.resolve(__dirname, 'jwt.key');
 const privatePemKey = fs.readFileSync(privateKeyPath, 'utf8');
 jose.JWK.asKey(privatePemKey, 'pem')
   .then((jwk) => {
@@ -13,7 +13,7 @@ jose.JWK.asKey(privatePemKey, 'pem')
     console.error('Error importing JWK:', error);
   });
 
-const publicKeyPath = new URL('jwt.key.pub', import.meta.url);
+const publicKeyPath = path.resolve(__dirname, 'jwt.key.pub');
 const publicKey = fs.readFileSync(publicKeyPath, 'utf8');
 jose.JWK.asKey(publicKey, 'pem')
   .then((jwk) => {
@@ -23,4 +23,4 @@ jose.JWK.asKey(publicKey, 'pem')
     console.error('Error importing JWK:', error);
   });
 
-export { keys };
+module.exports.keys = keys;

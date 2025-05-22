@@ -1,7 +1,7 @@
-import mysql from 'mysql2/promise';
-import config from '../config.js';
-import dbModel from './dbModel.js';
-import { v4 as uuid } from 'uuid';
+const mysql = require('mysql2/promise');
+const config = require('../config');
+const dbModel = require('./dbModel');
+const { v4: uuid } = require('uuid');
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
@@ -114,11 +114,19 @@ class DB {
     try {
       const connection = await this._getConnection(false);
       try {
+        const dbExists = await this.checkDatabaseExists(connection);
+        console.log(dbExists ? 'Database exists' : 'Database does not exist, creating it');
+
         await connection.query(`CREATE DATABASE IF NOT EXISTS ${config.db.connection.database}`);
         await connection.query(`USE ${config.db.connection.database}`);
 
         for (const statement of dbModel.tableCreateStatements) {
           await connection.query(statement);
+        }
+
+        if (!dbExists) {
+          const adminAuth = require('crypto').randomBytes(64).toString('hex');
+          await connection.query(`INSERT INTO auth (token) VALUES (?)`, [adminAuth]);
         }
       } finally {
         connection.end();
@@ -127,7 +135,32 @@ class DB {
       console.error(JSON.stringify({ message: 'Error initializing database', exception: err.message, connection: config.db.connection }));
     }
   }
+
+  async checkDatabaseExists(connection) {
+    const [rows] = await connection.execute(`SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?`, [config.db.connection.database]);
+    return rows.length > 0;
+  }
+
+  async createAdminAuthToken() {
+    const connection = await this.getConnection();
+    try {
+      const token = require('crypto').randomBytes(64).toString('hex');
+      await connection.query(`INSERT INTO auth (token) VALUES (?)`, [token]);
+      return token;
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteAdminAuthToken(token) {
+    const connection = await this.getConnection();
+    try {
+      await connection.query(`DELETE FROM auth WHERE token=?`, [token]);
+    } finally {
+      connection.end();
+    }
+  }
 }
 
 const db = new DB();
-export default db;
+module.exports = db;

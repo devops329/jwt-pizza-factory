@@ -1,5 +1,5 @@
-import express from 'express';
-import DB from '../database/database.js';
+const express = require('express');
+const DB = require('../database/database.js');
 
 const logRouter = express.Router();
 
@@ -44,4 +44,4 @@ logRouter.post('/', (req, res) => {
   res.send(logRes);
 });
 
-export default logRouter;
+module.exports = logRouter;

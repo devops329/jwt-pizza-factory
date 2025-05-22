@@ -1,13 +1,13 @@
-import express from 'express';
-import DB from '../database/database.js';
-import { v4 as uuid } from 'uuid';
+const express = require('express');
+const DB = require('../database/database');
+const { v4: uuid } = require('uuid');
 
 const adminRouter = express.Router();
 
 adminRouter.endpoints = [
   {
     method: 'POST',
-    path: '/api/vendor',
+    path: '/api/admin/vendor',
     requiresAuth: true,
     description: 'Add a new vendor',
     example: `curl -X POST $host/api/admin/vendor -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student"}'`,
@@ -23,7 +23,7 @@ adminRouter.endpoints = [
   },
   {
     method: 'PUT',
-    path: '/api/vendor/:vendorToken',
+    path: '/api/admin/vendor/:vendorToken',
     requiresAuth: true,
     description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
     example: `curl -X POST $host/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle", "resolveUrl":"http://resolve.me"}}'`,
@@ -80,4 +80,4 @@ adminRouter.put('/vendor/:vendorToken', getAuthorizationInfo, async (req, res) =
   }
 });
 
-export default adminRouter;
+module.exports = adminRouter;

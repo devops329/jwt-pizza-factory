@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Factory service for making NFT pizzas",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "run": "node index.js"
+    "run": "node index.js",
+    "test": "jest"
   },
   "license": "MIT",
   "dependencies": {
@@ -13,5 +13,9 @@
     "mysql2": "^3.10.0",
     "node-jose": "^2.2.0",
     "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.1.1"
   }
 }
