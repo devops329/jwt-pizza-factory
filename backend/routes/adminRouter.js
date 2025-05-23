@@ -10,7 +10,7 @@ adminRouter.endpoints = [
     path: '/api/admin/vendor',
     requiresAuth: true,
     description: 'Add a new vendor',
-    example: `curl -X POST $host/api/admin/vendor -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student"}'`,
+    example: `curl -X POST $host/api/admin/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student"}'`,
     response: {
       apiKey: 'abcxyz',
       vendor: {
@@ -26,7 +26,7 @@ adminRouter.endpoints = [
     path: '/api/admin/vendor/:vendorToken',
     requiresAuth: true,
     description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
-    example: `curl -X POST $host/api/admin/vendor/111111 -H 'authorization: Bearer abcxyz' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle", "resolveUrl":"http://resolve.me"}}'`,
+    example: `curl -X POST $host/api/admin/vendor/111111 -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle", "resolveUrl":"http://resolve.me"}}'`,
     response: {
       vendor: {
         id: 'byustudent27',
@@ -38,7 +38,7 @@ adminRouter.endpoints = [
   },
 ];
 
-const getAuthorizationInfo = async (req, res, next) => {
+const authorizeAdmin = async (req, res, next) => {
   const authToken = (req.headers.authorization || '').replace(/bearer /i, '');
   if (await DB.verifyAuthToken(authToken)) {
     next();
@@ -48,7 +48,7 @@ const getAuthorizationInfo = async (req, res, next) => {
 };
 
 // create a new vendor
-adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
+adminRouter.post('/vendor', authorizeAdmin, async (req, res) => {
   const vendor = req.body;
   if (vendor.id) {
     const existingApiKey = await DB.getApiKeyByNetId(vendor.id);
@@ -70,7 +70,7 @@ adminRouter.post('/vendor', getAuthorizationInfo, async (req, res) => {
 });
 
 // update a vendor
-adminRouter.put('/vendor/:vendorToken', getAuthorizationInfo, async (req, res) => {
+adminRouter.put('/vendor/:vendorToken', authorizeAdmin, async (req, res) => {
   const changes = req.body;
   const vendor = await DB.updateVendor(req.params.vendorToken, changes);
   if (vendor) {

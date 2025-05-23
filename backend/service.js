@@ -3,7 +3,6 @@ const { keys } = require('./keys');
 const orderRouter = require('./routes/orderRouter');
 const adminRouter = require('./routes/adminRouter');
 const supportRouter = require('./routes/supportRouter');
-const logRouter = require('./routes/logRouter');
 const fs = require('fs');
 const path = require('path');
 
@@ -26,7 +25,6 @@ app.use('/api', apiRouter);
 apiRouter.use('/order', orderRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/support', supportRouter);
-apiRouter.use('/log', logRouter);
 
 apiRouter.use('/docs', (_req, res) => {
   res.json({
