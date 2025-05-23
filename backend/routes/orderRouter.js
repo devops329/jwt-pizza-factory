@@ -1,8 +1,8 @@
 const express = require('express');
 const jose = require('node-jose');
 const { keys } = require('../keys');
-const DB = require('../database/database');
 
+const { vendorInfo } = require('./routerUtil');
 const orderRouter = express.Router();
 
 orderRouter.endpoints = [
@@ -77,19 +77,8 @@ orderRouter.settings = {
   chaos: defaultChaos,
 };
 
-const getVendorInfo = async (req, res, next) => {
-  req.apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
-  const vendor = await DB.getVendorByApiKey(req.apiKey);
-  if (vendor) {
-    req.vendor = vendor;
-    next();
-  } else {
-    return res.status(401).json({ message: 'invalid authentication' });
-  }
-};
-
 // create a JWT order
-orderRouter.post('/', getVendorInfo, orderRouter.settings.chaos, (req, res) => {
+orderRouter.post('/', vendorInfo, orderRouter.settings.chaos, (req, res) => {
   const { diner, order } = req.body;
   if (!diner || !order) {
     return res.status(400).json({ message: 'Missing required parameters' });
