@@ -55,14 +55,14 @@ test('update vendor name', async () => {
 });
 
 test('update vendor chaos', async () => {
-  const chaosReq = { type: 'throttle', resolveUrl: 'http://resolve.me' };
+  const chaosReq = { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } };
   const [, apiKey] = await createVendor();
 
-  const [status, chaos] = await injectChaos(apiKey, chaosReq);
+  const [status, vendor] = await updateVendor(apiKey, chaosReq);
   expect(status).toBe(200);
-  expect(chaos).toMatchObject(chaosReq);
-  expect(chaos.fixCode).toBeDefined();
-  expect(chaos.errorDate).toBeDefined();
+  expect(vendor.chaos).toMatchObject(chaosReq.chaos);
+  expect(vendor.chaos.fixCode).toBeDefined();
+  expect(vendor.chaos.errorDate).toBeDefined();
 });
 
 test('update vendor unknown', async () => {
@@ -77,9 +77,9 @@ async function createVendor() {
   return [testUser.id, addVendorRes.body.apiKey, addVendorRes.body.vendor];
 }
 
-async function injectChaos(vendorApiKey, chaosReq) {
-  const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendorApiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send({ chaos: chaosReq });
-  return [updateVendorRes.status, updateVendorRes.body.vendor.chaos];
+async function updateVendor(vendorApiKey, updateReq) {
+  const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendorApiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send(updateReq);
+  return [updateVendorRes.status, updateVendorRes.body.vendor];
 }
 
 function randomUserId() {
@@ -88,6 +88,6 @@ function randomUserId() {
 
 module.exports = {
   createVendor,
-  injectChaos,
+  updateVendor,
   randomUserId,
 };

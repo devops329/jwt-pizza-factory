@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../service');
 const DB = require('../database/database.js');
 const orderRouter = require('./orderRouter');
-const { createVendor, injectChaos } = require('./adminRouter.test.js');
+const { createVendor, updateVendor } = require('./adminRouter.test.js');
 
 let vendorApiKey = null;
 beforeAll(async () => {
@@ -35,41 +35,41 @@ test('create order no items', async () => {
 
 test('create order with chaos badjwt', async () => {
   try {
-    const [, chaos] = await injectChaos(vendorApiKey, { type: 'badjwt', resolveUrl: 'http://resolve.me' });
+    const [, vendor] = await updateVendor(vendorApiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
     const [status, body] = await createOrder(vendorApiKey);
 
     expect(status).toBe(200);
     expect(body.jwt).toMatch(/^dead.*/);
-    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${chaos.fixCode}`);
+    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${vendor.chaos.fixCode}`);
   } finally {
-    await injectChaos(vendorApiKey, null);
+    await updateVendor(vendorApiKey, { chaos: null });
   }
 });
 
 test('create order with chaos throttle', async () => {
   try {
     orderRouter.settings.orderDelay = 1;
-    const [, chaos] = await injectChaos(vendorApiKey, { type: 'throttle', resolveUrl: 'http://resolve.me' });
+    const [, vendor] = await updateVendor(vendorApiKey, { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } });
     const [status, body] = await createOrder(vendorApiKey);
 
     expect(status).toBe(200);
-    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${chaos.fixCode}`);
+    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${vendor.chaos.fixCode}`);
   } finally {
     orderRouter.settings.orderDelay = 32000;
-    await injectChaos(vendorApiKey, null);
+    await updateVendor(vendorApiKey, { chaos: null });
   }
 });
 
 test('create order with chaos failure', async () => {
   try {
-    const [, chaos] = await injectChaos(vendorApiKey, { type: 'fail', resolveUrl: 'http://resolve.me' });
+    const [, vendor] = await updateVendor(vendorApiKey, { chaos: { type: 'fail', resolveUrl: 'http://resolve.me' } });
     const [status, body] = await createOrder(vendorApiKey);
 
     expect(status).toBe(500);
     expect(body.message).toBe('chaos monkey');
-    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${chaos.fixCode}`);
+    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${vendor.chaos.fixCode}`);
   } finally {
-    await injectChaos(vendorApiKey, null);
+    await updateVendor(vendorApiKey, { chaos: null });
   }
 });
 
@@ -90,3 +90,5 @@ async function createOrder(apiKey, order = { diner: { id: 719, name: 'j', email:
   const createOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${apiKey}`).send(order);
   return [createOrderRes.status, createOrderRes.body];
 }
+
+module.exports = { createOrder };

@@ -28,7 +28,7 @@ class DB {
 
   async updateVendor(apiKey, changes) {
     const vendor = await this.getVendorByApiKey(apiKey);
-    if (vendor) {
+    if (vendor && changes && Object.keys(changes).length > 0) {
       for (const key in changes) {
         if (changes[key] === null) {
           delete vendor[key];
@@ -42,11 +42,9 @@ class DB {
         vendor.chaos.errorDate = new Date().toISOString();
       }
 
-      if (await this.writeVendor(apiKey, vendor)) {
-        return vendor;
-      }
+      await this.writeVendor(apiKey, vendor);
     }
-    return null;
+    return vendor;
   }
 
   async writeVendor(apiKey, vendor) {
