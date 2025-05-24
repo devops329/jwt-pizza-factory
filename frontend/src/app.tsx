@@ -1,9 +1,8 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
 import Login from './login';
 import Dashboard from './dashboard';
 
-function App() {
+export default function App() {
   const [authToken, setAuthToken] = React.useState(null);
 
   React.useEffect(() => {
@@ -35,6 +34,3 @@ function App() {
     </div>
   );
 }
-
-const root = createRoot(document.getElementById('root'));
-root.render(<App />);

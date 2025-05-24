@@ -1,7 +1,17 @@
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
+import istanbul from 'vite-plugin-istanbul';
+
 export default defineConfig({
-  plugins: [tailwindcss()],
+  build: { sourcemap: true },
+  plugins: [
+    tailwindcss(),
+    istanbul({
+      include: ['src/**/*'],
+      exclude: ['node_modules'],
+      requireEnv: false,
+    }),
+  ],
   server: {
     proxy: {
       '/api': 'http://localhost:4000',

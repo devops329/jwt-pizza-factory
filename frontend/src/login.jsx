@@ -29,11 +29,11 @@ export default function Login({ setAuthToken }) {
             <label htmlFor='login' className='text-gray-700 font-semibold'>
               BYU Net ID
             </label>
-            <div className='text-sm text-gray-500'>This will email an authentication code to the email associated with your Net ID.</div>
             <input
               id='login'
               type='text'
               value={inputValue}
+              placeholder='Enter your BYU Net ID'
               onChange={(e) => setInputValue(e.target.value)}
               className='border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400'
             />
@@ -52,6 +52,9 @@ export default function Login({ setAuthToken }) {
             <label htmlFor='login' className='text-gray-700 font-semibold'>
               Authentication code
             </label>
+            <div className='text-sm text-gray-500'>
+              Check your <b>{netId}.byu.edu</b> email for the authentication code.
+            </div>
             <input
               id='login'
               type='text'
@@ -64,7 +67,7 @@ export default function Login({ setAuthToken }) {
               type='submit'
               className='bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed'
             >
-              Login
+              Validate code
             </button>
           </form>
         </div>
