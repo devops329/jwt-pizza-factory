@@ -39,11 +39,11 @@ class Service {
     });
   }
 
-  async generateCode(netId: string) {
+  async requestCode(netId: string) {
     await this.callEndpoint('/api/vendor/code', 'POST', { netId });
   }
 
-  async login(code: string): Promise<[Vendor, string]> {
+  async authenticate(code: string): Promise<[Vendor, string]> {
     const { vendor, token } = await this.callEndpoint('/api/vendor/auth', 'POST', { code });
     localStorage.setItem('token', token);
     return Promise.resolve([vendor, token]);
