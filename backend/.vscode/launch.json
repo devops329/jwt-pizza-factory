@@ -11,7 +11,7 @@
       "restart": true,
       "runtimeExecutable": "node",
       "runtimeArgs": ["--watch"],
-      "args": ["4000"],
+      "args": ["3000"],
       "skipFiles": ["<node_internals>/**"],
       "type": "node"
     }

@@ -1,6 +1,6 @@
 const express = require('express');
 const DB = require('../database/database');
-const { v4: uuid } = require('uuid');
+const { createVendor } = require('./routerUtil');
 
 const adminRouter = express.Router();
 
@@ -50,23 +50,11 @@ const authorizeAdmin = async (req, res, next) => {
 // create a new vendor
 adminRouter.post('/vendor', authorizeAdmin, async (req, res) => {
   const vendor = req.body;
-  if (vendor.id) {
-    const existingApiKey = await DB.getApiKeyByNetId(vendor.id);
-    if (existingApiKey) {
-      return res.json({ apiKey: existingApiKey, vendor: vendor });
-    } else if (vendor.name) {
-      const now = new Date();
-      vendor.created = now.toISOString();
-      now.setMonth(now.getMonth() + 6);
-      vendor.validUntil = now.toISOString();
-      const apiKey = uuid().replace(/-/g, '');
-
-      await DB.addVendor(apiKey, vendor.id, vendor);
-
-      res.json({ apiKey, vendor: vendor });
-    }
+  if (!vendor.id) {
+    res.status(400).json({ message: 'Missing param. Must have ID' });
+  } else {
+    res.json(await createVendor(vendor));
   }
-  if (!(vendor.id && vendor.name)) res.status(400).json({ message: 'Missing param. Must have id and name' });
 });
 
 // update a vendor

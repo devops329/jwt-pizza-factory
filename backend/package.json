@@ -4,7 +4,7 @@
   "description": "Factory service for making NFT pizzas",
   "main": "index.js",
   "scripts": {
-    "run": "node index.js",
+    "dev": "node index.js",
     "test": "jest"
   },
   "license": "MIT",

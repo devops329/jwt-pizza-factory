@@ -9,10 +9,10 @@ test('test', async ({ page }) => {
     });
   });
 
-  await page.route('**/api/vendor/authenticate', async (route, request) => {
+  await page.route('**/api/vendor/auth', async (route, request) => {
     const postData = request.postData();
     const json = postData ? JSON.parse(postData) : {};
-    expect(json).toEqual({ code: 1234 });
+    expect(json).toEqual({ code: '1234' });
 
     await route.fulfill({
       status: 200,

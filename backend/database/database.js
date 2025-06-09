@@ -84,8 +84,13 @@ class DB {
   }
 
   async query(connection, sql, params) {
-    const [results] = await connection.execute(sql, params);
-    return results;
+    try {
+      const [results] = await connection.execute(sql, params);
+      return results;
+    } catch (err) {
+      console.error(`Error executing SQL: ${sql} with params: ${JSON.stringify(params)}. Error: ${err.message}`);
+      throw err;
+    }
   }
 
   async getConnection() {

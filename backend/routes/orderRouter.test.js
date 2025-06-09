@@ -1,12 +1,18 @@
 const request = require('supertest');
 const app = require('../service');
-const DB = require('../database/database.js');
 const orderRouter = require('./orderRouter');
-const { createVendor, updateVendor } = require('./adminRouter.test.js');
+const DB = require('../database/database.js');
+const { createOrder, createVendor, updateVendor } = require('./testUtil.js');
 
+let adminAuthToken = null;
 let vendorApiKey = null;
 beforeAll(async () => {
-  [, vendorApiKey] = await createVendor();
+  adminAuthToken = await DB.createAdminAuthToken();
+  [, vendorApiKey] = await createVendor(adminAuthToken);
+});
+
+afterAll(async () => {
+  await DB.deleteAdminAuthToken(adminAuthToken);
 });
 
 test('create order', async () => {
@@ -35,41 +41,41 @@ test('create order no items', async () => {
 
 test('create order with chaos badjwt', async () => {
   try {
-    const [, vendor] = await updateVendor(vendorApiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
+    const [, vendor] = await updateVendor(adminAuthToken, vendorApiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
     const [status, body] = await createOrder(vendorApiKey);
 
     expect(status).toBe(200);
     expect(body.jwt).toMatch(/^dead.*/);
     expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${vendor.chaos.fixCode}`);
   } finally {
-    await updateVendor(vendorApiKey, { chaos: null });
+    await updateVendor(adminAuthToken, vendorApiKey, { chaos: null });
   }
 });
 
 test('create order with chaos throttle', async () => {
   try {
     orderRouter.settings.orderDelay = 1;
-    const [, vendor] = await updateVendor(vendorApiKey, { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } });
+    const [, vendor] = await updateVendor(adminAuthToken, vendorApiKey, { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } });
     const [status, body] = await createOrder(vendorApiKey);
 
     expect(status).toBe(200);
     expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${vendor.chaos.fixCode}`);
   } finally {
     orderRouter.settings.orderDelay = 32000;
-    await updateVendor(vendorApiKey, { chaos: null });
+    await updateVendor(adminAuthToken, vendorApiKey, { chaos: null });
   }
 });
 
 test('create order with chaos failure', async () => {
   try {
-    const [, vendor] = await updateVendor(vendorApiKey, { chaos: { type: 'fail', resolveUrl: 'http://resolve.me' } });
+    const [, vendor] = await updateVendor(adminAuthToken, vendorApiKey, { chaos: { type: 'fail', resolveUrl: 'http://resolve.me' } });
     const [status, body] = await createOrder(vendorApiKey);
 
     expect(status).toBe(500);
     expect(body.message).toBe('chaos monkey');
     expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${vendorApiKey}&fixCode=${vendor.chaos.fixCode}`);
   } finally {
-    await updateVendor(vendorApiKey, { chaos: null });
+    await updateVendor(adminAuthToken, vendorApiKey, { chaos: null });
   }
 });
 
@@ -85,10 +91,3 @@ test('verify order bad jwt', async () => {
   expect(verifyOrderRes.status).toBe(403);
   expect(verifyOrderRes.body.message).toBe('invalid');
 });
-
-async function createOrder(apiKey, order = { diner: { id: 719, name: 'j', email: 'j@jwt.com' }, order: { items: [{ menuId: 1, description: 'Veggie', price: 0.0038 }], storeId: '5', franchiseId: 4, id: 278 } }) {
-  const createOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${apiKey}`).send(order);
-  return [createOrderRes.status, createOrderRes.body];
-}
-
-module.exports = { createOrder };
