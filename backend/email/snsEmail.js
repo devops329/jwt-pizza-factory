@@ -1,5 +1,7 @@
+const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+
 /**
- * Send an email message using AWS SNS.
+ * Send an email message using AWS SES.
  * @param {Object} options
  * @param {string} options.to - Recipient email address.
  * @param {string} options.subject - Email subject.
@@ -7,7 +9,30 @@
  * @returns {Promise<void>}
  */
 async function sendEmail({ to, subject, html }) {
-  throw new Error('sendEmail method not implemented');
+  const client = new SESClient({ region: 'us-east-1' });
+
+  to = 'leesjensen@gmail.com';
+
+  const params = {
+    Destination: {
+      ToAddresses: [to],
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: 'UTF-8',
+          Data: html,
+        },
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: subject,
+      },
+    },
+    Source: 'lee@cs.byu.edu',
+  };
+
+  await client.send(new SendEmailCommand(params));
 }
 
 module.exports = { sendEmail };

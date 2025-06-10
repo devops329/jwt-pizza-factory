@@ -1,6 +1,6 @@
 const express = require('express');
 const DB = require('../database/database');
-const { greateVendor } = require('./routerUtil');
+const { greateVendor, asyncHandler } = require('./routerUtil');
 
 const adminRouter = express.Router();
 
@@ -34,34 +34,42 @@ adminRouter.endpoints = [
   },
 ];
 
-const authorizeAdmin = async (req, res, next) => {
+const authorizeAdmin = asyncHandler(async (req, res, next) => {
   const authToken = (req.headers.authorization || '').replace(/bearer /i, '');
   if (await DB.verifyAuthToken(authToken)) {
     next();
   } else {
     res.status(401).json({ message: 'invalid authentication' });
   }
-};
+});
 
 // create a new vendor
-adminRouter.post('/vendor', authorizeAdmin, async (req, res) => {
-  const vendor = req.body;
-  if (!vendor.id) {
-    res.status(400).json({ message: 'Missing param. Must have ID' });
-  } else {
-    res.json(await greateVendor(vendor));
-  }
-});
+adminRouter.post(
+  '/vendor',
+  authorizeAdmin,
+  asyncHandler(async (req, res) => {
+    const vendor = req.body;
+    if (!vendor.id) {
+      res.status(400).json({ message: 'Missing param. Must have ID' });
+    } else {
+      res.json(await greateVendor(vendor));
+    }
+  })
+);
 
 // update a vendor
-adminRouter.put('/vendor/:vendorToken', authorizeAdmin, async (req, res) => {
-  const changes = req.body;
-  const vendor = await DB.updateVendor(req.params.vendorToken, changes);
-  if (vendor) {
-    res.json(vendor);
-  } else {
-    res.status(404).json({ message: 'Unknown vendor' });
-  }
-});
+adminRouter.put(
+  '/vendor/:vendorToken',
+  authorizeAdmin,
+  asyncHandler(async (req, res) => {
+    const changes = req.body;
+    const vendor = await DB.updateVendor(req.params.vendorToken, changes);
+    if (vendor) {
+      res.json(vendor);
+    } else {
+      res.status(404).json({ message: 'Unknown vendor' });
+    }
+  })
+);
 
 module.exports = adminRouter;

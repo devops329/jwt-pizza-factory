@@ -1,7 +1,13 @@
 const DB = require('../database/database');
 const { v4: uuid } = require('uuid');
 
-const vendorInfo = async (req, res, next) => {
+function asyncHandler(fn) {
+  return function (req, res, next) {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+
+const vendorAuth = asyncHandler(async (req, res, next) => {
   req.apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
   const vendor = await DB.getVendorByApiKey(req.apiKey);
   if (vendor) {
@@ -10,7 +16,7 @@ const vendorInfo = async (req, res, next) => {
   } else {
     return res.status(401).json({ message: 'invalid authentication' });
   }
-};
+});
 
 async function greateVendor(vendor) {
   if (!vendor || !vendor.id) {
@@ -32,4 +38,4 @@ async function greateVendor(vendor) {
   }
 }
 
-module.exports = { vendorInfo, greateVendor };
+module.exports = { vendorAuth, greateVendor, asyncHandler };

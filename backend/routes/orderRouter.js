@@ -2,7 +2,7 @@ const express = require('express');
 const jose = require('node-jose');
 const { keys } = require('../keys');
 
-const { vendorInfo } = require('./routerUtil');
+const { vendorAuth } = require('./routerUtil');
 const orderRouter = express.Router();
 
 orderRouter.endpoints = [
@@ -78,7 +78,7 @@ orderRouter.settings = {
 };
 
 // create a JWT order
-orderRouter.post('/', vendorInfo, orderRouter.settings.chaos, (req, res) => {
+orderRouter.post('/', vendorAuth, orderRouter.settings.chaos, (req, res) => {
   const { diner, order } = req.body;
   if (!diner || !order) {
     return res.status(400).json({ message: 'Missing required parameters' });

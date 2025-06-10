@@ -18,7 +18,7 @@ export default function Login({ setVendor }) {
     e.preventDefault();
 
     (async () => {
-      const [vendor, token] = await service.authenticate(inputValue);
+      const [vendor, token] = await service.authenticate(netId, inputValue);
       localStorage.setItem('token', token);
       setVendor(vendor);
     })();
@@ -45,7 +45,7 @@ export default function Login({ setVendor }) {
               Authenticate code
             </label>
             <div className="text-sm text-gray-500">
-              Provide the code sent to <b>{netId}.byu.edu</b>.
+              Provide the code sent to <b>{netId}@byu.edu</b>.
             </div>
             <input id="login" type="text" value={inputValue} placeholder="Code" onChange={(e) => setInputValue(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
             <button disabled={!inputValue} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">

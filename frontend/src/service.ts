@@ -44,11 +44,11 @@ class Service {
   }
 
   async requestCode(netId: string): Promise<undefined> {
-    await this.callEndpoint('/api/vendor/code', 'POST', { netId });
+    await this.callEndpoint('/api/vendor/code', 'POST', { id: netId });
   }
 
-  async authenticate(code: string): Promise<[Vendor, string] | null> {
-    const { vendor, token } = await this.callEndpoint('/api/vendor/auth', 'POST', { code });
+  async authenticate(netId: string, code: string): Promise<[Vendor, string] | null> {
+    const { vendor, token } = await this.callEndpoint('/api/vendor/auth', 'POST', { id: netId, code });
     localStorage.setItem('token', token);
     return Promise.resolve([vendor, token]);
   }
