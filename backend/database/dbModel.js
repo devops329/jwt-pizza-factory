@@ -9,6 +9,12 @@ const tableCreateStatements = [
     body TEXT NOT NULL,
     INDEX(apiKey)
   )`,
+
+  `CREATE TABLE IF NOT EXISTS authCode (
+    code VARCHAR(255) PRIMARY KEY,
+    netId VARCHAR(255) NOT NULL,
+    INDEX(netId)
+  )`,
 ];
 
 module.exports = { tableCreateStatements };

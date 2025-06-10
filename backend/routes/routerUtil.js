@@ -12,13 +12,13 @@ const vendorInfo = async (req, res, next) => {
   }
 };
 
-async function createVendor(vendor) {
+async function greateVendor(vendor) {
   if (!vendor || !vendor.id) {
     throw new Error('Missing vendor ID');
   }
-  const existingApiKey = await DB.getApiKeyByNetId(vendor.id || '');
-  if (existingApiKey) {
-    return { apiKey: existingApiKey, vendor };
+  const existingVendor = await DB.getVendorByNetId(vendor.id || '');
+  if (existingVendor) {
+    return existingVendor;
   } else {
     const now = new Date();
     vendor.created = now.toISOString();
@@ -32,4 +32,4 @@ async function createVendor(vendor) {
   }
 }
 
-module.exports = { vendorInfo, createVendor };
+module.exports = { vendorInfo, greateVendor };

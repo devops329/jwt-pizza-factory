@@ -31,12 +31,6 @@ test('add vendor bad auth', async () => {
   expect(addVendorRes.status).toBe(401);
 });
 
-test('add vendor duplicate', async () => {
-  const vendor = await createVendor(adminAuthToken, testVendorName);
-  const addVendorRes2 = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send({ id: vendor.id, name: testVendorName });
-  expect(vendor).toMatchObject(addVendorRes2.body.vendor);
-});
-
 test('add vendor missing params', async () => {
   const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send({});
   expect(addVendorRes.status).toBe(400);

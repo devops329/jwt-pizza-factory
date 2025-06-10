@@ -6,13 +6,26 @@ const supportRouter = require('./routes/supportRouter');
 const vendorRouter = require('./routes/vendorRouter');
 const fs = require('fs');
 const path = require('path');
+const { sendEmail } = require('./email/snsEmail.js');
 
 // Read version.json synchronously since we can't use top-level await in CommonJS
 const version = JSON.parse(fs.readFileSync(path.resolve(__dirname, './version.json'), 'utf8'));
 const app = express();
 
+// add services
+app.services = {
+  sendEmail,
+};
+app.use((req, res, next) => {
+  req.services = app.services;
+  next();
+});
+
+// Add general request middleware
 app.use(express.static('public'));
 app.use(express.json());
+
+// Ignore CORS for this trivial service
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
@@ -21,6 +34,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// Set up the endpoints
 const apiRouter = express.Router();
 app.use('/api', apiRouter);
 apiRouter.use('/order', orderRouter);

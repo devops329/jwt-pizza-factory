@@ -1,6 +1,6 @@
 const express = require('express');
 const DB = require('../database/database');
-const { vendorInfo } = require('./routerUtil');
+const { greateVendor, vendorInfo } = require('./routerUtil');
 
 const vendorRouter = express.Router();
 
@@ -19,9 +19,9 @@ vendorRouter.endpoints = [
   {
     method: 'POST',
     path: '/api/vendor/code',
-    requiresAuth: true,
+    requiresAuth: false,
     description: 'Send authorization code email',
-    example: `curl -X POST $host/api/vendor/code  -d '{"netId":"test3"}' -H 'Content-Type: application/json'`,
+    example: `curl -X POST $host/api/vendor/code  -d '{"id":"test3"}' -H 'Content-Type: application/json'`,
     response: {
       message: 'Code sent to test3.byu.edu',
     },
@@ -29,9 +29,9 @@ vendorRouter.endpoints = [
   {
     method: 'POST',
     path: '/api/vendor/auth',
-    requiresAuth: true,
-    description: 'Gets vendor information',
-    example: `curl -X POST $host/api/vendor  -d '{"netId":"test3", "code":"1234"}' -H 'Content-Type:application/json'`,
+    requiresAuth: false,
+    description: 'Authorize vendor using the code sent to email',
+    example: `curl -X POST $host/api/vendor  -d '{"id":"test3", "code":"1234"}' -H 'Content-Type:application/json'`,
     response: {
       vendor: { id: 'test3', apiKey: 'abcxyz' },
       token: 'xyz',
@@ -41,18 +41,33 @@ vendorRouter.endpoints = [
 
 // get vendor
 vendorRouter.get('/', vendorInfo, async (req, res) => {
-  res.json({ id: 'test3', apiKey: 'xxx' });
+  res.json(req.vendor);
 });
 
 // create authorization code email
 vendorRouter.post('/code', async (req, res) => {
-  res.json({ message: 'Authorization code sent to email' });
+  const id = req.body.id;
+  const email = `${id}@byu.edu`;
+  const code = Math.random().toString(36).substring(2, 10);
+  await DB.addAuthCode(id, code);
+  await req.services.sendEmail({
+    to: email,
+    subject: 'JWT Pizza Factory Authorization Code',
+    html: `<p>Your authorization code is <b>${code}</b>. Use this code to authenticate.</p>`,
+  });
+  res.json({ message: `Code sent to ${email}` });
 });
 
 // create vendor authorization based on the provided code
 vendorRouter.post('/auth', async (req, res) => {
-  req.body.code;
-  res.json({ vendor: { id: 'test3', apiKey: 'xxx' }, token: 'xyz' });
+  const id = req.body.id;
+  const code = req.body.code;
+  if (await DB.validateAuthCode(id, code)) {
+    const vendor = await greateVendor({ id });
+    res.json({ vendor, token: 'xyz' });
+  } else {
+    return res.status(401).json({ message: 'Invalid code' });
+  }
 });
 
 module.exports = vendorRouter;

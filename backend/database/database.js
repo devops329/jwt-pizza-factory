@@ -17,6 +17,30 @@ class DB {
     }
   }
 
+  async addAuthCode(id, authCode) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(
+        connection,
+        `INSERT INTO authCode (code, netId) VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE code = VALUES(code)`,
+        [authCode, id]
+      );
+    } finally {
+      connection.end();
+    }
+  }
+
+  async validateAuthCode(id, authCode) {
+    const connection = await this.getConnection();
+    try {
+      const validateRes = await this.query(connection, `SELECT code FROM authCode WHERE netId=?`, [id]);
+      return validateRes.length > 0 && validateRes[0].code === authCode;
+    } finally {
+      connection.end();
+    }
+  }
+
   async addVendor(apiKey, netId, vendor) {
     const connection = await this.getConnection();
     try {
@@ -70,14 +94,14 @@ class DB {
     }
   }
 
-  async getApiKeyByNetId(netId) {
+  async getVendorByNetId(netId) {
     const connection = await this.getConnection();
     try {
-      const vendorResult = await this.query(connection, `SELECT apiKey FROM vendor WHERE netId=?`, [netId]);
+      const vendorResult = await this.query(connection, `SELECT body FROM vendor WHERE netId=?`, [netId]);
       if (vendorResult.length === 0) {
         return null;
       }
-      return vendorResult[0].apiKey;
+      return JSON.parse(vendorResult[0].body);
     } finally {
       connection.end();
     }

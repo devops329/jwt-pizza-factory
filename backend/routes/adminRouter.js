@@ -1,6 +1,6 @@
 const express = require('express');
 const DB = require('../database/database');
-const { createVendor } = require('./routerUtil');
+const { greateVendor } = require('./routerUtil');
 
 const adminRouter = express.Router();
 
@@ -49,7 +49,7 @@ adminRouter.post('/vendor', authorizeAdmin, async (req, res) => {
   if (!vendor.id) {
     res.status(400).json({ message: 'Missing param. Must have ID' });
   } else {
-    res.json(await createVendor(vendor));
+    res.json(await greateVendor(vendor));
   }
 });
 
