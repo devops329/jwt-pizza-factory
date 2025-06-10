@@ -18,9 +18,12 @@ export default function Login({ setVendor }) {
     e.preventDefault();
 
     (async () => {
-      const [vendor, token] = await service.authenticate(netId, inputValue);
-      localStorage.setItem('token', token);
-      setVendor(vendor);
+      try {
+        const vendor = await service.authenticate(netId, inputValue);
+        setVendor(vendor);
+      } catch (error) {
+        alert(error.message || 'An error occurred during authentication.');
+      }
     })();
   };
 

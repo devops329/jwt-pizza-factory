@@ -11,8 +11,8 @@ const tableCreateStatements = [
   )`,
 
   `CREATE TABLE IF NOT EXISTS authCode (
-    code VARCHAR(255) PRIMARY KEY,
-    netId VARCHAR(255) NOT NULL,
+    netId VARCHAR(255) PRIMARY KEY,
+    code VARCHAR(255) NOT NULL,
     INDEX(netId)
   )`,
 ];

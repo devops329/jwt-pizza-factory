@@ -48,9 +48,9 @@ class Service {
   }
 
   async authenticate(netId: string, code: string): Promise<[Vendor, string] | null> {
-    const { vendor, token } = await this.callEndpoint('/api/vendor/auth', 'POST', { id: netId, code });
-    localStorage.setItem('token', token);
-    return Promise.resolve([vendor, token]);
+    const vendor = await this.callEndpoint('/api/vendor/auth', 'POST', { id: netId, code });
+    localStorage.setItem('token', vendor.apiKey);
+    return Promise.resolve(vendor);
   }
 }
 

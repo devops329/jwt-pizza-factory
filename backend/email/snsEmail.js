@@ -29,7 +29,7 @@ async function sendEmail({ to, subject, html }) {
         Data: subject,
       },
     },
-    Source: 'lee@cs.byu.edu',
+    Source: 'noreply@cs329.click',
   };
 
   await client.send(new SendEmailCommand(params));

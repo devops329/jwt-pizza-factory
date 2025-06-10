@@ -38,9 +38,9 @@ test('Create vendor with auth code', async () => {
 
     const loginRes = await request(app).post(`/api/vendor/auth`).send({ id, code });
     expect(loginRes.status).toBe(200);
-    expect(loginRes.body).toMatchObject({ vendor: { id }, token: expect.any(String) });
+    expect(loginRes.body).toMatchObject({ id, apiKey: expect.any(String) });
 
-    const vendor = loginRes.body.vendor;
+    const vendor = loginRes.body;
 
     const getVendorRes = await request(app).get(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`);
     expect(getVendorRes.status).toBe(200);
@@ -62,7 +62,7 @@ test('Login vendor with auth code', async () => {
 
     await request(app).post(`/api/vendor/code`).send({ id: vendor.id });
     const loginRes = await request(app).post(`/api/vendor/auth`).send({ id: vendor.id, code });
-    expect(loginRes.body.vendor).toMatchObject(vendor);
+    expect(loginRes.body).toMatchObject(vendor);
   } finally {
     app.services.sendEmail = ogSendEmail;
   }

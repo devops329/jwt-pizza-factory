@@ -33,8 +33,8 @@ vendorRouter.endpoints = [
     description: 'Authorize vendor using the code sent to email',
     example: `curl -X POST $host/api/vendor  -d '{"id":"test3", "code":"1234"}' -H 'Content-Type:application/json'`,
     response: {
-      vendor: { id: 'test3', apiKey: 'abcxyz' },
-      token: 'xyz',
+      id: 'test3',
+      apiKey: 'abcxyz',
     },
   },
 ];
@@ -69,7 +69,7 @@ vendorRouter.post(
     const code = req.body.code;
     if (await DB.validateAuthCode(id, code)) {
       const vendor = await greateVendor({ id });
-      res.json({ vendor, token: 'xyz' });
+      res.json(vendor);
     } else {
       return res.status(401).json({ message: 'Invalid code' });
     }

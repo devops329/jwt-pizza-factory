@@ -1,18 +1,6 @@
 import React from 'react';
-import service from './service';
 
 const Dashboard = ({ vendor }) => {
-  React.useEffect(() => {
-    (async () => {
-      try {
-        const vendor = await service.getVendor();
-        setUserData(vendor);
-      } catch (error) {
-        alert(error.message ?? 'invalid vendor requested');
-      }
-    })();
-  });
-
   return (
     <div className="p-8 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-start text-gray-800">Pizza Vendor Dashboard</h2>
