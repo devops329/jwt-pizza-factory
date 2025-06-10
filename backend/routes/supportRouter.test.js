@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../service');
+const app = require('../service.js');
 const { createOrder, createVendor, updateVendor } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
@@ -7,7 +7,8 @@ let adminAuthToken = null;
 let vendorApiKey = null;
 beforeAll(async () => {
   adminAuthToken = await DB.createAdminAuthToken();
-  [, vendorApiKey] = await createVendor(adminAuthToken);
+  const vendor = await createVendor(adminAuthToken);
+  vendorApiKey = vendor.apiKey;
 });
 
 afterAll(async () => {

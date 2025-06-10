@@ -8,7 +8,8 @@ let adminAuthToken = null;
 let vendorApiKey = null;
 beforeAll(async () => {
   adminAuthToken = await DB.createAdminAuthToken();
-  [, vendorApiKey] = await createVendor(adminAuthToken);
+  const vendor = await createVendor(adminAuthToken);
+  vendorApiKey = vendor.apiKey;
 });
 
 afterAll(async () => {

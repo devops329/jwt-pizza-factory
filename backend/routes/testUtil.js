@@ -7,15 +7,14 @@ if (process.env.VSCODE_INSPECTOR_OPTIONS) {
 
 async function createVendor(adminAuthToken, vendorName) {
   const testUser = { id: randomUserId(), name: vendorName };
-  console.log('Creating vendor', testUser);
   const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send(testUser);
   expect(addVendorRes.status).toBe(200);
-  return [testUser.id, addVendorRes.body.apiKey, addVendorRes.body.vendor];
+  return addVendorRes.body;
 }
 
 async function updateVendor(adminAuthToken, vendorApiKey, updateReq) {
   const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendorApiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send(updateReq);
-  return [updateVendorRes.status, updateVendorRes.body.vendor];
+  return [updateVendorRes.status, updateVendorRes.body];
 }
 
 async function createOrder(apiKey, order = { diner: { id: 719, name: 'j', email: 'j@jwt.com' }, order: { items: [{ menuId: 1, description: 'Veggie', price: 0.0038 }], storeId: '5', franchiseId: 4, id: 278 } }) {

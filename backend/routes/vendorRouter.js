@@ -20,7 +20,7 @@ vendorRouter.endpoints = [
     method: 'POST',
     path: '/api/vendor/code',
     requiresAuth: true,
-    description: 'Create authorization code email',
+    description: 'Send authorization code email',
     example: `curl -X POST $host/api/vendor/code  -d '{"netId":"test3"}' -H 'Content-Type: application/json'`,
     response: {
       message: 'Code sent to test3.byu.edu',

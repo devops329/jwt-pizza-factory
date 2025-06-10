@@ -24,11 +24,11 @@ async function createVendor(vendor) {
     vendor.created = now.toISOString();
     now.setMonth(now.getMonth() + 6);
     vendor.validUntil = now.toISOString();
-    const apiKey = uuid().replace(/-/g, '');
+    vendor.apiKey = uuid().replace(/-/g, '');
 
-    await DB.addVendor(apiKey, vendor.id, vendor);
+    await DB.addVendor(vendor.apiKey, vendor.id, vendor);
 
-    return { apiKey, vendor };
+    return vendor;
   }
 }
 
