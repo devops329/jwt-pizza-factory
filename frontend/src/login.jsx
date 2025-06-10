@@ -19,6 +19,7 @@ export default function Login({ setVendor }) {
 
     (async () => {
       const [vendor, token] = await service.authenticate(inputValue);
+      localStorage.setItem('token', token);
       setVendor(vendor);
     })();
   };
@@ -29,7 +30,7 @@ export default function Login({ setVendor }) {
         <div className="flex items-start justify-center">
           <form onSubmit={requestCode} className="bg-white p-8 rounded shadow-md flex flex-col gap-4 w-80 my-6">
             <label htmlFor="login" className="text-gray-700 font-semibold">
-              BYU Net ID
+              Login
             </label>
             <input id="login" type="text" value={inputValue} placeholder="Enter your BYU Net ID" onChange={(e) => setInputValue(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
             <button disabled={!inputValue} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
@@ -46,7 +47,7 @@ export default function Login({ setVendor }) {
             <div className="text-sm text-gray-500">
               Provide the code sent to <b>{netId}.byu.edu</b>.
             </div>
-            <input id="login" type="text" value={inputValue} placeholder="Enter code" onChange={(e) => setInputValue(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <input id="login" type="text" value={inputValue} placeholder="Code" onChange={(e) => setInputValue(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
             <button disabled={!inputValue} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
               Validate code
             </button>
