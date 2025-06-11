@@ -8,9 +8,8 @@ const Dashboard = ({ vendor, setVendor }) => {
   const [badgeUrl, setBadgeUrl] = React.useState('');
   const [chaosState, setChaosState] = React.useState(vendor.chaos?.type !== 'none' ? 'chaotic' : 'calm');
 
-  function updateVendor(key, value) {
-    const vendorUpdate = { ...vendor, [key]: value };
-    service.updateVendor(vendorUpdate);
+  async function updateVendor(key, value) {
+    const vendorUpdate = await service.updateVendor({ [key]: value });
     setVendor(vendorUpdate);
   }
 
@@ -44,10 +43,13 @@ const Dashboard = ({ vendor, setVendor }) => {
     }
   }
 
+  const [debug, setDebug] = React.useState(false);
+
   return (
     <div className="p-8 bg-white rounded-lg shadow-md">
-      <pre className="mb-4 bg-gray-100 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(vendor, null, 2)}</pre>
-      <h2 className="text-2xl font-bold mb-6 text-start text-gray-800">Pizza Vendor Dashboard</h2>
+      <h2 className="text-2xl font-bold mb-6 text-start text-gray-800">
+        Pizza <span onClick={() => setDebug(!debug)}>Vendor</span> Dashboard
+      </h2>
       <div className="flex items-center">
         <span className="font-semibold text-gray-700 w-40">Net ID:</span>
         <span className="text-gray-900">{vendor.id}</span>
@@ -63,7 +65,7 @@ const Dashboard = ({ vendor, setVendor }) => {
           </label>
           <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="https://pizza.yourdomain" value={website} onChange={(e) => setWebsite(e.target.value)} />
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(website)} onClick={() => updateVendor('webSite', website)}>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(website)} onClick={() => updateVendor('website', website)}>
           Update
         </button>
       </div>
@@ -113,16 +115,22 @@ const Dashboard = ({ vendor, setVendor }) => {
           <input id="badgeName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeName} onChange={(e) => validateBadgeName(e)} />
         </div>
         <div className="mb-4 flex items-center">
-          <span className="mr-2 font-semibold text-gray-700">Badge URL:</span>
+          <span className="mr-2 font-semibold text-gray-700">URL:</span>
           <span id="badgeUrl" className="text-gray-900">
-            {badgeUrl || 'Not generated yet'}
-            {badgeUrl && <img security="true" src={badgeUrl} alt="Badge" className="ml-6 inline-block" />}
+            {badgeUrl ? <a href={badgeUrl}>{badgeUrl}</a> : 'Not generated yet'}
+          </span>
+        </div>
+        <div className="mb-4 flex items-center">
+          <span className="mr-2 font-semibold text-gray-700">Image:</span>
+          <span id="badgeImage" className="text-gray-900">
+            {badgeUrl && <img security="true" src={badgeUrl} alt="Badge" />}
           </span>
         </div>
         <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!badgeName} onClick={generateBadge}>
           Generate Badge
         </button>
       </div>
+      <pre className={`${debug ? '' : 'hidden'} mt-6 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(vendor, null, 2)}</pre>
     </div>
   );
 };
