@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../service');
+const app = require('../service.js');
 const DB = require('../database/database.js');
 const { randomUserId, createVendor, updateVendor } = require('./testUtil.js');
 
@@ -16,9 +16,13 @@ afterAll(async () => {
 
 test('add vendor', async () => {
   const vendor = await createVendor(adminAuthToken, testVendorName);
-  expect(vendor.id).toBeDefined();
-  expect(vendor.apiKey).toBeDefined();
-  expect(vendor.name).toBe(testVendorName);
+  try {
+    expect(vendor.id).toBeDefined();
+    expect(vendor.apiKey).toBeDefined();
+    expect(vendor.name).toBe(testVendorName);
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
 });
 
 test('add vendor no auth', async () => {
@@ -38,21 +42,27 @@ test('add vendor missing params', async () => {
 
 test('update vendor name', async () => {
   const vendor = await createVendor(adminAuthToken, testVendorName);
-
-  const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendor.apiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send({ name: 'updated name' });
-  expect(updateVendorRes.status).toBe(200);
-  expect(updateVendorRes.body.name).toBe('updated name');
+  try {
+    const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendor.apiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send({ name: 'updated name' });
+    expect(updateVendorRes.status).toBe(200);
+    expect(updateVendorRes.body.name).toBe('updated name');
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
 });
 
 test('update vendor chaos', async () => {
   const chaosReq = { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } };
   const vendor = await createVendor(adminAuthToken, testVendorName);
-
-  const [status, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, chaosReq);
-  expect(status).toBe(200);
-  expect(updatedVendor.chaos).toMatchObject(chaosReq.chaos);
-  expect(updatedVendor.chaos.fixCode).toBeDefined();
-  expect(updatedVendor.chaos.errorDate).toBeDefined();
+  try {
+    const [status, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, chaosReq);
+    expect(status).toBe(200);
+    expect(updatedVendor.chaos).toMatchObject(chaosReq.chaos);
+    expect(updatedVendor.chaos.fixCode).toBeDefined();
+    expect(updatedVendor.chaos.errorDate).toBeDefined();
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
 });
 
 test('update vendor unknown', async () => {

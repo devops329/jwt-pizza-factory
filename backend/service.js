@@ -4,6 +4,7 @@ const orderRouter = require('./routes/orderRouter');
 const adminRouter = require('./routes/adminRouter');
 const supportRouter = require('./routes/supportRouter');
 const vendorRouter = require('./routes/vendorRouter');
+const badgeRouter = require('./routes/badgeRouter');
 const fs = require('fs');
 const path = require('path');
 const { sendEmail } = require('./email/snsEmail.js');
@@ -41,6 +42,7 @@ apiRouter.use('/order', orderRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/support', supportRouter);
 apiRouter.use('/vendor', vendorRouter);
+apiRouter.use('/badge', badgeRouter);
 
 apiRouter.use('/docs', (_req, res) => {
   res.json({

@@ -12,6 +12,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await DB.deleteAdminAuthToken(adminAuthToken);
+  await DB.deleteVendor(vendor.id);
 });
 
 test('Get vendor', async () => {
@@ -41,10 +42,13 @@ test('Create vendor with auth code', async () => {
     expect(loginRes.body).toMatchObject({ id, apiKey: expect.any(String) });
 
     const vendor = loginRes.body;
-
-    const getVendorRes = await request(app).get(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`);
-    expect(getVendorRes.status).toBe(200);
-    expect(getVendorRes.body).toMatchObject({ id: vendor.id, apiKey: vendor.apiKey });
+    try {
+      const getVendorRes = await request(app).get(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`);
+      expect(getVendorRes.status).toBe(200);
+      expect(getVendorRes.body).toMatchObject({ id: vendor.id, apiKey: vendor.apiKey });
+    } finally {
+      await DB.deleteVendor(vendor.id);
+    }
   } finally {
     app.services.sendEmail = ogSendEmail;
   }

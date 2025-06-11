@@ -4,20 +4,20 @@ const { createOrder, createVendor, updateVendor } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
 let adminAuthToken = null;
-let vendorApiKey = null;
+let vendor = null;
 beforeAll(async () => {
   adminAuthToken = await DB.createAdminAuthToken();
-  const vendor = await createVendor(adminAuthToken);
-  vendorApiKey = vendor.apiKey;
+  vendor = await createVendor(adminAuthToken);
 });
 
 afterAll(async () => {
   await DB.deleteAdminAuthToken(adminAuthToken);
+  await DB.deleteVendor(vendor.id);
 });
 
 test('Report problem', async () => {
-  await updateVendor(adminAuthToken, vendorApiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
-  const [, body] = await createOrder(vendorApiKey);
+  await updateVendor(adminAuthToken, vendor.apiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
+  const [, body] = await createOrder(vendor.apiKey);
 
   const reportUrl = body.reportUrl;
 
@@ -29,9 +29,9 @@ test('Report problem', async () => {
   expect(reportRes.status).toBe(200);
   expect(reportRes.body.message).toBe('Problem resolved. Pizza is back on the menu!');
 
-  const [status, vendor] = await updateVendor(adminAuthToken, vendorApiKey, {});
+  const [status, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, {});
   expect(status).toBe(200);
-  expect(vendor.chaos.type).toBe('none');
+  expect(updatedVendor.chaos.type).toBe('none');
 });
 
 test('Report problem unknown vendor', async () => {

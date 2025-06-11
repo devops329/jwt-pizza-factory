@@ -187,6 +187,16 @@ class DB {
       connection.end();
     }
   }
+
+  async deleteVendor(netId) {
+    const connection = await this.getConnection();
+    try {
+      await connection.query(`DELETE FROM vendor WHERE netId=?`, [netId]);
+      await connection.query(`DELETE FROM authCode WHERE netId=?`, [netId]);
+    } finally {
+      connection.end();
+    }
+  }
 }
 
 const db = new DB();
