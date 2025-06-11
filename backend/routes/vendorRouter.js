@@ -37,6 +37,18 @@ vendorRouter.endpoints = [
       apiKey: 'abcxyz',
     },
   },
+  {
+    method: 'PUT',
+    path: '/api/vendor',
+    requiresAuth: true,
+    description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
+    example: `curl -X POST $host/api/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"gitHubUrl":"https://github.com/byustudent23"}'`,
+    response: {
+      id: 'byustudent23',
+      name: 'cs student',
+      gitHubUrl: 'https://github.com/byustudent23',
+    },
+  },
 ];
 
 // get vendor
@@ -54,9 +66,9 @@ vendorRouter.post(
     await DB.addAuthCode(id, code);
     await req.services.sendEmail({
       to: email,
-      subject: 'BYU CS 329 Login',
-      html: `<html><body><h1>Hello ${id}</h1><p>Here is your authorization code: <b>${code}</b>. This is a single use code, but as long as you are using the same browser you will not need to authenticate again.</p><p>Best regards, the CS 329 Team</p></body></html>`,
-      text: `Hello ${id}! Here is your authorization code: <b>${code}</b>. Best regards, the CS 329 Team.`,
+      subject: 'BYU CS 329 JWT Pizza Factory',
+      html: `<html><body><h1>Hello ${id}</h1><p>Here is the code that you requested: <b>${code}</b>. Best regards, the CS 329 Team. <i>This message was sent by BYU CS 329. For questions, contact help@cs329.click.</i></body></html>`,
+      text: `Hello ${id}! Here is the code that you requested: ${code}. Best regards, the CS 329 Team. This message was sent by BYU CS 329. For questions, contact help@cs329.click.`,
     });
     res.json({ message: `Code sent to ${email}` });
   })
@@ -74,6 +86,23 @@ vendorRouter.post(
     } else {
       return res.status(401).json({ message: 'Invalid code' });
     }
+  })
+);
+
+// update a vendor
+vendorRouter.put(
+  '/',
+  vendorAuth,
+  asyncHandler(async (req, res) => {
+    const changes = {};
+    const allowedFields = ['gitHubUrl', 'name', 'website'];
+    Object.keys(req.body).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        changes[key] = req.body[key];
+      }
+    });
+    const vendor = await DB.updateVendor(req.apiKey, changes);
+    res.json(vendor);
   })
 );
 

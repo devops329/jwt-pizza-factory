@@ -7,7 +7,7 @@ const vendorRouter = require('./routes/vendorRouter');
 const badgeRouter = require('./routes/badgeRouter');
 const fs = require('fs');
 const path = require('path');
-const { sendEmail } = require('./email/snsEmail.js');
+const { sendEmail } = require('./email/sesEmail.js');
 
 // Read version.json synchronously since we can't use top-level await in CommonJS
 const version = JSON.parse(fs.readFileSync(path.resolve(__dirname, './version.json'), 'utf8'));

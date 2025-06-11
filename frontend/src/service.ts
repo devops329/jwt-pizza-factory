@@ -39,6 +39,10 @@ class Service {
     });
   }
 
+  updateVendor(vendor: Vendor): Promise<Vendor | null> {
+    return this.callEndpoint('/api/vendor', 'PUT', vendor);
+  }
+
   getVendor(): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor');
   }

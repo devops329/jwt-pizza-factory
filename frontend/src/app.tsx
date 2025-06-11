@@ -35,7 +35,7 @@ export default function App() {
           </button>
         )}
       </header>
-      <main className="p-2 bg-gray-100">{vendor ? <Dashboard vendor={vendor} /> : <Login setVendor={setVendor} />}</main>
+      <main className="p-2 bg-gray-100">{vendor ? <Dashboard vendor={vendor} setVendor={setVendor} /> : <Login setVendor={setVendor} />}</main>
       <footer className="bg-gray-800 text-white py-6">
         <p className="text-center text-sm">&copy; 2035 JWT Pizza Factory. All rights reserved.</p>
       </footer>

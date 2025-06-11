@@ -57,7 +57,7 @@ adminRouter.post(
   })
 );
 
-// update a vendor
+// update a vendor - deprecated
 adminRouter.put(
   '/vendor/:vendorToken',
   authorizeAdmin,
