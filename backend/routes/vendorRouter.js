@@ -54,8 +54,9 @@ vendorRouter.post(
     await DB.addAuthCode(id, code);
     await req.services.sendEmail({
       to: email,
-      subject: 'JWT Pizza Factory Authorization Code',
-      html: `<p>Your authorization code is <b>${code}</b>. Use this code to authenticate.</p>`,
+      subject: 'BYU CS 329 Login',
+      html: `<html><body><h1>Hello ${id}</h1><p>Here is your authorization code: <b>${code}</b>. This is a single use code, but as long as you are using the same browser you will not need to authenticate again.</p><p>Best regards, the CS 329 Team</p></body></html>`,
+      text: `Hello ${id}! Here is your authorization code: <b>${code}</b>. Best regards, the CS 329 Team.`,
     });
     res.json({ message: `Code sent to ${email}` });
   })

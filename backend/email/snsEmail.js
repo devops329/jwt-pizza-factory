@@ -8,10 +8,8 @@ const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
  * @param {string} options.html - HTML body.
  * @returns {Promise<void>}
  */
-async function sendEmail({ to, subject, html }) {
+async function sendEmail({ to, subject, html, text }) {
   const client = new SESClient({ region: 'us-east-1' });
-
-  to = 'leesjensen@gmail.com';
 
   const params = {
     Destination: {
@@ -22,6 +20,10 @@ async function sendEmail({ to, subject, html }) {
         Html: {
           Charset: 'UTF-8',
           Data: html,
+        },
+        Text: {
+          Charset: 'UTF-8',
+          Data: text,
         },
       },
       Subject: {

@@ -24,7 +24,7 @@ test('Create vendor with auth code', async () => {
   let code = null;
   const ogSendEmail = app.services.sendEmail;
   try {
-    app.services.sendEmail = jest.fn(async ({ to, subject, html }) => {
+    app.services.sendEmail = jest.fn(async ({ to, subject, html, text }) => {
       const codeMatch = html.match(/<b>(.{8})<\/b>/);
       code = codeMatch ? codeMatch[1] : null;
       return true;
