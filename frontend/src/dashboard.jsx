@@ -2,16 +2,22 @@ import React from 'react';
 import service from './service';
 
 const Dashboard = ({ vendor, setVendor }) => {
-  const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || 'https://github.com/');
+  const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || '');
+  const [website, setWebsite] = React.useState(vendor.website || '');
 
-  function updateGitHubUrl() {
-    const vendorUpdate = { ...vendor, gitHubUrl };
+  function updateVendor(key, value) {
+    const vendorUpdate = { ...vendor, [key]: value };
     service.updateVendor(vendorUpdate);
     setVendor(vendorUpdate);
   }
 
   function isValidUrl(url) {
-    return /^https:\/\/github\.com\/.+/.test(url);
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   return (
@@ -25,18 +31,25 @@ const Dashboard = ({ vendor, setVendor }) => {
         <span className="font-semibold text-gray-700 w-40">Application Key:</span>
         <span className="text-gray-900">{vendor.apiKey}</span>
       </div>
-      <div className="flex items-center">
-        <span className="font-semibold text-gray-700 w-40">GitHub URL:</span>
-        <span className="text-gray-900">{vendor.gitHubUrl ?? 'not provided'}</span>
+      <div className="mt-6 p-4 border border-gray-300">
+        <div className="mb-4 flex items-center">
+          <label htmlFor="website" className="mr-2 font-semibold text-gray-700">
+            Pizza Website:
+          </label>
+          <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="https://pizza.yourdomain" value={website} onChange={(e) => setWebsite(e.target.value)} />
+        </div>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(website)} onClick={() => updateVendor('webSite', website)}>
+          Update
+        </button>
       </div>
       <div className="mt-6 p-4 border border-gray-300">
         <div className="mb-4 flex items-center">
           <label htmlFor="gitHubUrl" className="mr-2 font-semibold text-gray-700">
             GitHub URL:
           </label>
-          <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => setGitHubUrl(e.target.value)} />
+          <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => setGitHubUrl(e.target.value)} />
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(gitHubUrl)} onClick={updateGitHubUrl}>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(gitHubUrl)} onClick={() => updateVendor('gitHubUrl', gitHubUrl)}>
           Update
         </button>
       </div>
@@ -48,8 +61,8 @@ const Dashboard = ({ vendor, setVendor }) => {
           <input
             id="badgeName"
             type="text"
-            className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="single word"
+            className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1"
+            placeholder="alphabetic single world only"
             value={vendor.badgeName || ''}
             onChange={(e) => {
               if (typeof vendor.setBadgeName === 'function') {
@@ -73,7 +86,7 @@ const Dashboard = ({ vendor, setVendor }) => {
         <div className="flex items-center mb-4">
           <span className="mr-2 font-semibold text-gray-700">Chaos status:</span>
           <span id="chaosStatus" className="text-gray-900">
-            peaceful
+            calm
           </span>
         </div>
         <button
