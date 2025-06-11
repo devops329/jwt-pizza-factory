@@ -51,20 +51,6 @@ test('update vendor name', async () => {
   }
 });
 
-test('update vendor chaos', async () => {
-  const chaosReq = { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } };
-  const vendor = await createVendor(adminAuthToken, testVendorName);
-  try {
-    const [status, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, chaosReq);
-    expect(status).toBe(200);
-    expect(updatedVendor.chaos).toMatchObject(chaosReq.chaos);
-    expect(updatedVendor.chaos.fixCode).toBeDefined();
-    expect(updatedVendor.chaos.errorDate).toBeDefined();
-  } finally {
-    await DB.deleteVendor(vendor.id);
-  }
-});
-
 test('update vendor unknown', async () => {
   const updateVendorRes = await request(app).put(`/api/admin/vendor/bogus`).set('Authorization', `Bearer ${adminAuthToken}`).send({ name: 'updated name' });
   expect(updateVendorRes.status).toBe(404);

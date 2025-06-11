@@ -26,8 +26,7 @@ test('Create vendor with auth code', async () => {
   const ogSendEmail = app.services.sendEmail;
   try {
     app.services.sendEmail = jest.fn(async ({ to, subject, html, text }) => {
-      const codeMatch = html.match(/<b>(.{8})<\/b>/);
-      code = codeMatch ? codeMatch[1] : null;
+      code = readAuthCode(html);
       return true;
     });
 
@@ -59,8 +58,7 @@ test('Login vendor with auth code', async () => {
   const ogSendEmail = app.services.sendEmail;
   try {
     app.services.sendEmail = jest.fn(async ({ to, subject, html }) => {
-      const codeMatch = html.match(/<b>(.{8})<\/b>/);
-      code = codeMatch ? codeMatch[1] : null;
+      code = readAuthCode(html);
       return true;
     });
 
@@ -71,3 +69,8 @@ test('Login vendor with auth code', async () => {
     app.services.sendEmail = ogSendEmail;
   }
 });
+
+function readAuthCode(html) {
+  const codeMatch = html.match(/<strong>(.{8})<\/strong>/);
+  return codeMatch ? codeMatch[1] : null;
+}

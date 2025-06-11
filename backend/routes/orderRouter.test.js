@@ -42,12 +42,14 @@ test('create order no items', async () => {
 
 test('create order with chaos badjwt', async () => {
   try {
-    const [, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
-    const [status, body] = await createOrder(updatedVendor.apiKey);
+    const chaosResp = await request(app).put(`/api/vendor/chaos/badjwt`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+    expect(chaosResp.status).toBe(200);
+
+    const [status, body] = await createOrder(vendor.apiKey);
 
     expect(status).toBe(200);
     expect(body.jwt).toMatch(/^dead.*/);
-    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${updatedVendor.apiKey}&fixCode=${updatedVendor.chaos.fixCode}`);
+    expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
   } finally {
     await updateVendor(adminAuthToken, vendor.apiKey, { chaos: null });
   }
@@ -56,11 +58,11 @@ test('create order with chaos badjwt', async () => {
 test('create order with chaos throttle', async () => {
   try {
     orderRouter.settings.orderDelay = 1;
-    const [, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, { chaos: { type: 'throttle', resolveUrl: 'http://resolve.me' } });
-    const [status, body] = await createOrder(updatedVendor.apiKey);
+    await request(app).put(`/api/vendor/chaos/throttle`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+    const [status, body] = await createOrder(vendor.apiKey);
 
     expect(status).toBe(200);
-    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${updatedVendor.apiKey}&fixCode=${updatedVendor.chaos.fixCode}`);
+    expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
   } finally {
     orderRouter.settings.orderDelay = 32000;
     await updateVendor(adminAuthToken, vendor.apiKey, { chaos: null });
@@ -69,12 +71,12 @@ test('create order with chaos throttle', async () => {
 
 test('create order with chaos failure', async () => {
   try {
-    const [, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, { chaos: { type: 'fail', resolveUrl: 'http://resolve.me' } });
-    const [status, body] = await createOrder(updatedVendor.apiKey);
+    await request(app).put(`/api/vendor/chaos/fail`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+    const [status, body] = await createOrder(vendor.apiKey);
 
     expect(status).toBe(500);
     expect(body.message).toBe('chaos monkey');
-    expect(body.reportUrl).toEqual(`http://resolve.me?apiKey=${updatedVendor.apiKey}&fixCode=${updatedVendor.chaos.fixCode}`);
+    expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
   } finally {
     await updateVendor(adminAuthToken, vendor.apiKey, { chaos: null });
   }

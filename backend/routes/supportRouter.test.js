@@ -16,16 +16,12 @@ afterAll(async () => {
 });
 
 test('Report problem', async () => {
-  await updateVendor(adminAuthToken, vendor.apiKey, { chaos: { type: 'badjwt', resolveUrl: 'http://resolve.me' } });
+  const initChaosRes = await request(app).put(`/api/vendor/chaos/fail`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+  expect(initChaosRes.status).toBe(200);
+
   const [, body] = await createOrder(vendor.apiKey);
-
-  const reportUrl = body.reportUrl;
-
-  const url = new URL(reportUrl);
-  const apiKeyParam = url.searchParams.get('apiKey');
-  const fixCodeParam = url.searchParams.get('fixCode');
-
-  const reportRes = await request(app).get(`/api/support/${apiKeyParam}/report/${fixCodeParam}`);
+  const reportUrl = new URL(body.reportUrl).pathname;
+  const reportRes = await request(app).get(reportUrl);
   expect(reportRes.status).toBe(200);
   expect(reportRes.body.message).toBe('Problem resolved. Pizza is back on the menu!');
 

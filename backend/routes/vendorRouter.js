@@ -49,10 +49,23 @@ vendorRouter.endpoints = [
       gitHubUrl: 'https://github.com/byustudent23',
     },
   },
+  {
+    method: 'PUT',
+    path: '/api/vendor/chaos/:type',
+    requiresAuth: true,
+    description: 'Initiate chaos testing for a vendor.',
+    example: `curl -X POST $host/api/vendor/chaos/fail -H 'authorization: Bearer adminAuthToken'`,
+    response: {
+      message: 'Chaos initiated',
+    },
+  },
 ];
 
 // get vendor
 vendorRouter.get('/', vendorAuth, (req, res) => {
+  if (req.vendor.chaos && req.vendor.chaos.fixCode) {
+    delete req.vendor.chaos.fixCode;
+  }
   res.json(req.vendor);
 });
 
@@ -130,6 +143,33 @@ vendorRouter.put(
     });
     const vendor = await DB.updateVendor(req.apiKey, changes);
     res.json(vendor);
+  })
+);
+
+// initiate chaos testing for a vendor
+vendorRouter.put(
+  '/chaos/:type',
+  vendorAuth,
+  asyncHandler(async (req, res) => {
+    const type = req.params.type;
+    if (['badjwt', 'fail', 'throttle'].includes(type)) {
+      const vendor = await DB.getVendorByApiKey(req.apiKey);
+      if (vendor) {
+        const changes = {
+          chaos: {
+            type: type,
+            fixCode: Math.random().toString(36).substring(2, 10),
+            initiatedDate: new Date().toISOString(),
+          },
+        };
+        await DB.updateVendor(req.apiKey, changes);
+        res.json({ message: 'Chaos initiated' });
+      } else {
+        res.status(404).json({ message: 'Vendor not found' });
+      }
+    } else {
+      res.status(400).json({ message: 'Invalid chaos type' });
+    }
   })
 );
 

@@ -2,8 +2,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
       "name": "debug",
       "program": "index.js",
       "request": "launch",

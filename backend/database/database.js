@@ -1,7 +1,6 @@
 const mysql = require('mysql2/promise');
 const config = require('../config');
 const dbModel = require('./dbModel');
-const { v4: uuid } = require('uuid');
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
@@ -59,11 +58,6 @@ class DB {
         } else {
           vendor[key] = changes[key];
         }
-      }
-
-      if (changes.chaos && changes.chaos.type !== 'none') {
-        vendor.chaos.fixCode = uuid().replace(/-/g, '');
-        vendor.chaos.errorDate = new Date().toISOString();
       }
 
       await this.writeVendor(apiKey, vendor);
