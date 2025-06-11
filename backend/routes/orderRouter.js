@@ -52,7 +52,8 @@ orderRouter.endpoints = [
 
 const defaultChaos = async (req, res, next) => {
   if (req.vendor.chaos && req.vendor.chaos.type !== 'none') {
-    const reportUrl = `${req.protocol}://${req.hostname}/api/support/${req.apiKey}/report/${req.vendor.chaos.fixCode}`;
+    const port = req.socket.localPort;
+    const reportUrl = `${req.protocol}://${req.hostname}:${port}/api/support/${req.apiKey}/report/${req.vendor.chaos.fixCode}`;
     switch (req.vendor.chaos.type) {
       case 'badjwt':
         res.json({

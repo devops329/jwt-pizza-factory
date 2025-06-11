@@ -6,7 +6,7 @@ const Dashboard = ({ vendor, setVendor }) => {
   const [website, setWebsite] = React.useState(vendor.website || '');
   const [badgeName, setBadgeName] = React.useState('');
   const [badgeUrl, setBadgeUrl] = React.useState('');
-  const [chaosState, setChaosState] = React.useState('calm');
+  const [chaosState, setChaosState] = React.useState(vendor.chaos?.type !== 'none' ? 'chaotic' : 'calm');
 
   function updateVendor(key, value) {
     const vendorUpdate = { ...vendor, [key]: value };
@@ -30,6 +30,7 @@ const Dashboard = ({ vendor, setVendor }) => {
   }
 
   function initiateChaos() {
+    service.initiateChaos();
     setChaosState('chaotic');
   }
 
@@ -45,6 +46,7 @@ const Dashboard = ({ vendor, setVendor }) => {
 
   return (
     <div className="p-8 bg-white rounded-lg shadow-md">
+      <pre className="mb-4 bg-gray-100 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(vendor, null, 2)}</pre>
       <h2 className="text-2xl font-bold mb-6 text-start text-gray-800">Pizza Vendor Dashboard</h2>
       <div className="flex items-center">
         <span className="font-semibold text-gray-700 w-40">Net ID:</span>

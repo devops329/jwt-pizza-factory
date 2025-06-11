@@ -47,7 +47,7 @@ class Service {
     return this.callEndpoint('/api/vendor');
   }
 
-  async requestCode(netId: string): Promise<undefined> {
+  async requestCode(netId: string): Promise<void> {
     await this.callEndpoint('/api/vendor/code', 'POST', { id: netId });
   }
 
@@ -55,6 +55,10 @@ class Service {
     const vendor = await this.callEndpoint('/api/vendor/auth', 'POST', { id: netId, code });
     localStorage.setItem('token', vendor.apiKey);
     return Promise.resolve(vendor);
+  }
+
+  async initiateChaos(): Promise<void> {
+    await this.callEndpoint(`/api/vendor/chaos/fail`, 'PUT');
   }
 
   async generateBadge(venderId: string, badgeId: string, label: string = 'Example', value: string = '100%', color: string = '#44aa44'): Promise<String> {
