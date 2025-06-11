@@ -63,12 +63,39 @@ vendorRouter.post(
     const id = req.body.id;
     const email = `${id}@byu.edu`;
     const code = Math.random().toString(36).substring(2, 10);
+
+    const htmlTemplate = `
+  <p>Hello ${id},</p>
+  <p>Your verification code for the BYU CS 329 JWT Pizza Factory website is:</p>
+  <p><strong>${code}</strong></p>
+  <p>Please enter this code in the form you were using to create your secure session.</p>
+  <p>Do not share this code for others. If you did not request this code, please contact us at <a href="mailto:lee@cs.byu.edu">lee@cs.byu.edu</a>.</p>
+  <p>Thank you,<br>
+  The BYU CS 329 Team</p>
+  <p>For more information, visit <a href="https://cs329.click">https://cs329.click</a></p>
+  `;
+
+    const textTemplate = `
+  Hello ${id},
+
+  Your verification code for the BYU CS 329 JWT Pizza Factory website is: ${code}
+
+  Please enter this code in the form you were using to create your secure session.
+
+  Do not share this code with others. If you did not request this code, please contact us at lee@cs.byu.edu.
+
+  Thank you,
+  The BYU CS 329 Team
+
+  For more information, visit https://cs329.click
+  `;
+
     await DB.addAuthCode(id, code);
     await req.services.sendEmail({
       to: email,
       subject: 'BYU CS 329 JWT Pizza Factory',
-      html: `<html><body><h1>Hello ${id}</h1><p>Here is the code that you requested: <b>${code}</b>. Best regards, the CS 329 Team. <i>This message was sent by BYU CS 329. For questions, contact help@cs329.click.</i></body></html>`,
-      text: `Hello ${id}! Here is the code that you requested: ${code}. Best regards, the CS 329 Team. This message was sent by BYU CS 329. For questions, contact help@cs329.click.`,
+      html: htmlTemplate,
+      text: textTemplate,
     });
     res.json({ message: `Code sent to ${email}` });
   })

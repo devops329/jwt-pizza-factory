@@ -56,6 +56,12 @@ class Service {
     localStorage.setItem('token', vendor.apiKey);
     return Promise.resolve(vendor);
   }
+
+  async generateBadge(venderId: string, badgeId: string, label: string = 'Example', value: string = '100%', color: string = '#44aa44'): Promise<String> {
+    const query = new URLSearchParams({ label, value, color }).toString();
+    const response = await this.callEndpoint(`/api/badge/${venderId}/${badgeId}?${query}`, 'POST');
+    return response.url;
+  }
 }
 
 const service = new Service();

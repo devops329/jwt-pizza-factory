@@ -4,6 +4,9 @@ import service from './service';
 const Dashboard = ({ vendor, setVendor }) => {
   const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || '');
   const [website, setWebsite] = React.useState(vendor.website || '');
+  const [badgeName, setBadgeName] = React.useState('');
+  const [badgeUrl, setBadgeUrl] = React.useState('');
+  const [chaosState, setChaosState] = React.useState('calm');
 
   function updateVendor(key, value) {
     const vendorUpdate = { ...vendor, [key]: value };
@@ -11,6 +14,26 @@ const Dashboard = ({ vendor, setVendor }) => {
     setVendor(vendorUpdate);
   }
 
+  function validateBadgeName(e) {
+    const value = e.target.value;
+    const regex = /^[a-zA-Z\-]{1,32}$/;
+    if (regex.test(value) || value === '') {
+      setBadgeName(value);
+    } else {
+      e.target.value = badgeName;
+    }
+  }
+
+  async function generateBadge() {
+    const badgeUrl = await service.generateBadge(vendor.id, badgeName);
+    setBadgeUrl(badgeUrl);
+  }
+
+  function initiateChaos() {
+    setChaosState('chaotic');
+  }
+
+  const chaosStatusElement = document.getElementById('chaosStatus');
   function isValidUrl(url) {
     try {
       new URL(url);
@@ -54,47 +77,13 @@ const Dashboard = ({ vendor, setVendor }) => {
         </button>
       </div>
       <div className="mt-6 p-4 border border-gray-300">
-        <div className="mb-4 flex items-center">
-          <label htmlFor="badgeName" className="mr-2 font-semibold text-gray-700">
-            Badge Name:
-          </label>
-          <input
-            id="badgeName"
-            type="text"
-            className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1"
-            placeholder="alphabetic single world only"
-            value={vendor.badgeName || ''}
-            onChange={(e) => {
-              if (typeof vendor.setBadgeName === 'function') {
-                vendor.setBadgeName(e.target.value);
-              }
-            }}
-          />
-        </div>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={() => {
-            const badgeUrl = `${window.location.origin}/badge/${vendor.id}/pizza`;
-            navigator.clipboard.writeText(badgeUrl);
-            alert(`Badge URL copied to clipboard:\n${badgeUrl}`);
-          }}
-        >
-          Generate Badge
-        </button>
-      </div>
-      <div className="mt-6 p-4 border border-gray-300">
         <div className="flex items-center mb-4">
           <span className="mr-2 font-semibold text-gray-700">Chaos status:</span>
           <span id="chaosStatus" className="text-gray-900">
-            calm
+            {chaosState}
           </span>
         </div>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={() => {
-            alert('This feature is not implemented yet.');
-          }}
-        >
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={chaosState !== 'calm'} onClick={initiateChaos}>
           Initiate chaos
         </button>
       </div>
@@ -112,6 +101,24 @@ const Dashboard = ({ vendor, setVendor }) => {
           }}
         >
           Request partner
+        </button>
+      </div>
+      <div className="mt-6 p-4 border border-gray-300">
+        <div className="mb-4 flex items-center">
+          <label htmlFor="badgeName" className="mr-2 font-semibold text-gray-700">
+            Badge Name:
+          </label>
+          <input id="badgeName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeName} onChange={(e) => validateBadgeName(e)} />
+        </div>
+        <div className="mb-4 flex items-center">
+          <span className="mr-2 font-semibold text-gray-700">Badge URL:</span>
+          <span id="badgeUrl" className="text-gray-900">
+            {badgeUrl || 'Not generated yet'}
+            {badgeUrl && <img security="true" src={badgeUrl} alt="Badge" className="ml-6 inline-block" />}
+          </span>
+        </div>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!badgeName} onClick={generateBadge}>
+          Generate Badge
         </button>
       </div>
     </div>
