@@ -32,7 +32,7 @@ async function greateVendor(vendor) {
     vendor.validUntil = now.toISOString();
     vendor.apiKey = uuid().replace(/-/g, '');
 
-    await DB.addVendor(vendor.apiKey, vendor.id, vendor);
+    await DB.addVendor(vendor);
 
     return vendor;
   }

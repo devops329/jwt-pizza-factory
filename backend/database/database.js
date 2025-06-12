@@ -40,10 +40,10 @@ class DB {
     }
   }
 
-  async addVendor(apiKey, netId, vendor) {
+  async addVendor(vendor) {
     const connection = await this.getConnection();
     try {
-      await this.query(connection, `INSERT INTO vendor (apiKey, netId, body) VALUES (?, ?, ?)`, [apiKey, netId, JSON.stringify(vendor)]);
+      await this.query(connection, `INSERT INTO vendor (apiKey, netId, body) VALUES (?, ?, ?)`, [vendor.apiKey, vendor.id, JSON.stringify(vendor)]);
     } finally {
       connection.end();
     }
