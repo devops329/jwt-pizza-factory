@@ -1,8 +1,16 @@
+type Chaos = {
+  type: string;
+};
+
 type Vendor = {
-  name: string;
-  netId: string;
-  email: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  gitHubUrl?: string;
+  netId?: string;
   apiKey?: string;
+  chaos?: Chaos;
 };
 
 export { Vendor };

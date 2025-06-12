@@ -3,8 +3,8 @@ import React from 'react';
 import service from './service';
 
 export default function Login({ setVendor }) {
-  const [netId, setNetId] = React.useState('');
-  const [inputValue, setInputValue] = React.useState('');
+  const [netId, setNetId] = React.useState<string>('');
+  const [inputValue, setInputValue] = React.useState<string>('');
 
   const requestCode = async (e) => {
     e.preventDefault();

@@ -1,5 +1,6 @@
 import React from 'react';
 import service from './service';
+import { Vendor } from './model';
 
 const Dashboard = ({ vendor, setVendor }) => {
   const [vendorChanged, setVendorChanged] = React.useState(false);
@@ -12,18 +13,18 @@ const Dashboard = ({ vendor, setVendor }) => {
   const [badgeUrl, setBadgeUrl] = React.useState('');
   const [chaosState, setChaosState] = React.useState(getChaosLabel(vendor));
 
-  function getChaosLabel(vendor) {
+  function getChaosLabel(vendor: Vendor): string {
     return !vendor || !vendor.chaos || vendor.chaos.type === 'none' ? 'calm' : 'chaotic';
   }
 
-  async function updateVendorProp(value, fn) {
+  async function updateVendorProp(value: string, fn: React.Dispatch<React.SetStateAction<string>>) {
     fn(value);
     vendorChanged || setVendorChanged(true);
   }
 
-  async function updateVendor() {
+  async function updateVendor(): Promise<void> {
     if (vendorChanged) {
-      const fields = { email, gitHubUrl, name, phone, website };
+      const fields: Vendor = { email, gitHubUrl, name, phone, website };
       const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value && value !== vendor[key]));
       const vendorUpdate = await service.updateVendor(updatedFields);
       setVendor(vendorUpdate);
@@ -31,9 +32,9 @@ const Dashboard = ({ vendor, setVendor }) => {
     }
   }
 
-  function validateBadgeName(e) {
-    const value = e.target.value;
-    const regex = /^[a-zA-Z\-]{1,32}$/;
+  function validateBadgeName(e: React.ChangeEvent<HTMLInputElement>): void {
+    const value: string = e.target.value;
+    const regex: RegExp = /^[a-zA-Z\-]{1,32}$/;
     if (regex.test(value) || value === '') {
       setBadgeName(value);
     } else {
@@ -41,12 +42,12 @@ const Dashboard = ({ vendor, setVendor }) => {
     }
   }
 
-  async function generateBadge() {
+  async function generateBadge(): Promise<void> {
     const badgeUrl = await service.generateBadge(vendor.id, badgeName);
     setBadgeUrl(badgeUrl);
   }
 
-  function initiateChaos() {
+  function initiateChaos(): void {
     service.initiateChaos();
     setChaosState('chaotic');
   }
