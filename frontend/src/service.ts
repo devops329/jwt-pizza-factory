@@ -39,6 +39,11 @@ class Service {
     });
   }
 
+  async vendorExists(netId: string): Promise<boolean> {
+    const response = await this.callEndpoint(`/api/vendor/${netId}`);
+    return response.exists;
+  }
+
   updateVendor(vendor: Vendor): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor', 'PUT', vendor);
   }

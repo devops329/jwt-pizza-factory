@@ -7,10 +7,20 @@ const vendorRouter = express.Router();
 vendorRouter.endpoints = [
   {
     method: 'GET',
+    path: '/api/vendor/:id',
+    requiresAuth: false,
+    description: 'Gets if a vendor exists',
+    example: `curl -X GET $host/api/vendor/test3`,
+    response: {
+      exists: true,
+    },
+  },
+  {
+    method: 'GET',
     path: '/api/vendor',
     requiresAuth: true,
     description: 'Gets vendor information',
-    example: `curl -X POST $host/api/vendor -H 'authorization: Bearer authToken'`,
+    example: `curl -X GET $host/api/vendor -H 'authorization: Bearer authToken'`,
     response: {
       id: 'test3',
       apiKey: 'abcxyz',
@@ -77,6 +87,16 @@ vendorRouter.endpoints = [
     },
   },
 ];
+
+// vendor exists check
+vendorRouter.get(
+  '/:id',
+  asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const vendor = await DB.getVendorByNetId(id);
+    res.json({ exists: !!vendor });
+  })
+);
 
 // get vendor
 vendorRouter.get('/', vendorAuth, (req, res) => {
