@@ -2,15 +2,33 @@ import React from 'react';
 import service from './service';
 
 const Dashboard = ({ vendor, setVendor }) => {
+  const [vendorChanged, setVendorChanged] = React.useState(false);
   const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || '');
+  const [name, setName] = React.useState(vendor.name || '');
+  const [phone, setPhone] = React.useState(vendor.phone || '');
+  const [email, setEmail] = React.useState(vendor.email || '');
   const [website, setWebsite] = React.useState(vendor.website || '');
   const [badgeName, setBadgeName] = React.useState('');
   const [badgeUrl, setBadgeUrl] = React.useState('');
-  const [chaosState, setChaosState] = React.useState(vendor.chaos?.type !== 'none' ? 'chaotic' : 'calm');
+  const [chaosState, setChaosState] = React.useState(getChaosLabel(vendor));
 
-  async function updateVendor(key, value) {
-    const vendorUpdate = await service.updateVendor({ [key]: value });
-    setVendor(vendorUpdate);
+  function getChaosLabel(vendor) {
+    return !vendor || !vendor.chaos || vendor.chaos.type === 'none' ? 'calm' : 'chaotic';
+  }
+
+  async function updateVendorProp(value, fn) {
+    fn(value);
+    vendorChanged || setVendorChanged(true);
+  }
+
+  async function updateVendor() {
+    if (vendorChanged) {
+      const fields = { email, gitHubUrl, name, phone, website };
+      const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value && value !== vendor[key]));
+      const vendorUpdate = await service.updateVendor(updatedFields);
+      setVendor(vendorUpdate);
+      setVendorChanged(false);
+    }
   }
 
   function validateBadgeName(e) {
@@ -33,16 +51,6 @@ const Dashboard = ({ vendor, setVendor }) => {
     setChaosState('chaotic');
   }
 
-  const chaosStatusElement = document.getElementById('chaosStatus');
-  function isValidUrl(url) {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
   const [debug, setDebug] = React.useState(false);
 
   return (
@@ -51,32 +59,44 @@ const Dashboard = ({ vendor, setVendor }) => {
         Pizza <span onClick={() => setDebug(!debug)}>Vendor</span> Dashboard
       </h2>
       <div className="flex items-center">
-        <span className="font-semibold text-gray-700 w-40">Net ID:</span>
+        <span className="font-semibold text-gray-700 min-w-max mr-2">Net ID:</span>
         <span className="text-gray-900">{vendor.id}</span>
       </div>
       <div className="flex items-center">
-        <span className="font-semibold text-gray-700 w-40">Application Key:</span>
+        <span className="font-semibold text-gray-700 min-w-max mr-2">Application Key:</span>
         <span className="text-gray-900">{vendor.apiKey}</span>
-      </div>
-      <div className="mt-6 p-4 border border-gray-300">
-        <div className="mb-4 flex items-center">
-          <label htmlFor="website" className="mr-2 font-semibold text-gray-700">
-            Pizza Website:
-          </label>
-          <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="https://pizza.yourdomain" value={website} onChange={(e) => setWebsite(e.target.value)} />
-        </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(website)} onClick={() => updateVendor('website', website)}>
-          Update
+        <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey)} title="Copy API Key">
+          Copy
         </button>
       </div>
       <div className="mt-6 p-4 border border-gray-300">
-        <div className="mb-4 flex items-center">
-          <label htmlFor="gitHubUrl" className="mr-2 font-semibold text-gray-700">
+        <div className="grid grid-cols-[max-content_1fr] gap-2 items-center mb-4">
+          <label htmlFor="vendorName" className="font-semibold text-gray-700">
+            Name:
+          </label>
+          <input id="vendorName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your name" value={name} onChange={(e) => updateVendorProp(e.target.value, setName)} />
+
+          <label htmlFor="vendorPhone" className="font-semibold text-gray-700">
+            Phone:
+          </label>
+          <input id="vendorPhone" type="phone" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your phone" value={phone} onChange={(e) => updateVendorProp(e.target.value, setPhone)} />
+
+          <label htmlFor="vendorEmail" className="font-semibold text-gray-700">
+            Email:
+          </label>
+          <input id="vendorEmail" type="email" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your email" value={email} onChange={(e) => updateVendorProp(e.target.value, setEmail)} />
+
+          <label htmlFor="website" className="font-semibold text-gray-700">
+            Pizza Website:
+          </label>
+          <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://pizza.yourdomain" value={website} onChange={(e) => updateVendorProp(e.target.value, setWebsite)} />
+
+          <label htmlFor="gitHubUrl" className="font-semibold text-gray-700">
             GitHub URL:
           </label>
-          <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => setGitHubUrl(e.target.value)} />
+          <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => updateVendorProp(e.target.value, setGitHubUrl)} />
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!isValidUrl(gitHubUrl)} onClick={() => updateVendor('gitHubUrl', gitHubUrl)}>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!vendorChanged} onClick={() => updateVendor()}>
           Update
         </button>
       </div>

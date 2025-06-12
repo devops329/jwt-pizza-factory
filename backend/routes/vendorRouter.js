@@ -86,6 +86,23 @@ vendorRouter.get('/', vendorAuth, (req, res) => {
   res.json(req.vendor);
 });
 
+// update a vendor
+vendorRouter.put(
+  '/',
+  vendorAuth,
+  asyncHandler(async (req, res) => {
+    const changes = {};
+    const allowedFields = ['gitHubUrl', 'name', 'website', 'phone', 'email'];
+    Object.keys(req.body).forEach((key) => {
+      if (allowedFields.includes(key)) {
+        changes[key] = req.body[key];
+      }
+    });
+    const vendor = await DB.updateVendor(req.vendor, changes);
+    res.json(vendor);
+  })
+);
+
 // create authorization code email
 vendorRouter.post(
   '/code',
