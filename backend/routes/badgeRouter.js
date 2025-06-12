@@ -40,20 +40,19 @@ badgeRouter.get('/:account/:badge', (req, res) => {
 
 badgeRouter.post('/:account/:badge', vendorAuth, (req, res) => {
   const ids = getIds(req);
-  if (requestAuthorized(req.headers['authorization'], ids.account)) {
-    const labelText = req.query.label || 'Coverage';
-    const valueText = req.query.value || '0.00%';
-    const color = req.query.color || '#ee0000';
+  const labelText = req.query.label || 'Coverage';
+  const valueText = req.query.value || '0.00%';
+  const color = req.query.color || '#ee0000';
 
-    const svg = generateBadge(labelText, valueText, color);
-
-    fs.writeFileSync(`accounts/${ids.account}/${ids.badge}.svg`, svg);
-
-    const badgeUrl = `${req.protocol}://${req.get('host')}/api/badge/${ids.account}/${ids.badge}`;
-    res.json({ url: badgeUrl });
-  } else {
-    return res.status(401).send({ msg: 'Unauthorized' });
+  const svg = generateBadge(labelText, valueText, color);
+  const dir = `accounts/${ids.account}`;
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
+  fs.writeFileSync(`${dir}/${ids.badge}.svg`, svg);
+
+  const badgeUrl = `${req.protocol}://${req.get('host')}/api/badge/${ids.account}/${ids.badge}`;
+  res.json({ url: badgeUrl });
 });
 
 const fileNotFound = `
@@ -106,26 +105,6 @@ function generateBadge(label, value, color, padding = 5) {
         <text x="${(labelWidth + valueWidth / 2) * 10}" y="140" transform="scale(.1)" fill="#fff" textLength="${valueTextWidth * 10}">${value}</text>
       </g>
     </svg>`;
-}
-
-function requestAuthorized(authHeader, account) {
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-    const dir = `accounts/${account}`;
-    const accountFile = `${dir}/account.json`;
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(accountFile, `{"account":"${account}", "token": "${token}"}`);
-    }
-
-    if (fs.existsSync(accountFile)) {
-      const data = JSON.parse(fs.readFileSync(accountFile));
-      if (data.token === token) {
-        return true;
-      }
-    }
-  }
-  return false;
 }
 
 module.exports = badgeRouter;
