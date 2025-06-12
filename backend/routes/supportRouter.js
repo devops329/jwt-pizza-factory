@@ -27,7 +27,7 @@ supportRouter.get(
         delete vendor.chaos.fixCode;
         vendor.chaos.fixDate = new Date().toISOString();
         vendor.chaos.type = 'none';
-        await DB.updateVendor(req.params.vendorToken, { chaos: vendor.chaos });
+        await DB.updateVendorByApiKey(req.params.vendorToken, { chaos: vendor.chaos });
       }
       res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
     } else {

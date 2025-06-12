@@ -49,8 +49,7 @@ class DB {
     }
   }
 
-  async updateVendor(apiKey, changes) {
-    const vendor = await this.getVendorByApiKey(apiKey);
+  async updateVendor(vendor, changes) {
     if (vendor && changes && Object.keys(changes).length > 0) {
       for (const key in changes) {
         if (changes[key] === null) {
@@ -60,9 +59,19 @@ class DB {
         }
       }
 
-      await this.writeVendor(apiKey, vendor);
+      await this.writeVendor(vendor.apiKey, vendor);
     }
     return vendor;
+  }
+
+  async updateVendorByApiKey(apiKey, changes) {
+    const vendor = await this.getVendorByApiKey(apiKey);
+    return this.updateVendor(vendor, changes);
+  }
+
+  async updateVendorByNetId(netId, changes) {
+    const vendor = await this.getVendorByNetId(netId);
+    return this.updateVendor(vendor, changes);
   }
 
   async writeVendor(apiKey, vendor) {
@@ -98,6 +107,53 @@ class DB {
       return JSON.parse(vendorResult[0].body);
     } finally {
       connection.end();
+    }
+  }
+
+  async requestVendorConnection(vendor, purpose) {
+    const connection = await this.getConnection();
+
+    try {
+      // Make sure the vendor is marked as wanting a connection
+      if (!vendor.connections || !vendor.connections[purpose]) {
+        await this.query(connection, `INSERT INTO connect (vendor1, vendor2, purpose) VALUES (?, ?, ?)`, [vendor.id, null, purpose]);
+        vendor = await this.updateVendorConnection(vendor.id, purpose, null);
+      }
+
+      await connection.beginTransaction();
+      try {
+        // If no connection yet then try to find one
+        if (vendor.connections && vendor.connections[purpose] && !vendor.connections[purpose].id) {
+          const openVendors = await this.query(connection, `SELECT vendor1 FROM connect WHERE vendor1 != ? AND vendor2 IS NULL AND purpose=?`, [vendor.id, purpose]);
+          if (openVendors.length > 0) {
+            const connectedVendorId = openVendors[0].vendor1;
+            await this.query(connection, `UPDATE connect SET vendor2=? WHERE vendor1=?`, [vendor.id, connectedVendorId]);
+            await this.query(connection, `UPDATE connect SET vendor2=? WHERE vendor1=?`, [connectedVendorId, vendor.id]);
+
+            vendor = await this.updateVendorConnection(vendor.id, purpose, connectedVendorId);
+            await this.updateVendorConnection(connectedVendorId, purpose, vendor.id);
+
+            await connection.commit();
+            return vendor;
+          }
+        }
+        await connection.rollback();
+        return vendor;
+      } catch (err) {
+        await connection.rollback();
+        throw err;
+      }
+    } finally {
+      connection.end();
+    }
+  }
+
+  async updateVendorConnection(vendorId, purpose, foundVendorId) {
+    const vendor = await this.getVendorByNetId(vendorId);
+    if (vendor) {
+      const connections = vendor.connections || {};
+      connections[purpose] = { id: foundVendorId, purpose };
+      return this.updateVendorByNetId(vendor.id, { connections });
     }
   }
 
@@ -187,6 +243,7 @@ class DB {
     try {
       await connection.query(`DELETE FROM vendor WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM authCode WHERE netId=?`, [netId]);
+      await connection.query(`DELETE FROM connect WHERE vendor1=? OR vendor2=?`, [netId, netId]);
     } finally {
       connection.end();
     }

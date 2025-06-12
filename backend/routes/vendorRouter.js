@@ -50,6 +50,23 @@ vendorRouter.endpoints = [
     },
   },
   {
+    method: 'POST',
+    path: '/api/vendor/connect',
+    requiresAuth: true,
+    description: 'Connects one vendor to another vendor for a specific purpose. Repeated calls with the same purpose will update the connection if another vendor is available.',
+    example: `curl -X POST $host/api/vendor/connect  -d '{"purpose":"penetrationTesting"}' -H 'Content-Type:application/json'`,
+    response: {
+      id: 'test3',
+      apiKey: 'abcxyz',
+      connections: {
+        penetrationTesting: {
+          id: 'connectedVendorId',
+          purpose: 'penetration',
+        },
+      },
+    },
+  },
+  {
     method: 'PUT',
     path: '/api/vendor/chaos/:type',
     requiresAuth: true,
@@ -129,19 +146,17 @@ vendorRouter.post(
   })
 );
 
-// update a vendor
-vendorRouter.put(
-  '/',
+// create a vendor connection
+vendorRouter.post(
+  '/connect',
   vendorAuth,
   asyncHandler(async (req, res) => {
-    const changes = {};
-    const allowedFields = ['gitHubUrl', 'name', 'website'];
-    Object.keys(req.body).forEach((key) => {
-      if (allowedFields.includes(key)) {
-        changes[key] = req.body[key];
-      }
-    });
-    const vendor = await DB.updateVendor(req.apiKey, changes);
+    const purpose = req.body.purpose;
+    if (!purpose || typeof purpose !== 'string' || purpose.length < 1) {
+      return res.status(400).json({ message: 'Invalid purpose' });
+    }
+    let vendor = await DB.getVendorByApiKey(req.apiKey);
+    vendor = await DB.requestVendorConnection(vendor, purpose);
     res.json(vendor);
   })
 );
@@ -162,7 +177,7 @@ vendorRouter.put(
             initiatedDate: new Date().toISOString(),
           },
         };
-        await DB.updateVendor(req.apiKey, changes);
+        await DB.updateVendorByApiKey(req.apiKey, changes);
         res.json({ message: 'Chaos initiated' });
       } else {
         res.status(404).json({ message: 'Vendor not found' });

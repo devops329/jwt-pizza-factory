@@ -70,6 +70,28 @@ test('Login vendor with auth code', async () => {
   }
 });
 
+test('Connect vendors', async () => {
+  const vendor1 = await createVendor(adminAuthToken, 'testVendor1');
+  const vendor2 = await createVendor(adminAuthToken, 'testVendor2');
+  try {
+    const connect1Res = await request(app).post(`/api/vendor/connect`).set('Authorization', `Bearer ${vendor1.apiKey}`).send({ purpose: 'test' });
+    expect(connect1Res.status).toBe(200);
+    expect(connect1Res.body.connections.test).toMatchObject({ id: null, purpose: 'test' });
+
+    const vendor1Update = await DB.getVendorByApiKey(vendor1.apiKey);
+    expect(vendor1Update.connections.test).toMatchObject({ id: null, purpose: 'test' });
+
+    const connect2Res = await request(app).post(`/api/vendor/connect`).set('Authorization', `Bearer ${vendor2.apiKey}`).send({ purpose: 'test' });
+    expect(connect2Res.body.connections.test).toMatchObject({ id: vendor1.id, purpose: 'test' });
+
+    const vendor2Update = await DB.getVendorByApiKey(vendor2.apiKey);
+    expect(vendor2Update.connections.test).toMatchObject({ id: vendor1.id, purpose: 'test' });
+  } finally {
+    await DB.deleteVendor(vendor1.id);
+    await DB.deleteVendor(vendor2.id);
+  }
+});
+
 function readAuthCode(html) {
   const codeMatch = html.match(/<strong>(.{8})<\/strong>/);
   return codeMatch ? codeMatch[1] : null;

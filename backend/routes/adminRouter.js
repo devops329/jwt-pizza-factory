@@ -65,7 +65,7 @@ adminRouter.put(
   authorizeAdmin,
   asyncHandler(async (req, res) => {
     const changes = req.body;
-    const vendor = await DB.updateVendor(req.params.vendorToken, changes);
+    const vendor = await DB.updateVendorByApiKey(req.params.vendorToken, changes);
     if (vendor) {
       res.json(vendor);
     } else {
