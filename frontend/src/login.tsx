@@ -64,7 +64,7 @@ export default function Login({ setVendor }) {
         </div>
       )}
       {showVendorDialog && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black bg-opacity-40">
+        <div className="fixed inset-0 z-50 flex items-start justify-center">
           <dialog id="vendorDialog" open className="rounded shadow-md p-6 bg-white max-w-md w-full mt-16 mx-auto">
             <form
               method="dialog"
@@ -76,10 +76,10 @@ export default function Login({ setVendor }) {
               }}
             >
               <h2 className="text-lg font-semibold mb-2">Create Vendor Account</h2>
-              <p>This information is used by your peers to contact you for collaborative activities. Please add accurate information and accounts that you frequently check.</p>
+              <p className="text-sm">This information is used by your peers to contact you for collaborative activities. Please add accurate information and accounts that you frequently check.</p>
               <label className="flex flex-col">
                 Name
-                <input type="text" name="name" required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Your real name" />
+                <input type="text" name="name" required className="border border-gray-300 rounded px-3 py-2 mt-1 font-normal" placeholder="Your real name" />
               </label>
               <label className="flex flex-col">
                 Email
