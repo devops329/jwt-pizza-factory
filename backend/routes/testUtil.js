@@ -5,8 +5,8 @@ if (process.env.VSCODE_INSPECTOR_OPTIONS) {
   jest.setTimeout(60 * 1000 * 5); // 5 minutes
 }
 
-async function createVendor(adminAuthToken, vendorName) {
-  const testUser = { id: randomUserId(), name: vendorName };
+async function createVendor(adminAuthToken) {
+  const testUser = { id: randomUserId() };
   const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send(testUser);
   expect(addVendorRes.status).toBe(200);
   return addVendorRes.body;

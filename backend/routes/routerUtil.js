@@ -18,19 +18,18 @@ const vendorAuth = asyncHandler(async (req, res, next) => {
   }
 });
 
-async function greateVendor(vendor) {
-  if (!vendor || !vendor.id) {
-    throw new Error('Missing vendor ID');
-  }
-  const existingVendor = await DB.getVendorByNetId(vendor.id || '');
+async function greateVendor(vendorId) {
+  const existingVendor = await DB.getVendorByNetId(vendorId || '');
   if (existingVendor) {
     return existingVendor;
   } else {
     const now = new Date();
-    vendor.created = now.toISOString();
-    now.setMonth(now.getMonth() + 6);
-    vendor.validUntil = now.toISOString();
-    vendor.apiKey = uuid().replace(/-/g, '');
+    const vendor = {
+      id: vendorId,
+      created: now.toISOString(),
+      apiKey: uuid().replace(/-/g, ''),
+      email: `${vendorId}@byu.edu`,
+    };
 
     await DB.addVendor(vendor);
 

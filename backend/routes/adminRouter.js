@@ -45,7 +45,7 @@ const authorizeAdmin = asyncHandler(async (req, res, next) => {
   }
 });
 
-// create a new vendor - depredated
+// create a new vendor - deprecated
 adminRouter.post(
   '/vendor',
   authorizeAdmin,
@@ -54,7 +54,7 @@ adminRouter.post(
     if (!vendor.id) {
       res.status(400).json({ message: 'Missing param. Must have ID' });
     } else {
-      res.json(await greateVendor(vendor));
+      res.json(await greateVendor(vendor.id));
     }
   })
 );

@@ -71,8 +71,8 @@ test('Login vendor with auth code', async () => {
 });
 
 test('Connect vendors', async () => {
-  const vendor1 = await createVendor(adminAuthToken, 'testVendor1');
-  const vendor2 = await createVendor(adminAuthToken, 'testVendor2');
+  const vendor1 = await createVendor(adminAuthToken);
+  const vendor2 = await createVendor(adminAuthToken);
   try {
     const connect1Res = await request(app).post(`/api/vendor/connect`).set('Authorization', `Bearer ${vendor1.apiKey}`).send({ purpose: 'test' });
     expect(connect1Res.status).toBe(200);

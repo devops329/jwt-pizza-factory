@@ -103,12 +103,20 @@ vendorRouter.put(
   })
 );
 
+async function getVendorEmail(id) {
+  const vendor = await DB.getVendorByNetId(id);
+  if (vendor && vendor.email) {
+    return vendor.email;
+  }
+  return `${id}@byu.edu`;
+}
+
 // create authorization code email
 vendorRouter.post(
   '/code',
   asyncHandler(async (req, res) => {
     const id = req.body.id;
-    const email = `${id}@byu.edu`;
+    const email = await getVendorEmail(id);
     const code = Math.random().toString(36).substring(2, 10);
 
     const htmlTemplate = `
@@ -155,7 +163,7 @@ vendorRouter.post(
     const id = req.body.id;
     const code = req.body.code;
     if (await DB.validateAuthCode(id, code)) {
-      const vendor = await greateVendor({ id });
+      const vendor = await greateVendor(id);
       res.json(vendor);
     } else {
       return res.status(401).json({ message: 'Invalid code' });
