@@ -147,7 +147,7 @@ vendorRouter.put(
   vendorAuth,
   asyncHandler(async (req, res) => {
     const changes = {};
-    const allowedFields = ['gitHubUrl', 'name', 'website', 'phone', 'email'];
+    const allowedFields = ['gitHubUrl', 'name', 'website', 'phone', 'email', 'connections'];
     Object.keys(req.body).forEach((key) => {
       if (allowedFields.includes(key)) {
         changes[key] = req.body[key];
