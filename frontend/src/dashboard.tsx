@@ -65,7 +65,7 @@ const Dashboard = ({ vendor, setVendor }) => {
       </div>
       <div className="flex items-center">
         <span className="font-semibold text-gray-700 min-w-max mr-2">Application Key:</span>
-        <span className="text-gray-900">{vendor.apiKey}</span>
+        <span className="text-gray-900 truncate">{vendor.apiKey}</span>
         <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey)} title="Copy API Key">
           Copy
         </button>
