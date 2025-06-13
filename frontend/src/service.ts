@@ -44,6 +44,10 @@ class Service {
     return response.exists;
   }
 
+  addVendor(vendor: Vendor): Promise<Vendor> {
+    return this.callEndpoint('/api/vendor', 'POST', vendor);
+  }
+
   updateVendor(vendor: Vendor): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor', 'PUT', vendor);
   }
@@ -52,8 +56,9 @@ class Service {
     return this.callEndpoint('/api/vendor');
   }
 
-  async requestCode(netId: string): Promise<void> {
-    await this.callEndpoint('/api/vendor/code', 'POST', { id: netId });
+  async requestCode(netId: string): Promise<string> {
+    const response = await this.callEndpoint('/api/vendor/code', 'POST', { id: netId });
+    return response.email;
   }
 
   async authenticate(netId: string, code: string): Promise<[Vendor, string] | null> {

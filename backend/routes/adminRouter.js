@@ -1,6 +1,7 @@
 const express = require('express');
 const DB = require('../database/database');
-const { greateVendor, asyncHandler } = require('./routerUtil');
+const { asyncHandler } = require('./routerUtil');
+const { v4: uuid } = require('uuid');
 
 const adminRouter = express.Router();
 
@@ -58,6 +59,26 @@ adminRouter.post(
     }
   })
 );
+
+// Get rid of this function in the future, as it is deprecated
+async function greateVendor(vendorId) {
+  const existingVendor = await DB.getVendorByNetId(vendorId || '');
+  if (existingVendor) {
+    return existingVendor;
+  } else {
+    const now = new Date();
+    const vendor = {
+      id: vendorId,
+      created: now.toISOString(),
+      apiKey: uuid().replace(/-/g, ''),
+      email: `${vendorId}@byu.edu`,
+    };
+
+    await DB.addVendor(vendor);
+
+    return vendor;
+  }
+}
 
 // update a vendor - deprecated
 adminRouter.put(

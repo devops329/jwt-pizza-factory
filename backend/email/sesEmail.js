@@ -31,7 +31,7 @@ async function sendEmail({ to, subject, html, text }) {
         Data: subject,
       },
     },
-    Source: 'no-reply@cs329.click',
+    Source: '"CS 329" <no-reply@cs329.click>',
   };
 
   await client.send(new SendEmailCommand(params));

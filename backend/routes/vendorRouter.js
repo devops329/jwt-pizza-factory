@@ -1,6 +1,7 @@
 const express = require('express');
 const DB = require('../database/database');
 const { greateVendor, vendorAuth, asyncHandler } = require('./routerUtil');
+const { v4: uuid } = require('uuid');
 
 const vendorRouter = express.Router();
 
@@ -9,7 +10,7 @@ vendorRouter.endpoints = [
     method: 'GET',
     path: '/api/vendor/:id',
     requiresAuth: false,
-    description: 'Gets if a vendor exists',
+    description: 'Check if a vendor exists',
     example: `curl -X GET $host/api/vendor/test3`,
     response: {
       exists: true,
@@ -28,12 +29,36 @@ vendorRouter.endpoints = [
   },
   {
     method: 'POST',
+    path: '/api/vendor',
+    requiresAuth: false,
+    description: 'Creates a new vendor. This does not authenticate.',
+    example: `curl -X POST $host/api/vendor -H 'Content-Type:application/json' -d '{"id":"test3", "name":"cs student", "gitHubUrl":"https://github.com/test3"}'`,
+    response: {
+      id: 'test3',
+      name: 'cs student',
+      gitHubUrl: 'https://github.com/test3',
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/api/vendor',
+    requiresAuth: true,
+    description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
+    example: `curl -X POST $host/api/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"gitHubUrl":"https://github.com/test3"}'`,
+    response: {
+      id: 'test3',
+      name: 'cs student',
+      gitHubUrl: 'https://github.com/test3',
+    },
+  },
+  {
+    method: 'POST',
     path: '/api/vendor/code',
     requiresAuth: false,
     description: 'Send authorization code email',
     example: `curl -X POST $host/api/vendor/code  -d '{"id":"test3"}' -H 'Content-Type: application/json'`,
     response: {
-      message: 'Code sent to test3.byu.edu',
+      email: 'test3.byu.edu',
     },
   },
   {
@@ -45,18 +70,6 @@ vendorRouter.endpoints = [
     response: {
       id: 'test3',
       apiKey: 'abcxyz',
-    },
-  },
-  {
-    method: 'PUT',
-    path: '/api/vendor',
-    requiresAuth: true,
-    description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
-    example: `curl -X POST $host/api/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"gitHubUrl":"https://github.com/byustudent23"}'`,
-    response: {
-      id: 'byustudent23',
-      name: 'cs student',
-      gitHubUrl: 'https://github.com/byustudent23',
     },
   },
   {
@@ -106,6 +119,28 @@ vendorRouter.get('/', vendorAuth, (req, res) => {
   res.json(req.vendor);
 });
 
+// add a vendor
+vendorRouter.post(
+  '/',
+  asyncHandler(async (req, res) => {
+    let vendor = req.body;
+    if (!vendor || !vendor.id) {
+      return res.status(400).json({ message: 'Missing param. Must have ID' });
+    }
+    if (await DB.getVendorByNetId(vendor.id)) {
+      return res.status(409).json({ message: 'Vendor already exists' });
+    }
+    const allowedFields = ['id', 'gitHubUrl', 'name', 'website', 'phone', 'email'];
+    vendor = Object.fromEntries(Object.entries(vendor).filter(([key]) => allowedFields.includes(key)));
+    vendor.apiKey = uuid().replace(/-/g, '');
+    vendor.created = new Date().toISOString();
+    vendor.email = vendor.email || `${vendor.id}@byu.edu`;
+    await DB.addVendor(vendor);
+    delete vendor.apiKey;
+    res.json(vendor);
+  })
+);
+
 // update a vendor
 vendorRouter.put(
   '/',
@@ -123,35 +158,29 @@ vendorRouter.put(
   })
 );
 
-async function getVendorEmail(id) {
-  const vendor = await DB.getVendorByNetId(id);
-  if (vendor && vendor.email) {
-    return vendor.email;
-  }
-  return `${id}@byu.edu`;
-}
-
 // create authorization code email
 vendorRouter.post(
   '/code',
   asyncHandler(async (req, res) => {
-    const id = req.body.id;
-    const email = await getVendorEmail(id);
+    const vendor = await DB.getVendorByNetId(req.body.id || '');
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
     const code = Math.random().toString(36).substring(2, 10);
 
     const htmlTemplate = `
-  <p>Hello ${id},</p>
+  <p>Hello ${vendor.name},</p>
   <p>Your verification code for the BYU CS 329 JWT Pizza Factory website is:</p>
   <p><strong>${code}</strong></p>
   <p>Please enter this code in the form you were using to create your secure session.</p>
-  <p>Do not share this code for others. If you did not request this code, please contact us at <a href="mailto:lee@cs.byu.edu">lee@cs.byu.edu</a>.</p>
+  <p>Do not share this code for others. If you did not request this code, please contact us at <a href="mailto:ta@cs329.click">ta@cs329.click</a>.</p>
   <p>Thank you,<br>
   The BYU CS 329 Team</p>
   <p>For more information, visit <a href="https://cs329.click">https://cs329.click</a></p>
   `;
 
     const textTemplate = `
-  Hello ${id},
+  Hello ${vendor.name},
 
   Your verification code for the BYU CS 329 JWT Pizza Factory website is: ${code}
 
@@ -165,14 +194,14 @@ vendorRouter.post(
   For more information, visit https://cs329.click
   `;
 
-    await DB.addAuthCode(id, code);
+    await DB.addAuthCode(vendor.id, code);
     await req.services.sendEmail({
-      to: email,
+      to: vendor.email,
       subject: 'BYU CS 329 JWT Pizza Factory',
       html: htmlTemplate,
       text: textTemplate,
     });
-    res.json({ message: `Code sent to ${email}` });
+    res.json({ email: vendor.email });
   })
 );
 
@@ -183,7 +212,7 @@ vendorRouter.post(
     const id = req.body.id;
     const code = req.body.code;
     if (await DB.validateAuthCode(id, code)) {
-      const vendor = await greateVendor(id);
+      const vendor = await DB.getVendorByNetId(id);
       res.json(vendor);
     } else {
       return res.status(401).json({ message: 'Invalid code' });
@@ -191,7 +220,7 @@ vendorRouter.post(
   })
 );
 
-// create a vendor connection
+// create a vendor connection to another vendor
 vendorRouter.post(
   '/connect',
   vendorAuth,

@@ -8,7 +8,7 @@ type Vendor = {
   phone?: string;
   website?: string;
   gitHubUrl?: string;
-  netId?: string;
+  id: string;
   apiKey?: string;
   chaos?: Chaos;
 };

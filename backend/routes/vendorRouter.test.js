@@ -31,10 +31,13 @@ test('Create vendor with auth code', async () => {
     });
 
     const id = Math.random().toString(36).substring(2, 10);
+    const addVendorRes = await request(app).post(`/api/vendor`).send({ id, email: 'test3@hotmail.com', name: 'Test 3' });
+    expect(addVendorRes.status).toBe(200);
+
     const createAuthCodeRes = await request(app).post(`/api/vendor/code`).send({ id });
-    expect(app.services.sendEmail).toHaveBeenCalled();
     expect(createAuthCodeRes.status).toBe(200);
-    expect(createAuthCodeRes.body).toMatchObject({ message: `Code sent to ${id + '@byu.edu'}` });
+    expect(createAuthCodeRes.body).toMatchObject({ email: `test3@hotmail.com` });
+    expect(app.services.sendEmail).toHaveBeenCalled();
 
     const loginRes = await request(app).post(`/api/vendor/auth`).send({ id, code });
     expect(loginRes.status).toBe(200);
@@ -53,7 +56,7 @@ test('Create vendor with auth code', async () => {
   }
 });
 
-test('Login vendor with auth code', async () => {
+test('Login existing vendor with auth code', async () => {
   let code = null;
   const ogSendEmail = app.services.sendEmail;
   try {

@@ -5,19 +5,18 @@ import { Vendor } from './model';
 
 export default function Login({ setVendor }) {
   const [netId, setNetId] = React.useState<string>('');
+  const [email, setEmail] = React.useState<string>('');
   const [inputValue, setInputValue] = React.useState<string>('');
-  const [showVendorDialog, setShowVendorDialog] = React.useState(false);
+  const [vendorDialogVisible, setVendorDialogVisible] = React.useState(false);
 
-  const requestCode = async (e) => {
+  const submitCodeRequest = async (e) => {
     e.preventDefault();
 
     const vendorExists = await service.vendorExists(inputValue);
     if (vendorExists) {
-      await service.requestCode(inputValue);
-      setNetId(inputValue);
-      setInputValue('');
+      await requestCode(inputValue);
     } else {
-      setShowVendorDialog(true);
+      setVendorDialogVisible(true);
     }
   };
 
@@ -34,17 +33,23 @@ export default function Login({ setVendor }) {
     })();
   };
 
-  function createVendor(vendor: Vendor) {
-    // create a vendor with the service and then go back and request the service code and set the setNetId and inputvalue to ''
-    //setVendor(vendor);
-    setShowVendorDialog(false);
+  async function createVendor(vendor: Vendor) {
+    const addedVendor = await service.addVendor({ ...vendor, id: inputValue });
+    await requestCode(addedVendor.id);
+    setVendorDialogVisible(false);
+  }
+
+  async function requestCode(id: string) {
+    setEmail(await service.requestCode(id));
+    setNetId(id);
+    setInputValue('');
   }
 
   return (
     <div>
       {!netId ? (
         <div className="flex items-start justify-center">
-          <form onSubmit={requestCode} className="bg-white p-8 rounded shadow-md flex flex-col gap-4 w-80 my-6">
+          <form onSubmit={submitCodeRequest} className="bg-white p-8 rounded shadow-md flex flex-col gap-4 w-80 my-6">
             <label htmlFor="login" className="text-gray-700 font-semibold">
               Login
             </label>
@@ -61,7 +66,7 @@ export default function Login({ setVendor }) {
               Authenticate code
             </label>
             <div className="text-sm text-gray-500">
-              Provide the code sent to <b>{netId}@byu.edu</b>.
+              Provide the code sent to <b>{email}</b>.
             </div>
             <input id="login" type="text" value={inputValue} placeholder="Code" onChange={(e) => setInputValue(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
             <button disabled={!inputValue} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
@@ -70,12 +75,16 @@ export default function Login({ setVendor }) {
           </form>
         </div>
       )}
-      {showVendorDialog && <VendorDialog setShowVendorDialog={setShowVendorDialog} createVendor={createVendor} />}
+      {vendorDialogVisible && <VendorDialog setShowVendorDialog={setVendorDialogVisible} createVendor={createVendor} />}
     </div>
   );
 }
 
 function VendorDialog({ setShowVendorDialog, createVendor }) {
+  const [name, setName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [phone, setPhone] = React.useState('');
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center">
       <dialog id="vendorDialog" open className="rounded shadow-md p-6 bg-white max-w-md w-full mt-16 mx-auto">
@@ -84,23 +93,22 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
           className="flex flex-col gap-4 w-full"
           onSubmit={(e) => {
             e.preventDefault();
-            setShowVendorDialog(false);
-            // Optionally, handle vendor creation logic here
+            createVendor({ name, email, phone });
           }}
         >
           <h2 className="text-lg font-semibold mb-2">Create Vendor Account</h2>
           <p className="text-sm">This information is used by your peers to contact you for collaborative activities. Please add accurate information and accounts that you frequently check.</p>
           <label className="flex flex-col">
             Name
-            <input type="text" name="name" required className="border border-gray-300 rounded px-3 py-2 mt-1 font-normal" placeholder="Your real name" />
+            <input type="text" name="name" required onChange={(e) => setName(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1 font-normal" placeholder="Your real name" />
           </label>
           <label className="flex flex-col">
             Email
-            <input type="email" name="email" required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Email that you frequently check" />
+            <input type="email" name="email" required onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Email that you frequently check" />
           </label>
           <label className="flex flex-col">
             Phone Number
-            <input type="tel" name="phone" required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Phone number you will respond to" />
+            <input type="tel" name="phone" required onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Phone number you will respond to" />
           </label>
           <div className="flex gap-2 mt-4">
             <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700">

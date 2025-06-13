@@ -1,5 +1,4 @@
 const DB = require('../database/database');
-const { v4: uuid } = require('uuid');
 
 function asyncHandler(fn) {
   return function (req, res, next) {
@@ -18,23 +17,4 @@ const vendorAuth = asyncHandler(async (req, res, next) => {
   }
 });
 
-async function greateVendor(vendorId) {
-  const existingVendor = await DB.getVendorByNetId(vendorId || '');
-  if (existingVendor) {
-    return existingVendor;
-  } else {
-    const now = new Date();
-    const vendor = {
-      id: vendorId,
-      created: now.toISOString(),
-      apiKey: uuid().replace(/-/g, ''),
-      email: `${vendorId}@byu.edu`,
-    };
-
-    await DB.addVendor(vendor);
-
-    return vendor;
-  }
-}
-
-module.exports = { vendorAuth, greateVendor, asyncHandler };
+module.exports = { vendorAuth, asyncHandler };
