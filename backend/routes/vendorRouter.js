@@ -229,7 +229,7 @@ vendorRouter.post(
     if (!purpose || typeof purpose !== 'string' || purpose.length < 1) {
       return res.status(400).json({ message: 'Invalid purpose' });
     }
-    let vendor = await DB.getVendorByApiKey(req.apiKey);
+    let vendor = req.vendor;
     vendor = await DB.requestVendorConnection(vendor, purpose);
     res.json(vendor);
   })

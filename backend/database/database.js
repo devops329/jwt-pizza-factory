@@ -148,13 +148,17 @@ class DB {
     }
   }
 
-  async updateVendorConnection(vendorId, purpose, foundVendorId) {
+  async updateVendorConnection(vendorId, purpose, connectedVendorId) {
     const vendor = await this.getVendorByNetId(vendorId);
-    if (vendor) {
-      const connections = vendor.connections || {};
-      connections[purpose] = { id: foundVendorId, purpose };
-      return this.updateVendorByNetId(vendor.id, { connections });
+    const connections = vendor.connections || {};
+    connections[purpose] = { id: null, purpose };
+    if (connectedVendorId) {
+      const connectedVendor = await this.getVendorByNetId(connectedVendorId);
+      if (connectedVendor) {
+        connections[purpose] = { id: connectedVendor.id, name: connectedVendor.name, phone: connectedVendor.phone, email: connectedVendor.email, website: connectedVendor.website, purpose };
+      }
     }
+    return this.updateVendorByNetId(vendor.id, { connections });
   }
 
   async query(connection, sql, params) {

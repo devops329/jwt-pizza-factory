@@ -97,7 +97,7 @@ const Dashboard = ({ vendor, setVendor }) => {
           </label>
           <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => updateVendorProp(e.target.value, setGitHubUrl)} />
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!vendorChanged} onClick={() => updateVendor()}>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!vendorChanged} onClick={() => updateVendor()}>
           Update
         </button>
       </div>
@@ -108,26 +108,11 @@ const Dashboard = ({ vendor, setVendor }) => {
             {chaosState}
           </span>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={chaosState !== 'calm'} onClick={initiateChaos}>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={chaosState !== 'calm'} onClick={initiateChaos}>
           Initiate chaos
         </button>
       </div>
-      <div className="mt-6 p-4 border border-gray-300">
-        <div className="flex items-center mb-4">
-          <span className="mr-2 font-semibold text-gray-700">Pentest partner:</span>
-          <span id="penTestPartner" className="text-gray-900">
-            not requested
-          </span>
-        </div>
-        <button
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-          onClick={() => {
-            alert('This feature is not implemented yet.');
-          }}
-        >
-          Request partner
-        </button>
-      </div>
+      <PenetrationTesting vendor={vendor} setVendor={setVendor} />
       <div className="mt-6 p-4 border border-gray-300">
         <div className="mb-4 flex items-center">
           <label htmlFor="badgeName" className="mr-2 font-semibold text-gray-700">
@@ -147,7 +132,7 @@ const Dashboard = ({ vendor, setVendor }) => {
             {badgeUrl && <img security="true" src={badgeUrl} alt="Badge" />}
           </span>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!badgeName} onClick={generateBadge}>
+        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!badgeName} onClick={generateBadge}>
           Generate Badge
         </button>
       </div>
@@ -155,5 +140,53 @@ const Dashboard = ({ vendor, setVendor }) => {
     </div>
   );
 };
+
+function PenetrationTesting({ vendor, setVendor }) {
+  async function requestPenetrationTestPartner(): Promise<void> {
+    const connectedVendor = await service.connectVendor('penetrationTest');
+    setVendor(connectedVendor);
+    // setVendor((prevVendor: Vendor) => ({
+    //   ...prevVendor,
+    //   connections: {
+    //     ...prevVendor.connections,
+    //     penetrationTest: {
+    //       id: 'pen-test-partner-id',
+    //       name: 'Example Pen Test Partner',
+    //       phone: '123-456-7890',
+    //       email: 'jon@cow.com',
+    //       website: 'https://pizza@cow.com',
+    //     },
+    //   },
+    //    }));
+  }
+
+  let connectionJsx = <span className="text-gray-900">Not yet requested</span>;
+  if (vendor.connections?.penetrationTest?.id) {
+    connectionJsx = (
+      <span>
+        <div className="text-gray-600">{vendor.connections.penetrationTest.name}</div>
+        <a href={vendor.connections.penetrationTest.website} className="text-blue-600 hover:underline">
+          vendor.connections.penetrationTest.website
+        </a>
+        <div className="text-gray-600">{vendor.connections.penetrationTest.phone}</div>
+        <div className="text-gray-600">{vendor.connections.penetrationTest.email}</div>
+      </span>
+    );
+  } else if (vendor.connections?.penetrationTest) {
+    connectionJsx = <span>Waiting for available partner</span>;
+  }
+
+  return (
+    <div className="mt-6 p-4 border border-gray-300">
+      <div className="flex mb-4">
+        <span className="mr-2 font-semibold text-gray-700">Pentest partner:</span>
+        {connectionJsx}
+      </div>
+      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition" disabled={!!vendor.connections?.penetrationTest} onClick={requestPenetrationTestPartner}>
+        Request partner
+      </button>
+    </div>
+  );
+}
 
 export default Dashboard;

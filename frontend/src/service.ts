@@ -44,16 +44,20 @@ class Service {
     return response.exists;
   }
 
-  addVendor(vendor: Vendor): Promise<Vendor> {
+  async addVendor(vendor: Vendor): Promise<Vendor> {
     return this.callEndpoint('/api/vendor', 'POST', vendor);
   }
 
-  updateVendor(vendor: Vendor): Promise<Vendor | null> {
+  async updateVendor(vendor: Vendor): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor', 'PUT', vendor);
   }
 
-  getVendor(): Promise<Vendor | null> {
+  async getVendor(): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor');
+  }
+
+  async connectVendor(purpose: string): Promise<Vendor> {
+    return await this.callEndpoint('/api/vendor/connect', 'POST', { purpose: purpose });
   }
 
   async requestCode(netId: string): Promise<string> {

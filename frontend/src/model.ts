@@ -11,6 +11,7 @@ type Vendor = {
   id: string;
   apiKey?: string;
   chaos?: Chaos;
+  connections?: object;
 };
 
 export { Vendor };
