@@ -93,22 +93,32 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
           className="flex flex-col gap-4 w-full"
           onSubmit={(e) => {
             e.preventDefault();
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailPattern.test(email)) {
+              alert('Please enter a valid email address of the form xxx@xxx.xxx');
+              return;
+            }
+            const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
+            if (!phonePattern.test(phone)) {
+              alert('Please enter a valid phone number of the form xxx-xxx-xxxx');
+              return;
+            }
             createVendor({ name, email, phone });
           }}
         >
           <h2 className="text-lg font-semibold mb-2">Create Vendor Account</h2>
-          <p className="text-sm">This information is used by your peers to contact you for collaborative activities. Please add accurate information and accounts that you frequently check.</p>
+          <p className="text-sm">This information is used by your peers to contact you for collaborative activities. Please add accurate information for accounts that you frequently check.</p>
           <label className="flex flex-col">
             Name
             <input type="text" name="name" required onChange={(e) => setName(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1 font-normal" placeholder="Your real name" />
           </label>
           <label className="flex flex-col">
-            Email
-            <input type="email" name="email" required onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Email that you frequently check" />
+            Email <span className="text-sm italic text-gray-300">That you check frequently</span>
+            <input type="email" name="email" required onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxxx@xxx.xxx" />
           </label>
           <label className="flex flex-col">
-            Phone Number
-            <input type="tel" name="phone" required onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="Phone number you will respond to" />
+            Phone Number <span className="text-sm italic text-gray-300">For text notifications</span>
+            <input type="tel" name="phone" required onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxx-xxx-xxxx" />
           </label>
           <div className="flex gap-2 mt-4">
             <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700">
