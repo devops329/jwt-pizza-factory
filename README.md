@@ -1,10 +1,6 @@
 # 🍕 JWT Pizza Factory
 
-Factory service for making JWT pizzas
-
-## Usage
-
-- Create an Admin endpoint to register JWT Pizza implementation this returns an API key for the JWT Pizza Server to use when making pizzas.
+The factory serves as the primary supporting service to all JWT Pizza vendors. It support pizza creation, JWT validation, Chaos testing, and Peer Vendor connections.
 
 ## Endpoints
 
@@ -14,25 +10,9 @@ You can get the documentation for all endpoints by making the following request.
 curl $host/api/docs
 ```
 
-## Chaos flow
+## Backend
 
-The pizza factory supports injecting chaos in to the application as throttled requests, bad JWT tokens, or pizza creation failure.
-
-```mermaid
-sequenceDiagram
-    participant Learner
-    participant Grader
-    participant Factory
-    Learner->>Grader: Ready for grading
-    Grader->>Factory:Start chaos:  [PUT] /api/vendor/:apiKey ({"chaos":{"type":"fail", "resolveUrl":"grader-resolution-url"}})
-    Learner->>Factory: make pizza
-    Factory-->>Learner: Error (grader-resolution-url?apiKey=abcxyz&fixCode=123)
-    Learner->>Grader: grader-resolution-url?apiKey=abcxyz&fixCode=123
-    Grader->>Factory:Stop chaos: /api/support/abcxyz/report/123
-    Grader-->>Learner: Grade
-```
-
-## Backend Development notes
+### Development notes
 
 1. Create project
    ```sh
@@ -56,7 +36,7 @@ sequenceDiagram
    console.log(k);
    ```
 
-## JWT
+### JWT
 
 A JWT Pizza is a JWT signed with an asymmetric key.
 
@@ -64,9 +44,9 @@ You can get the JWKS to verify JWTs using the `/.well-known/jwks.json` endpoint.
 
 https://www.npmjs.com/package/node-jose
 
-## Configuration
+### Configuration
 
-You must have a database available for use by the factory. You configure the connection to the database with a config file.
+You must have a database available for use by the factory. You configure the connection to the database with a `config.js` file.
 
 ```js
 const config = {
@@ -81,10 +61,10 @@ const config = {
   },
 };
 
-export default config;
+module.exports = config;
 ```
 
-## Administrative auth token
+### Administrative auth token
 
 The auth table must contain an authorization key that allows administrative requests. When the database is created for the first time, it will automatically create the token. You can manually read the value out of the database, or add other tokens.
 
@@ -97,10 +77,25 @@ if (!dbExists) {
 
 All vendors are inserted through the admin endpoints.
 
-## Vendor access
+## Using the factory
 
-When an admin registers a vendor they are assigned an apiKey. They can make order requests using that key. For example, the following orders a pizza using the apiKey `xyz`.
+### Vendor access and Pizza creation
+
+When a vendor is created they are assigned an apiKey. They can make order requests using that key. For example, the following orders a pizza using the apiKey `xyz`.
 
 ```sh
 curl -X POST $host/api/order -H 'authorization: Bearer xyz' -d '{"diner":{"id":719,"name":"j","email":"j@jwt.com"},"order":{"items":[{"menuId":1,"description":"Veggie","price":0.0038}],"storeId":"5","franchiseId":4,"id":278}}' -H 'Content-Type: application/json'
+```
+
+## Chaos flow
+
+The pizza factory supports injecting chaos in to the application.
+
+```mermaid
+sequenceDiagram
+    participant Learner
+    participant Factory
+    Learner->>Factory: Ready for chaos
+    Learner->>Factory: Drive traffic to make pizza. Chaos happens.
+    Learner->>Factory: Learner debugs and resolves chaos.
 ```

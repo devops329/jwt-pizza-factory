@@ -17,10 +17,9 @@ printf "\n----> Deploying $service to $hostname with $key\n"
 
 # Step 1
 printf "\n----> Build the distribution package\n"
-rm -rf dist
-mkdir dist
-cp -r backend/* dist
-cp *.json dist
+(cd frontend && npm run build)
+rm -rf dist && mkdir dist
+cp -r backend/*.js backend/*.json backend/routes backend/email backend/database backend/public backend/jwt.* dist/
 
 # Step 2
 printf "\n----> Clearing out previous distribution on the target\n"
