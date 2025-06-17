@@ -2,6 +2,15 @@ type Chaos = {
   type: string;
 };
 
+type PenetrationTest = {
+  id: string;
+  name: string;
+  website: string;
+  phone: string;
+  email: string;
+  rating: number;
+};
+
 type Vendor = {
   name?: string;
   email?: string;
@@ -11,7 +20,9 @@ type Vendor = {
   id: string;
   apiKey?: string;
   chaos?: Chaos;
-  connections?: object;
+  connections?: {
+    penetrationTest?: PenetrationTest;
+  };
 };
 
 export { Vendor };
