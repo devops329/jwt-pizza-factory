@@ -3,6 +3,7 @@ import service from './service';
 import { Vendor } from './model';
 import PenetrationTesting from './penetrationTesting';
 import Chaos from './chaos';
+import Badge from './badge';
 
 interface DashboardProps {
   vendor: Vendor;
@@ -16,8 +17,6 @@ const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
   const [phone, setPhone] = React.useState(vendor.phone || '');
   const [email, setEmail] = React.useState(vendor.email || '');
   const [website, setWebsite] = React.useState(vendor.website || '');
-  const [badgeName, setBadgeName] = React.useState('');
-  const [badgeUrl, setBadgeUrl] = React.useState('');
 
   async function updateVendorProp(value: string, fn: React.Dispatch<React.SetStateAction<string>>) {
     fn(value);
@@ -36,20 +35,6 @@ const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
     }
   }
 
-  function validateBadgeName(e: React.ChangeEvent<HTMLInputElement>): void {
-    const value: string = e.target.value;
-    const regex: RegExp = /^[a-zA-Z\-]{1,32}$/;
-    if (regex.test(value) || value === '') {
-      setBadgeName(value);
-    } else {
-      e.target.value = badgeName;
-    }
-  }
-
-  async function generateBadge(): Promise<void> {
-    const badgeUrl = await service.generateBadge(vendor.id, badgeName);
-    setBadgeUrl(badgeUrl);
-  }
   const [debug, setDebug] = React.useState(false);
 
   return (
@@ -101,29 +86,7 @@ const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
       </div>
       <Chaos vendor={vendor} />
       <PenetrationTesting vendor={vendor} setVendor={setVendor} />
-      <div className="mt-6 p-4 border border-gray-300">
-        <div className="mb-4 flex items-center">
-          <label htmlFor="badgeName" className="mr-2 font-semibold text-gray-700">
-            Badge Name:
-          </label>
-          <input id="badgeName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeName} onChange={(e) => validateBadgeName(e)} />
-        </div>
-        <div className="mb-4 flex items-center">
-          <span className="mr-2 font-semibold text-gray-700">URL:</span>
-          <span id="badgeUrl" className="text-gray-900">
-            {badgeUrl ? <a href={badgeUrl}>{badgeUrl}</a> : 'Not generated yet'}
-          </span>
-        </div>
-        <div className="mb-4 flex items-center">
-          <span className="mr-2 font-semibold text-gray-700">Image:</span>
-          <span id="badgeImage" className="text-gray-900">
-            {badgeUrl && <img security="true" src={badgeUrl} alt="Badge" />}
-          </span>
-        </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!badgeName} onClick={generateBadge}>
-          Generate Badge
-        </button>
-      </div>
+      <Badge vendor={vendor} />
       <pre className={`${debug ? '' : 'hidden'} mt-6 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(vendor, null, 2)}</pre>
     </div>
   );
