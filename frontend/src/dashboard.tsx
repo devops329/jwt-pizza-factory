@@ -2,8 +2,14 @@ import React from 'react';
 import service from './service';
 import { Vendor } from './model';
 import PenetrationTesting from './penetrationTesting';
+import Chaos from './chaos';
 
-const Dashboard = ({ vendor, setVendor }) => {
+interface DashboardProps {
+  vendor: Vendor;
+  setVendor: (vendor: Vendor) => void;
+}
+
+const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
   const [vendorChanged, setVendorChanged] = React.useState(false);
   const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || '');
   const [name, setName] = React.useState(vendor.name || '');
@@ -12,11 +18,6 @@ const Dashboard = ({ vendor, setVendor }) => {
   const [website, setWebsite] = React.useState(vendor.website || '');
   const [badgeName, setBadgeName] = React.useState('');
   const [badgeUrl, setBadgeUrl] = React.useState('');
-  const [chaosState, setChaosState] = React.useState(getChaosLabel(vendor));
-
-  function getChaosLabel(vendor: Vendor): string {
-    return !vendor || !vendor.chaos || vendor.chaos.type === 'none' ? 'calm' : 'chaotic';
-  }
 
   async function updateVendorProp(value: string, fn: React.Dispatch<React.SetStateAction<string>>) {
     fn(value);
@@ -28,8 +29,10 @@ const Dashboard = ({ vendor, setVendor }) => {
       const fields = { email, gitHubUrl, name, phone, website };
       const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value && value !== vendor[key]));
       const vendorUpdate = await service.updateVendor({ ...updatedFields, id: vendor.id });
-      setVendor(vendorUpdate);
-      setVendorChanged(false);
+      if (vendorUpdate) {
+        setVendor(vendorUpdate);
+        setVendorChanged(false);
+      }
     }
   }
 
@@ -47,12 +50,6 @@ const Dashboard = ({ vendor, setVendor }) => {
     const badgeUrl = await service.generateBadge(vendor.id, badgeName);
     setBadgeUrl(badgeUrl);
   }
-
-  function initiateChaos(): void {
-    service.initiateChaos();
-    setChaosState('chaotic');
-  }
-
   const [debug, setDebug] = React.useState(false);
 
   return (
@@ -67,7 +64,7 @@ const Dashboard = ({ vendor, setVendor }) => {
       <div className="flex items-center">
         <span className="font-semibold text-gray-700 min-w-max mr-2">Application Key:</span>
         <span className="text-gray-900 truncate">{vendor.apiKey}</span>
-        <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey)} title="Copy API Key">
+        <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey || '')} title="Copy API Key">
           Copy
         </button>
       </div>
@@ -102,17 +99,7 @@ const Dashboard = ({ vendor, setVendor }) => {
           Update
         </button>
       </div>
-      <div className="mt-6 p-4 border border-gray-300">
-        <div className="flex items-center mb-4">
-          <span className="mr-2 font-semibold text-gray-700">Chaos status:</span>
-          <span id="chaosStatus" className="text-gray-900">
-            {chaosState}
-          </span>
-        </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={chaosState !== 'calm'} onClick={initiateChaos}>
-          Initiate chaos
-        </button>
-      </div>
+      <Chaos vendor={vendor} />
       <PenetrationTesting vendor={vendor} setVendor={setVendor} />
       <div className="mt-6 p-4 border border-gray-300">
         <div className="mb-4 flex items-center">
