@@ -7,7 +7,12 @@ class TrafficGenerator {
         for (const vendorId in this.trafficVendors) {
           const vendor = this.trafficVendors[vendorId];
           try {
-            await this.callEndpoint(`${vendor.website}/api/order`, 'POST', vendor.authToken, { franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }] });
+            if (Math.random() < 0.3) {
+              await this.callEndpoint(`${vendor.website}/api/order`, 'POST', vendor.authToken, { franchiseId: 1, storeId: 1, items: [{ menuId: 1, description: 'Veggie', price: 0.05 }] });
+            } else if (Math.random() < 0.6) {
+              await this.callEndpoint(`${vendor.website}/api/order/menu`);
+              await this.callEndpoint(`${vendor.website}/api/order`, 'GET', vendor.authToken);
+            }
           } catch (error) {
             // keep trying. They should be in chaos or they might just be down
             console.error(`Error calling endpoint for vendor ${vendor.website}:`, error);
