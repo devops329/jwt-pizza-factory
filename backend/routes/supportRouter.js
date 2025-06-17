@@ -1,6 +1,7 @@
 const express = require('express');
 const DB = require('../database/database.js');
 const { asyncHandler } = require('./routerUtil.js');
+const trafficGenerator = require('./trafficGenerator.js');
 
 const supportRouter = express.Router();
 
@@ -28,6 +29,7 @@ supportRouter.get(
         vendor.chaos.fixDate = new Date().toISOString();
         vendor.chaos.type = 'none';
         await DB.updateVendorByApiKey(req.params.vendorToken, { chaos: vendor.chaos });
+        trafficGenerator.stop(vendor);
       }
       res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
     } else {

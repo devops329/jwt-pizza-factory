@@ -1,6 +1,7 @@
 const express = require('express');
 const DB = require('../database/database');
-const { greateVendor, vendorAuth, asyncHandler } = require('./routerUtil');
+const { vendorAuth, asyncHandler } = require('./routerUtil');
+const trafficGenerator = require('./trafficGenerator');
 const { v4: uuid } = require('uuid');
 
 const vendorRouter = express.Router();
@@ -241,24 +242,26 @@ vendorRouter.put(
   vendorAuth,
   asyncHandler(async (req, res) => {
     const type = req.params.type;
-    if (['badjwt', 'fail', 'throttle'].includes(type)) {
-      const vendor = await DB.getVendorByApiKey(req.apiKey);
-      if (vendor) {
-        const changes = {
-          chaos: {
-            type: type,
-            fixCode: Math.random().toString(36).substring(2, 10),
-            initiatedDate: new Date().toISOString(),
-          },
-        };
-        await DB.updateVendorByApiKey(req.apiKey, changes);
-        res.json({ message: 'Chaos initiated' });
-      } else {
-        res.status(404).json({ message: 'Vendor not found' });
-      }
-    } else {
-      res.status(400).json({ message: 'Invalid chaos type' });
+    const vendor = await DB.getVendorByApiKey(req.apiKey);
+    if (!['badjwt', 'fail', 'throttle'].includes(type)) {
+      return res.status(400).json({ message: 'Invalid chaos type' });
     }
+    if (!vendor) {
+      res.status(404).json({ message: 'Vendor not found' });
+    }
+    if (vendor.website && !(await trafficGenerator.start(vendor))) {
+      return res.status(400).json({ message: `website (${vendor.website}) failed to respond` });
+    }
+
+    const changes = {
+      chaos: {
+        type: type,
+        fixCode: Math.random().toString(36).substring(2, 10),
+        initiatedDate: new Date().toISOString(),
+      },
+    };
+    await DB.updateVendorByApiKey(req.apiKey, changes);
+    res.json({ message: 'Chaos initiated' });
   })
 );
 

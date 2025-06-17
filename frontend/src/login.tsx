@@ -40,9 +40,13 @@ export default function Login({ setVendor }) {
   }
 
   async function requestCode(id: string) {
-    setEmail(await service.requestCode(id));
-    setNetId(id);
-    setInputValue('');
+    try {
+      setEmail(await service.requestCode(id));
+      setNetId(id);
+      setInputValue('');
+    } catch (error) {
+      alert(`Unable to process login requests. ${error.message || 'An unexpected error occurred.'}`);
+    }
   }
 
   return (

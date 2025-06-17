@@ -26,7 +26,7 @@ const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
   async function updateVendor(): Promise<void> {
     if (vendorChanged) {
       const fields = { email, gitHubUrl, name, phone, website };
-      const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value && value !== vendor[key]));
+      const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value !== vendor[key]));
       const vendorUpdate = await service.updateVendor({ ...updatedFields, id: vendor.id });
       if (vendorUpdate) {
         setVendor(vendorUpdate);
@@ -71,9 +71,9 @@ const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
           <input id="vendorEmail" type="email" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your email" value={email} onChange={(e) => updateVendorProp(e.target.value, setEmail)} />
 
           <label htmlFor="website" className="font-semibold text-gray-700">
-            Pizza Website:
+            Pizza Service:
           </label>
-          <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://pizza.yourdomain" value={website} onChange={(e) => updateVendorProp(e.target.value, setWebsite)} />
+          <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://pizza-service.yourdomain" value={website} onChange={(e) => updateVendorProp(e.target.value, setWebsite)} />
 
           <label htmlFor="gitHubUrl" className="font-semibold text-gray-700">
             GitHub URL:

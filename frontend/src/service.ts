@@ -71,8 +71,13 @@ class Service {
     return Promise.resolve(vendor);
   }
 
-  async initiateChaos(): Promise<void> {
-    await this.callEndpoint(`/api/vendor/chaos/fail`, 'PUT');
+  async initiateChaos(): Promise<{ success: boolean; message: string }> {
+    try {
+      const response = await this.callEndpoint(`/api/vendor/chaos/fail`, 'PUT');
+      return { success: true, message: response.message };
+    } catch (error) {
+      return { success: false, message: error.message || 'An error occurred while initiating chaos.' };
+    }
   }
 
   async generateBadge(venderId: string, badgeId: string, label: string = 'Example', value: string = '100%', color: string = '#44aa44'): Promise<string> {

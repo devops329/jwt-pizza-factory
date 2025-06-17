@@ -9,13 +9,26 @@ interface ChaosProps {
 function Chaos({ vendor }: ChaosProps): JSX.Element {
   const [chaosState, setChaosState] = React.useState(getChaosLabel(vendor));
 
+  function chaosAvailable() {
+    if (vendor.name && vendor.website && vendor.phone && vendor.email && vendor.gitHubUrl) {
+      if (chaosState === 'calm') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function getChaosLabel(vendor: Vendor): string {
     return !vendor || !vendor.chaos || vendor.chaos.type === 'none' ? 'calm' : 'chaotic';
   }
 
   async function initiateChaos(): Promise<void> {
-    await service.initiateChaos();
-    setChaosState('chaotic');
+    const chaosResponse = await service.initiateChaos();
+    if (chaosResponse.success) {
+      setChaosState('chaotic');
+    } else {
+      alert(`Chaos initiation failed: ${chaosResponse.message}`);
+    }
   }
 
   return (
@@ -26,9 +39,10 @@ function Chaos({ vendor }: ChaosProps): JSX.Element {
           {chaosState}
         </span>
       </div>
-      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={chaosState !== 'calm'} onClick={initiateChaos}>
+      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!chaosAvailable()} onClick={initiateChaos}>
         Initiate chaos
       </button>
+      <div className="text-sm italic">Note: You must provide all vendor information and have your pizza website available before requesting a partner.</div>
     </div>
   );
 }
