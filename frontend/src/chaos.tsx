@@ -13,8 +13,8 @@ function Chaos({ vendor }: ChaosProps): JSX.Element {
     return !vendor || !vendor.chaos || vendor.chaos.type === 'none' ? 'calm' : 'chaotic';
   }
 
-  function initiateChaos(): void {
-    service.initiateChaos();
+  async function initiateChaos(): Promise<void> {
+    await service.initiateChaos();
     setChaosState('chaotic');
   }
 

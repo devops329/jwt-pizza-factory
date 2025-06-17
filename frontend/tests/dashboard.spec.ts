@@ -1,7 +1,8 @@
 //import { test, expect } from '@playwright/test';
 import { test, expect } from 'playwright-test-coverage';
+import { Vendor } from '../src/model';
 
-async function registerRouteHandlers(page, vendor) {
+async function registerLoginHandlers(page, vendor) {
   await page.route('**/api/vendor/test3', async (route) => {
     await route.fulfill({
       status: 200,
@@ -51,7 +52,7 @@ async function registerRouteHandlers(page, vendor) {
 test('Login', async ({ page }) => {
   const vendor = { id: 'test3', name: 'Test 3', apiKey: 'xyz', website: 'https://pizza.test.com' };
 
-  await registerRouteHandlers(page, vendor);
+  await registerLoginHandlers(page, vendor);
 
   await page.goto('http://localhost:5173/');
   await expect(page.getByRole('heading')).toContainText('🍕 JWT Pizza Factory');
@@ -75,10 +76,16 @@ test('Login', async ({ page }) => {
   await expect(page.getByText('Login')).toBeVisible();
 });
 
+async function login(page) {
+  await page.goto('http://localhost:5173/');
+  await page.getByRole('textbox', { name: 'Login' }).fill('test3');
+  await page.getByRole('button', { name: 'Get code' }).click();
+  await page.getByRole('textbox', { name: 'Authenticate code' }).fill('1234');
+  await page.getByRole('button', { name: 'Validate code' }).click();
+}
+
 test('Badge', async ({ page }) => {
   const vendor = { id: 'test3', name: 'Test 3', apiKey: 'xyz', website: 'https://pizza.test.com' };
-
-  await registerRouteHandlers(page, vendor);
 
   await page.route('**/api/badge/test3/a?label=Example&value=100%25&color=%2344aa44', async (route) => {
     if (route.request().method() === 'POST') {
@@ -100,11 +107,8 @@ test('Badge', async ({ page }) => {
     }
   });
 
-  await page.goto('http://localhost:5173/');
-  await page.getByRole('textbox', { name: 'Login' }).fill('test3');
-  await page.getByRole('button', { name: 'Get code' }).click();
-  await page.getByRole('textbox', { name: 'Authenticate code' }).fill('1234');
-  await page.getByRole('button', { name: 'Validate code' }).click();
+  await registerLoginHandlers(page, vendor);
+  await login(page);
 
   await page.getByRole('textbox', { name: 'Badge Name:' }).click();
   await page.getByRole('textbox', { name: 'Badge Name:' }).fill('a');
@@ -112,4 +116,38 @@ test('Badge', async ({ page }) => {
 
   await expect(page.getByRole('img', { name: 'Badge' })).toBeVisible();
   await expect(page.getByRole('link')).toContainText('http://localhost:3000/api/badge/test3/a');
+});
+
+test('Chaos', async ({ page }) => {
+  const vendor: Vendor = { id: 'test3', name: 'Test 3', apiKey: 'xyz', website: 'https://pizza.test.com' };
+
+  await page.route('**/api/vendor/chaos/fail', async (route) => {
+    if (route.request().method() === 'PUT') {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Chaos initiated' }),
+      });
+    }
+  });
+
+  await registerLoginHandlers(page, vendor);
+  await login(page);
+
+  await page.getByRole('button', { name: 'Initiate chaos' }).click();
+  await expect(page.locator('#chaosStatus')).toContainText('chaotic');
+
+  vendor.chaos = {
+    type: 'fail',
+    initiatedDate: '2025-06-17T17:27:12.882Z',
+  };
+  await page.reload();
+  await expect(page.locator('#chaosStatus')).toContainText('chaotic');
+
+  vendor.chaos = {
+    type: 'none',
+    initiatedDate: '2025-06-17T17:27:12.882Z',
+  };
+  await page.reload();
+  await expect(page.locator('#chaosStatus')).toContainText('calm');
 });

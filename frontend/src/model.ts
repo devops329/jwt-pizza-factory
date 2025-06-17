@@ -1,5 +1,6 @@
 type Chaos = {
   type: string;
+  initiatedDate?: string;
 };
 
 type PenetrationTest = {
