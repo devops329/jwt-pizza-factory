@@ -3,15 +3,12 @@ const app = require('../service.js');
 const { createVendor } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
-let adminAuthToken = null;
 let vendor = null;
 beforeAll(async () => {
-  adminAuthToken = await DB.createAdminAuthToken();
-  vendor = await createVendor(adminAuthToken);
+  vendor = await createVendor();
 });
 
 afterAll(async () => {
-  await DB.deleteAdminAuthToken(adminAuthToken);
   await DB.deleteVendor(vendor.id);
 });
 
@@ -74,8 +71,8 @@ test('Login existing vendor with auth code', async () => {
 });
 
 test('Connect vendors', async () => {
-  const vendor1 = await createVendor(adminAuthToken);
-  const vendor2 = await createVendor(adminAuthToken);
+  const vendor1 = await createVendor();
+  const vendor2 = await createVendor();
   try {
     const connect1Res = await request(app).post(`/api/vendor/connect`).set('Authorization', `Bearer ${vendor1.apiKey}`).send({ purpose: 'test' });
     expect(connect1Res.status).toBe(200);

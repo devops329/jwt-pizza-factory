@@ -4,15 +4,12 @@ const orderRouter = require('./orderRouter');
 const DB = require('../database/database.js');
 const { createOrder, createVendor } = require('./testUtil.js');
 
-let adminAuthToken = null;
 let vendor = null;
 beforeAll(async () => {
-  adminAuthToken = await DB.createAdminAuthToken();
-  vendor = await createVendor(adminAuthToken);
+  vendor = await createVendor();
 });
 
 afterAll(async () => {
-  await DB.deleteAdminAuthToken(adminAuthToken);
   await DB.deleteVendor(vendor.id);
 });
 

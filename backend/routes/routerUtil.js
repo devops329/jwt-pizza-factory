@@ -17,4 +17,15 @@ const vendorAuth = asyncHandler(async (req, res, next) => {
   }
 });
 
-module.exports = { vendorAuth, asyncHandler };
+const adminAuth = asyncHandler(async (req, res, next) => {
+  req.apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
+  const vendor = await DB.getVendorByApiKey(req.apiKey);
+  if (vendor && DB.verifyRole(vendor.id, 'admin')) {
+    req.vendor = vendor;
+    next();
+  } else {
+    return res.status(401).json({ message: 'invalid authentication' });
+  }
+});
+
+module.exports = { adminAuth, vendorAuth, asyncHandler };

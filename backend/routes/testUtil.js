@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../service');
+const DB = require('../database/database.js');
 
 if (process.env.VSCODE_INSPECTOR_OPTIONS) {
   jest.setTimeout(60 * 1000 * 5); // 5 minutes
@@ -10,12 +11,19 @@ async function getVendor(apiKey) {
   return vendorRes.body;
 }
 
-async function createVendor(adminAuthToken) {
-  const testUser = { id: randomUserId() };
-  const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send(testUser);
-  expect(addVendorRes.status).toBe(200);
-  return addVendorRes.body;
+async function createVendor() {
+  const id = randomUserId();
+  const vendor = {
+    id,
+    name: 'Test Vendor',
+    email: `${id}@byu.edu`,
+    created: new Date().toISOString(),
+    apiKey: Math.random().toString(36).substring(2, 18),
+  };
+  await DB.addVendor(vendor);
+  return vendor;
 }
+
 async function createOrder(apiKey, order = { diner: { id: 719, name: 'j', email: 'j@jwt.com' }, order: { items: [{ menuId: 1, description: 'Veggie', price: 0.0038 }], storeId: '5', franchiseId: 4, id: 278 } }) {
   const createOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${apiKey}`).send(order);
   return [createOrderRes.status, createOrderRes.body];

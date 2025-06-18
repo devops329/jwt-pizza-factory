@@ -1,6 +1,7 @@
 const tableCreateStatements = [
-  `CREATE TABLE IF NOT EXISTS auth (
-    token VARCHAR(512) PRIMARY KEY
+  `CREATE TABLE IF NOT EXISTS role (
+    netId VARCHAR(255) PRIMARY KEY,
+    role VARCHAR(255) NOT NULL
   )`,
 
   `CREATE TABLE IF NOT EXISTS vendor (

@@ -1,83 +1,36 @@
 const express = require('express');
 const DB = require('../database/database');
-const { asyncHandler } = require('./routerUtil');
-const { v4: uuid } = require('uuid');
+const { adminAuth, asyncHandler } = require('./routerUtil');
 
 const adminRouter = express.Router();
 
 adminRouter.endpoints = [
   {
-    method: 'POST',
-    path: '/api/admin/vendor',
+    method: 'GET',
+    path: '/api/admin/vendors',
     requiresAuth: true,
-    deprecated: true,
-    description: 'Add a new vendor',
-    example: `curl -X POST $host/api/admin/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"id":"byustudent27", "name":"cs student"}'`,
-    response: {
-      id: 'byustudent27',
-      apiKey: 'abcxyz',
-      name: 'cs student',
-      created: '2024-06-14T16:43:23.754Z',
-      validUntil: '2024-12-14T16:43:23.754Z',
-    },
-  },
-  {
-    method: 'PUT',
-    path: '/api/admin/vendor/:vendorToken',
-    requiresAuth: true,
-    deprecated: true,
-    description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
-    example: `curl -X POST $host/api/admin/vendor/111111 -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"chaos":{"type":"throttle", "resolveUrl":"http://resolve.me"}}'`,
-    response: {
-      id: 'byustudent27',
-      name: 'cs student',
-      website: 'pizza.byucsstudent.click',
-      chaos: 'fail',
-    },
+    description: 'Gets all the vendors',
+    example: `curl -X GET $host/api/admin/vendors -H 'authorization: Bearer adminAuthToken'`,
+    response: [
+      {
+        id: 'byustudent27',
+        apiKey: 'abcxyz',
+        name: 'cs student',
+        created: '2024-06-14T16:43:23.754Z',
+        validUntil: '2024-12-14T16:43:23.754Z',
+      },
+    ],
   },
 ];
 
-const authorizeAdmin = asyncHandler(async (req, res, next) => {
-  const authToken = (req.headers.authorization || '').replace(/bearer /i, '');
-  if (await DB.verifyAuthToken(authToken)) {
-    next();
-  } else {
-    res.status(401).json({ message: 'invalid authentication' });
-  }
-});
-
-// create a new vendor - deprecated
-adminRouter.post(
-  '/vendor',
-  authorizeAdmin,
+// get vendors
+adminRouter.get(
+  '/vendors',
+  adminAuth,
   asyncHandler(async (req, res) => {
-    const vendor = req.body;
-    if (!vendor.id) {
-      res.status(400).json({ message: 'Missing param. Must have ID' });
-    } else {
-      res.json(await greateVendor(vendor.id));
-    }
+    const vendors = await DB.getVendors();
+    res.json(vendors);
   })
 );
-
-// Get rid of this function in the future, as it is deprecated
-async function greateVendor(vendorId) {
-  const existingVendor = await DB.getVendorByNetId(vendorId || '');
-  if (existingVendor) {
-    return existingVendor;
-  } else {
-    const now = new Date();
-    const vendor = {
-      id: vendorId,
-      created: now.toISOString(),
-      apiKey: uuid().replace(/-/g, ''),
-      email: `${vendorId}@byu.edu`,
-    };
-
-    await DB.addVendor(vendor);
-
-    return vendor;
-  }
-}
 
 module.exports = adminRouter;

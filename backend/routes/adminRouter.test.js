@@ -1,38 +1,22 @@
 const request = require('supertest');
-const app = require('../service.js');
+const app = require('../service');
 const DB = require('../database/database.js');
-const { randomUserId, createVendor } = require('./testUtil.js');
 
-let adminAuthToken = null;
-beforeAll(async () => {
-  adminAuthToken = await DB.createAdminAuthToken();
+test('admin exists', async () => {
+  const vendor = await DB.getVendorByNetId('admin');
+  expect(vendor).toBeDefined();
+  expect(vendor.id).toBe('admin');
 });
 
-afterAll(async () => {
-  await DB.deleteAdminAuthToken(adminAuthToken);
-});
-
-test('add vendor', async () => {
-  const vendor = await createVendor(adminAuthToken);
-  try {
-    expect(vendor.id).toBeDefined();
-    expect(vendor.apiKey).toBeDefined();
-  } finally {
-    await DB.deleteVendor(vendor.id);
-  }
-});
-
-test('add vendor no auth', async () => {
-  const addVendorRes = await request(app).post('/api/admin/vendor').send({ id: randomUserId() });
-  expect(addVendorRes.status).toBe(401);
-});
-
-test('add vendor bad auth', async () => {
-  const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer bogus`).send({ id: randomUserId() });
-  expect(addVendorRes.status).toBe(401);
-});
-
-test('add vendor missing params', async () => {
-  const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send({});
-  expect(addVendorRes.status).toBe(400);
+test('get vendors', async () => {
+  const admin = await DB.getVendorByNetId('admin');
+  const getVendorsRes = await request(app).get('/api/admin/vendors').set('Authorization', `Bearer ${admin.apiKey}`);
+  expect(getVendorsRes.status).toBe(200);
+  expect(getVendorsRes.body).toBeDefined();
+  expect(Array.isArray(getVendorsRes.body)).toBe(true);
+  expect(getVendorsRes.body.length).toBeGreaterThan(0);
+  getVendorsRes.body.forEach((vendor) => {
+    expect(vendor).toHaveProperty('id');
+    expect(vendor).toHaveProperty('name');
+  });
 });

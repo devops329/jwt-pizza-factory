@@ -7,16 +7,6 @@ class DB {
     this.initialized = this.initializeDatabase();
   }
 
-  async verifyAuthToken(authToken) {
-    const connection = await this.getConnection();
-    try {
-      const authResult = await this.query(connection, `SELECT * FROM auth WHERE token=?`, [authToken]);
-      return authResult.length > 0;
-    } finally {
-      connection.end();
-    }
-  }
-
   async addAuthCode(id, authCode) {
     const connection = await this.getConnection();
     try {
@@ -83,6 +73,21 @@ class DB {
     try {
       const result = await this.query(connection, `UPDATE vendor SET body=? WHERE apiKey=?`, [JSON.stringify(vendor), apiKey]);
       return result.affectedRows > 0;
+    } finally {
+      connection.end();
+    }
+  }
+
+  async getVendors() {
+    const connection = await this.getConnection();
+    try {
+      const result = await this.query(connection, `SELECT body FROM vendor`);
+      const vendors = result.map((row) => {
+        const vendor = JSON.parse(row.body);
+        return { name: vendor.name, id: vendor.id };
+        return vendor;
+      });
+      return vendors;
     } finally {
       connection.end();
     }
@@ -200,6 +205,38 @@ class DB {
     return this.updateVendorByNetId(vendor.id, { connections });
   }
 
+  async assignRole(netId, role) {
+    const connection = await this.getConnection();
+    try {
+      await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?)`, [netId, role]);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async verifyRole(netId, role) {
+    const connection = await this.getConnection();
+    try {
+      const result = await connection.query(`SELECT role FROM role where netId=? AND role=?`, [netId, role]);
+      return result.affectedRows > 0;
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteVendor(netId) {
+    const connection = await this.getConnection();
+    try {
+      await connection.query(`DELETE FROM vendor WHERE netId=?`, [netId]);
+      await connection.query(`DELETE FROM authCode WHERE netId=?`, [netId]);
+      await connection.query(`DELETE FROM connect WHERE vendor1=? OR vendor2=?`, [netId, netId]);
+      await connection.query(`DELETE FROM chaos WHERE netId=?`, [netId]);
+      await connection.query(`DELETE FROM role WHERE netId=?`, [netId]);
+    } finally {
+      connection.end();
+    }
+  }
+
   async query(connection, sql, params) {
     try {
       const [results] = await connection.execute(sql, params);
@@ -245,8 +282,12 @@ class DB {
 
         if (!dbExists) {
           console.log('Database created');
-          const adminAuth = require('crypto').randomBytes(64).toString('hex');
-          await connection.query(`INSERT INTO auth (token) VALUES (?)`, [adminAuth]);
+          this.addVendor({
+            id: 'admin',
+            apiKey: Math.random().toString(36).substring(2, 18),
+            name: 'Admin',
+          });
+          this.assignRole('admin', 'admin');
         }
       } finally {
         connection.end();
@@ -259,38 +300,6 @@ class DB {
   async checkDatabaseExists(connection) {
     const [rows] = await connection.execute(`SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = ?`, [config.db.connection.database]);
     return rows.length > 0;
-  }
-
-  async createAdminAuthToken() {
-    const connection = await this.getConnection();
-    try {
-      const token = require('crypto').randomBytes(64).toString('hex');
-      await connection.query(`INSERT INTO auth (token) VALUES (?)`, [token]);
-      return token;
-    } finally {
-      connection.end();
-    }
-  }
-
-  async deleteAdminAuthToken(token) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`DELETE FROM auth WHERE token=?`, [token]);
-    } finally {
-      connection.end();
-    }
-  }
-
-  async deleteVendor(netId) {
-    const connection = await this.getConnection();
-    try {
-      await connection.query(`DELETE FROM vendor WHERE netId=?`, [netId]);
-      await connection.query(`DELETE FROM authCode WHERE netId=?`, [netId]);
-      await connection.query(`DELETE FROM connect WHERE vendor1=? OR vendor2=?`, [netId, netId]);
-      await connection.query(`DELETE FROM chaos WHERE netId=?`, [netId]);
-    } finally {
-      connection.end();
-    }
   }
 }
 
