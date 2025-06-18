@@ -85,7 +85,6 @@ class DB {
       const vendors = result.map((row) => {
         const vendor = JSON.parse(row.body);
         return { name: vendor.name, id: vendor.id };
-        return vendor;
       });
       return vendors;
     } finally {
@@ -113,6 +112,7 @@ class DB {
       if (chaos) {
         vendor.chaos = chaos;
       }
+      vendor.roles = await this.getRoles(vendor.id);
       return vendor;
     } finally {
       connection.end();
@@ -209,6 +209,21 @@ class DB {
     const connection = await this.getConnection();
     try {
       await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?)`, [netId, role]);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async getRoles(netId) {
+    const connection = await this.getConnection();
+    try {
+      const result = await connection.query(`SELECT role FROM role WHERE netId=?`, [netId]);
+      const roles = [];
+      for (const row of result[0]) {
+        roles.push(row.role);
+      }
+      roles.push('vendor');
+      return roles;
     } finally {
       connection.end();
     }

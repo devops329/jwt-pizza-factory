@@ -18,10 +18,10 @@ async function createVendor() {
     name: 'Test Vendor',
     email: `${id}@byu.edu`,
     created: new Date().toISOString(),
-    apiKey: Math.random().toString(36).substring(2, 18),
+    apiKey: randomUserId(),
   };
   await DB.addVendor(vendor);
-  return vendor;
+  return getVendor(vendor.apiKey);
 }
 
 async function createOrder(apiKey, order = { diner: { id: 719, name: 'j', email: 'j@jwt.com' }, order: { items: [{ menuId: 1, description: 'Veggie', price: 0.0038 }], storeId: '5', franchiseId: 4, id: 278 } }) {

@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../service.js');
-const { createVendor } = require('./testUtil.js');
+const { createVendor, randomUserId } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
 let vendor = null;
@@ -27,7 +27,7 @@ test('Create vendor with auth code', async () => {
       return true;
     });
 
-    const id = Math.random().toString(36).substring(2, 10);
+    const id = randomUserId();
     const addVendorRes = await request(app).post(`/api/vendor`).send({ id, email: 'test3@hotmail.com', name: 'Test 3' });
     expect(addVendorRes.status).toBe(200);
 

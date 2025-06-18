@@ -1,11 +1,22 @@
 const request = require('supertest');
 const app = require('../service');
 const DB = require('../database/database.js');
+const { createVendor, getVendor } = require('./testUtil.js');
 
 test('admin exists', async () => {
   const vendor = await DB.getVendorByNetId('admin');
   expect(vendor).toBeDefined();
   expect(vendor.id).toBe('admin');
+  expect(vendor.roles).toContain('admin');
+  expect(vendor.roles).toContain('vendor');
+});
+
+test('vendor default role', async () => {
+  const vendor = await createVendor();
+  expect(vendor.roles).toEqual(['vendor']);
+
+  const result = await getVendor(vendor.apiKey);
+  expect(result.roles).toEqual(['vendor']);
 });
 
 test('get vendors', async () => {
