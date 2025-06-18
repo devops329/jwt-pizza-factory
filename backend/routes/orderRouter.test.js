@@ -76,7 +76,6 @@ test('create order with chaos failure', async () => {
 test('verify order', async () => {
   const [, order] = await createOrder(vendor.apiKey);
   const verifyOrderRes = await request(app).post('/api/order/verify').send({ jwt: order.jwt });
-  console.log(order);
   expect(verifyOrderRes.status).toBe(200);
   expect(verifyOrderRes.body.message).toBe('valid');
 });
