@@ -16,12 +16,6 @@ async function createVendor(adminAuthToken) {
   expect(addVendorRes.status).toBe(200);
   return addVendorRes.body;
 }
-
-async function updateVendor(adminAuthToken, vendorApiKey, updateReq) {
-  const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendorApiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send(updateReq);
-  return [updateVendorRes.status, updateVendorRes.body];
-}
-
 async function createOrder(apiKey, order = { diner: { id: 719, name: 'j', email: 'j@jwt.com' }, order: { items: [{ menuId: 1, description: 'Veggie', price: 0.0038 }], storeId: '5', franchiseId: 4, id: 278 } }) {
   const createOrderRes = await request(app).post('/api/order').set('Authorization', `Bearer ${apiKey}`).send(order);
   return [createOrderRes.status, createOrderRes.body];
@@ -34,6 +28,5 @@ module.exports = {
   getVendor,
   createOrder,
   createVendor,
-  updateVendor,
   randomUserId,
 };

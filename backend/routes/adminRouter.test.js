@@ -36,19 +36,3 @@ test('add vendor missing params', async () => {
   const addVendorRes = await request(app).post('/api/admin/vendor').set('Authorization', `Bearer ${adminAuthToken}`).send({});
   expect(addVendorRes.status).toBe(400);
 });
-
-test('update vendor name', async () => {
-  const vendor = await createVendor(adminAuthToken);
-  try {
-    const updateVendorRes = await request(app).put(`/api/admin/vendor/${vendor.apiKey}`).set('Authorization', `Bearer ${adminAuthToken}`).send({ name: 'updated name' });
-    expect(updateVendorRes.status).toBe(200);
-    expect(updateVendorRes.body.name).toBe('updated name');
-  } finally {
-    await DB.deleteVendor(vendor.id);
-  }
-});
-
-test('update vendor unknown', async () => {
-  const updateVendorRes = await request(app).put(`/api/admin/vendor/bogus`).set('Authorization', `Bearer ${adminAuthToken}`).send({ name: 'updated name' });
-  expect(updateVendorRes.status).toBe(404);
-});

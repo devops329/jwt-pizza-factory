@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../service.js');
-const { createOrder, createVendor, updateVendor } = require('./testUtil.js');
+const { createOrder, createVendor, getVendor } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
 let adminAuthToken = null;
@@ -25,8 +25,7 @@ test('Report problem', async () => {
     expect(reportRes.status).toBe(200);
     expect(reportRes.body.message).toBe('Problem resolved. Pizza is back on the menu!');
 
-    const [status, updatedVendor] = await updateVendor(adminAuthToken, vendor.apiKey, {});
-    expect(status).toBe(200);
+    const updatedVendor = await getVendor(vendor.apiKey);
     expect(updatedVendor.chaos.type).toBe('none');
   } finally {
     await DB.removeChaos(vendor.id);

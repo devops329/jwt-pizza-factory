@@ -80,19 +80,4 @@ async function greateVendor(vendorId) {
   }
 }
 
-// update a vendor - deprecated
-adminRouter.put(
-  '/vendor/:vendorToken',
-  authorizeAdmin,
-  asyncHandler(async (req, res) => {
-    const changes = req.body;
-    const vendor = await DB.updateVendorByApiKey(req.params.vendorToken, changes);
-    if (vendor) {
-      res.json(vendor);
-    } else {
-      res.status(404).json({ message: 'Unknown vendor' });
-    }
-  })
-);
-
 module.exports = adminRouter;
