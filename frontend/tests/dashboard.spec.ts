@@ -102,7 +102,7 @@ test('Badge', async ({ page }) => {
       await route.fulfill({
         status: 201,
         contentType: 'image/svg+xml',
-        body: `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20"><rect width="100" height="20" fill="#555"/><text x="50" y="14" fill="#fff" font-size="12" text-anchor="middle">Test</text></svg>`,
+        body: `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="20"><rect width="50" height="20" fill="#0b0"/><text x="25" y="14" fill="#fff" font-size="12" text-anchor="middle">Test</text></svg>`,
       });
     }
   });
