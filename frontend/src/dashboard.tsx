@@ -13,26 +13,28 @@ interface DashboardProps {
 const Dashboard = ({ vendor, setVendor }: DashboardProps): JSX.Element => {
   const [debug, setDebug] = React.useState(false);
 
+  const role = vendor.roles?.includes('admin') ? 'Admin' : 'Vendor';
+
   return (
     <div className="p-8 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-6 text-start text-gray-800">
-        Pizza <span onClick={() => setDebug(!debug)}>Vendor</span> Dashboard
+        Pizza <span onClick={() => setDebug(!debug)}>{role}</span> Dashboard
       </h2>
-      <div className="flex items-center">
-        <span className="font-semibold text-gray-700 min-w-max mr-2">Net ID:</span>
-        <span className="text-gray-900">{vendor.id}</span>
-      </div>
-      <div className="flex items-center">
-        <span className="font-semibold text-gray-700 min-w-max mr-2">Application Key:</span>
-        <span className="text-gray-900 truncate">{vendor.apiKey}</span>
-        <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey || '')} title="Copy API Key">
-          Copy
-        </button>
-      </div>
+
       <VendorDetails vendor={vendor} setVendor={setVendor} />
-      <Chaos vendor={vendor} />
-      <PenetrationTesting vendor={vendor} setVendor={setVendor} />
-      <Badge vendor={vendor} />
+      {role === 'Vendor' && (
+        <div>
+          <Chaos vendor={vendor} />
+          <PenetrationTesting vendor={vendor} setVendor={setVendor} />
+          <Badge vendor={vendor} />
+        </div>
+      )}
+      {role === 'Admin' && (
+        <div className="mt-6 p-4 border border-gray-300 bg-gray-50 rounded">
+          <h3 className="text-lg font-semibold mb-4">Admin Actions</h3>
+          <p className="text-sm text-gray-600">As an admin, you can manage vendors, view logs, and perform other administrative tasks.</p>
+        </div>
+      )}
       <pre className={`${debug ? '' : 'hidden'} mt-6 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(vendor, null, 2)}</pre>
     </div>
   );

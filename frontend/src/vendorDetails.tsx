@@ -35,6 +35,17 @@ function VendorDetails({ vendor, setVendor }: VendorDetailsProps): JSX.Element {
   return (
     <div className="mt-6 p-4 border border-gray-300">
       <div className="grid grid-cols-[max-content_1fr] gap-2 items-center mb-4">
+        <div className="font-semibold text-gray-700 min-w-max mr-2">Net ID:</div>
+        <div className="text-gray-900">{vendor.id}</div>
+
+        <div className="font-semibold text-gray-700 min-w-max mr-2">API Key:</div>
+        <div>
+          <span className="text-gray-900 truncate">{vendor.apiKey}</span>
+          <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey || '')} title="Copy API Key">
+            Copy
+          </button>
+        </div>
+
         <label htmlFor="vendorName" className="font-semibold text-gray-700">
           Name:
         </label>

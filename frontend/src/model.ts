@@ -21,6 +21,7 @@ type Vendor = {
   id: string;
   apiKey?: string;
   chaos?: Chaos;
+  roles?: string[];
   connections?: {
     penetrationTest?: PenetrationTest;
   };
