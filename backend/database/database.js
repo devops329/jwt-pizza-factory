@@ -297,12 +297,10 @@ class DB {
 
         if (!dbExists) {
           console.log('Database created');
-          this.addVendor({
-            id: 'admin',
-            apiKey: Math.random().toString(36).substring(2, 18),
-            name: 'Admin',
-          });
-          this.assignRole('admin', 'admin');
+          if (config.defaultAdmin?.id) {
+            this.addVendor({ ...config.defaultAdmin, apiKey: Math.random().toString(36).substring(2, 18) });
+            this.assignRole(config.defaultAdmin.id, 'admin');
+          }
         }
       } finally {
         connection.end();

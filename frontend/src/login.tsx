@@ -45,7 +45,7 @@ export default function Login({ setVendor }) {
       setNetId(id);
       setInputValue('');
     } catch (error) {
-      alert(`Unable to process login requests. ${error.message || 'An unexpected error occurred.'}`);
+      alert(error.message || 'An unexpected error occurred.');
     }
   }
 

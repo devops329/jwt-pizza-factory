@@ -196,12 +196,16 @@ vendorRouter.post(
   `;
 
     await DB.addAuthCode(vendor.id, code);
-    await req.services.sendEmail({
-      to: vendor.email,
-      subject: 'BYU CS 329 JWT Pizza Factory',
-      html: htmlTemplate,
-      text: textTemplate,
-    });
+    try {
+      await req.services.sendEmail({
+        to: vendor.email,
+        subject: 'BYU CS 329 JWT Pizza Factory',
+        html: htmlTemplate,
+        text: textTemplate,
+      });
+    } catch (error) {
+      return res.status(500).json({ message: `Unable to send authorization code to ${vendor.email}` });
+    }
     res.json({ email: vendor.email });
   })
 );

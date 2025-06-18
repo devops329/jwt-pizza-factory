@@ -66,7 +66,7 @@ test('Login', async ({ page }) => {
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
   await expect(page.getByText('test3', { exact: true })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue('Test 3');
-  await expect(page.getByRole('textbox', { name: 'Pizza Website:', exact: true })).toHaveValue('https://pizza.test.com');
+  await expect(page.getByRole('textbox', { name: 'Pizza Service:', exact: true })).toHaveValue('https://pizza.test.com');
 
   await page.reload();
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
@@ -119,7 +119,7 @@ test('Badge', async ({ page }) => {
 });
 
 test('Chaos', async ({ page }) => {
-  const vendor: Vendor = { id: 'test3', name: 'Test 3', apiKey: 'xyz', website: 'https://pizza.test.com' };
+  const vendor: Vendor = { id: 'test3', name: 'Test 3', phone: '333-333-333', email: 'test3@byu.edu', apiKey: 'xyz', website: 'https://pizza.test.com', gitHubUrl: 'https://github.com/test3' };
 
   await page.route('**/api/vendor/chaos/fail', async (route) => {
     if (route.request().method() === 'PUT') {

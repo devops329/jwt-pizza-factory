@@ -1,0 +1,70 @@
+import React from 'react';
+import service from './service';
+import { Vendor } from './model';
+
+interface VendorDetailsProps {
+  vendor: Vendor;
+  setVendor: (vendor: Vendor) => void;
+}
+
+function VendorDetails({ vendor, setVendor }: VendorDetailsProps): JSX.Element {
+  const [vendorChanged, setVendorChanged] = React.useState(false);
+  const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || '');
+  const [name, setName] = React.useState(vendor.name || '');
+  const [phone, setPhone] = React.useState(vendor.phone || '');
+  const [email, setEmail] = React.useState(vendor.email || '');
+  const [website, setWebsite] = React.useState(vendor.website || '');
+
+  async function updateVendorProp(value: string, fn: React.Dispatch<React.SetStateAction<string>>) {
+    fn(value);
+    vendorChanged || setVendorChanged(true);
+  }
+
+  async function updateVendor(): Promise<void> {
+    if (vendorChanged) {
+      const fields = { email, gitHubUrl, name, phone, website };
+      const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value !== vendor[key]));
+      const vendorUpdate = await service.updateVendor({ ...updatedFields, id: vendor.id });
+      if (vendorUpdate) {
+        setVendor(vendorUpdate);
+        setVendorChanged(false);
+      }
+    }
+  }
+
+  return (
+    <div className="mt-6 p-4 border border-gray-300">
+      <div className="grid grid-cols-[max-content_1fr] gap-2 items-center mb-4">
+        <label htmlFor="vendorName" className="font-semibold text-gray-700">
+          Name:
+        </label>
+        <input id="vendorName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your name" value={name} onChange={(e) => updateVendorProp(e.target.value, setName)} />
+
+        <label htmlFor="vendorPhone" className="font-semibold text-gray-700">
+          Phone:
+        </label>
+        <input id="vendorPhone" type="phone" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your phone" value={phone} onChange={(e) => updateVendorProp(e.target.value, setPhone)} />
+
+        <label htmlFor="vendorEmail" className="font-semibold text-gray-700">
+          Email:
+        </label>
+        <input id="vendorEmail" type="email" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your email" value={email} onChange={(e) => updateVendorProp(e.target.value, setEmail)} />
+
+        <label htmlFor="website" className="font-semibold text-gray-700">
+          Pizza Service:
+        </label>
+        <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://pizza-service.yourdomain" value={website} onChange={(e) => updateVendorProp(e.target.value, setWebsite)} />
+
+        <label htmlFor="gitHubUrl" className="font-semibold text-gray-700">
+          GitHub URL:
+        </label>
+        <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => updateVendorProp(e.target.value, setGitHubUrl)} />
+      </div>
+      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!vendorChanged} onClick={() => updateVendor()}>
+        Update
+      </button>
+    </div>
+  );
+}
+
+export default VendorDetails;
