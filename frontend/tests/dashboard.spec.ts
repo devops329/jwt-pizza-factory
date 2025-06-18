@@ -13,18 +13,16 @@ async function registerLoginHandlers(page, vendor) {
     const param = getUrlParam(route, /\/api\/vendor\/([^/]+)/);
     if (param === 'code') {
       // Send auth code email
-      console.log(`Intercepted API call: [${route.request().method()}] ${route.request().url()}`);
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({ email: 'test3.byu.edu' }),
+        body: JSON.stringify({ email: vendor.email }),
       });
     } else if (param === 'auth') {
       // Authorize code received from email
-      console.log(`Intercepted API call: [${route.request().method()}] ${route.request().url()}`);
       const postData = request.postData();
       const json = postData ? JSON.parse(postData) : {};
-      expect(json).toEqual({ id: 'test3', code: '1234' });
+      expect(json).toEqual({ id: vendor.id, code: '1234' });
 
       await route.fulfill({
         status: 200,
@@ -33,7 +31,6 @@ async function registerLoginHandlers(page, vendor) {
       });
     } else {
       // Check if vendor exists
-      console.log(`Intercepted API call: [${route.request().method()}] ${route.request().url()} (netId: ${param})`);
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -43,11 +40,28 @@ async function registerLoginHandlers(page, vendor) {
   });
 
   await page.route('**/api/vendor', async (route) => {
-    console.log(`Intercepted API call: [${route.request().method()}] ${route.request().url()}`);
     const authHeader = route.request().headers()['authorization'];
     if (authHeader) {
       // Update vendor
       if (route.request().method() === 'PUT') {
+        const postData = route.request().postData();
+        if (postData) {
+          const updatedFields = JSON.parse(postData);
+          Object.assign(vendor, updatedFields);
+        }
+      } else {
+        // Get vendor
+      }
+
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(vendor),
+      });
+      return;
+    } else {
+      // Create vendor
+      if (route.request().method() === 'POST') {
         const postData = route.request().postData();
         if (postData) {
           const updatedFields = JSON.parse(postData);
@@ -62,11 +76,6 @@ async function registerLoginHandlers(page, vendor) {
       });
       return;
     }
-    await route.fulfill({
-      status: 401,
-      contentType: 'application/json',
-      body: JSON.stringify({ message: 'Not authorized' }),
-    });
   });
 }
 
@@ -79,23 +88,23 @@ async function login(page) {
 }
 
 test('Login', async ({ page }) => {
-  const vendor = { id: 'test3', name: 'Test 3', apiKey: 'xyz', website: 'https://pizza.test.com' };
+  const vendor = { id: 'test3', name: 'Test 3', email: 'test3@byu.edu', apiKey: 'xyz', website: 'https://pizza.test.com' };
 
   await registerLoginHandlers(page, vendor);
 
   await page.goto('http://localhost:5173/');
   await expect(page.getByRole('heading')).toContainText('🍕 JWT Pizza Factory');
   await expect(page.getByText('Login')).toBeVisible();
-  await page.getByRole('textbox', { name: 'Login' }).fill('test3');
+  await page.getByRole('textbox', { name: 'Login' }).fill(vendor.id);
   await page.getByRole('button', { name: 'Get code' }).click();
-  await expect(page.locator('b')).toContainText('test3.byu.edu');
+  await expect(page.locator('b')).toContainText(vendor.email);
   await page.getByRole('textbox', { name: 'Authenticate code' }).fill('1234');
   await page.getByRole('button', { name: 'Validate code' }).click();
 
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
   await expect(page.getByText('test3', { exact: true })).toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue('Test 3');
-  await expect(page.getByRole('textbox', { name: 'Pizza Service:', exact: true })).toHaveValue('https://pizza.test.com');
+  await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue(vendor.name);
+  await expect(page.getByRole('textbox', { name: 'Pizza Service:', exact: true })).toHaveValue(vendor.website);
 
   await page.reload();
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
@@ -103,6 +112,34 @@ test('Login', async ({ page }) => {
   await page.getByRole('button', { name: 'Logout' }).click();
   await expect(page.getByRole('heading')).toContainText('🍕 JWT Pizza Factory');
   await expect(page.getByText('Login')).toBeVisible();
+});
+
+test('Register', async ({ page }) => {
+  const vendor: any = {};
+
+  await registerLoginHandlers(page, vendor);
+
+  await page.goto('http://localhost:5173/');
+  await expect(page.getByRole('heading')).toContainText('🍕 JWT Pizza Factory');
+  await expect(page.getByText('Login')).toBeVisible();
+  await page.getByRole('textbox', { name: 'Login' }).fill('test1');
+  await page.getByRole('button', { name: 'Get code' }).click();
+
+  await expect(page.locator('h2')).toContainText('Create Vendor Account');
+
+  await page.getByRole('textbox', { name: 'Name' }).fill('Test 1');
+  await page.getByRole('textbox', { name: 'Email That you check' }).fill('test1@byu.edu');
+  await page.getByRole('textbox', { name: 'Phone Number For text' }).fill('111-111-1111');
+
+  await page.getByRole('button', { name: 'Submit' }).click();
+
+  await expect(page.locator('b')).toContainText('test1@byu.edu');
+  await page.getByRole('textbox', { name: 'Authenticate code' }).fill('1234');
+  await page.getByRole('button', { name: 'Validate code' }).click();
+
+  await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
+  await expect(page.getByText('test1', { exact: true })).toBeVisible();
+  await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue('Test 1');
 });
 
 test('Badge', async ({ page }) => {
