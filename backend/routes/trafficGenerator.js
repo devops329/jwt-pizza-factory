@@ -2,7 +2,7 @@ class TrafficGenerator {
   constructor() {
     this.trafficVendors = {};
 
-    setInterval(() => {
+    const trafficLoopRef = setInterval(() => {
       const test = async () => {
         for (const vendorId in this.trafficVendors) {
           const vendor = this.trafficVendors[vendorId];
@@ -21,6 +21,7 @@ class TrafficGenerator {
       };
       test();
     }, 10000);
+    clearInterval(trafficLoopRef);
   }
 
   async start(vendor) {

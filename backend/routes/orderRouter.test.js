@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../service');
 const orderRouter = require('./orderRouter');
 const DB = require('../database/database.js');
-const { createOrder, createVendor, updateVendor } = require('./testUtil.js');
+const { createOrder, createVendor } = require('./testUtil.js');
 
 let adminAuthToken = null;
 let vendor = null;
@@ -41,18 +41,15 @@ test('create order no items', async () => {
 });
 
 test('create order with chaos badjwt', async () => {
-  try {
-    const chaosResp = await request(app).put(`/api/vendor/chaos/badjwt`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
-    expect(chaosResp.status).toBe(200);
+  const chaosResp = await request(app).put(`/api/vendor/chaos/badjwt`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+  expect(chaosResp.status).toBe(200);
 
-    const [status, body] = await createOrder(vendor.apiKey);
+  const [status, body] = await createOrder(vendor.apiKey);
 
-    expect(status).toBe(200);
-    expect(body.jwt).toMatch(/^dead.*/);
-    expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
-  } finally {
-    await updateVendor(adminAuthToken, vendor.apiKey, { chaos: null });
-  }
+  expect(status).toBe(200);
+  expect(body.jwt).toMatch(/^dead.*/);
+  expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
+  await request(app).get(new URL(body.reportUrl).pathname);
 });
 
 test('create order with chaos throttle', async () => {
@@ -63,28 +60,26 @@ test('create order with chaos throttle', async () => {
 
     expect(status).toBe(200);
     expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
+    await request(app).get(new URL(body.reportUrl).pathname);
   } finally {
     orderRouter.settings.orderDelay = 32000;
-    await updateVendor(adminAuthToken, vendor.apiKey, { chaos: null });
   }
 });
 
 test('create order with chaos failure', async () => {
-  try {
-    await request(app).put(`/api/vendor/chaos/fail`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
-    const [status, body] = await createOrder(vendor.apiKey);
+  await request(app).put(`/api/vendor/chaos/fail`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+  const [status, body] = await createOrder(vendor.apiKey);
 
-    expect(status).toBe(500);
-    expect(body.message).toBe('chaos monkey');
-    expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
-  } finally {
-    await updateVendor(adminAuthToken, vendor.apiKey, { chaos: null });
-  }
+  expect(status).toBe(500);
+  expect(body.message).toBe('chaos monkey');
+  expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
+  await request(app).get(new URL(body.reportUrl).pathname);
 });
 
 test('verify order', async () => {
   const [, order] = await createOrder(vendor.apiKey);
   const verifyOrderRes = await request(app).post('/api/order/verify').send({ jwt: order.jwt });
+  console.log(order);
   expect(verifyOrderRes.status).toBe(200);
   expect(verifyOrderRes.body.message).toBe('valid');
 });

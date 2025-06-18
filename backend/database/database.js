@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const config = require('../config');
 const dbModel = require('./dbModel');
+
 class DB {
   constructor() {
     this.initialized = this.initializeDatabase();
@@ -50,7 +51,10 @@ class DB {
   }
 
   async updateVendor(vendor, changes) {
-    if (vendor && changes && Object.keys(changes).length > 0) {
+    if (!vendor) {
+      return null;
+    }
+    if (changes && Object.keys(changes).length > 0) {
       for (const key in changes) {
         if (changes[key] === null) {
           delete vendor[key];
@@ -61,7 +65,7 @@ class DB {
 
       await this.writeVendor(vendor.apiKey, vendor);
     }
-    return vendor;
+    return this.getVendorByNetId(vendor.id);
   }
 
   async updateVendorByApiKey(apiKey, changes) {
@@ -85,26 +89,61 @@ class DB {
   }
 
   async getVendorByApiKey(apiKey) {
+    return this.getVendorWithQuery(`SELECT body FROM vendor WHERE apiKey=?`, [apiKey]);
+  }
+
+  async getVendorByNetId(netId) {
+    return this.getVendorWithQuery(`SELECT body FROM vendor WHERE netId=?`, [netId]);
+  }
+
+  async getVendorWithQuery(query, params) {
     const connection = await this.getConnection();
     try {
-      const vendorResult = await this.query(connection, `SELECT body FROM vendor WHERE apiKey=?`, [apiKey]);
+      const vendorResult = await this.query(connection, query, params);
       if (vendorResult.length === 0) {
         return null;
       }
-      return JSON.parse(vendorResult[0].body);
+      const vendor = JSON.parse(vendorResult[0].body);
+      const chaos = await this.getChaosByNetId(vendor.id);
+      if (chaos) {
+        vendor.chaos = chaos;
+      }
+      return vendor;
     } finally {
       connection.end();
     }
   }
 
-  async getVendorByNetId(netId) {
+  async getChaosByNetId(netId) {
     const connection = await this.getConnection();
     try {
-      const vendorResult = await this.query(connection, `SELECT body FROM vendor WHERE netId=?`, [netId]);
-      if (vendorResult.length === 0) {
+      const chaosResult = await this.query(connection, `SELECT body FROM chaos WHERE netId=?`, [netId]);
+      if (chaosResult.length === 0) {
         return null;
       }
-      return JSON.parse(vendorResult[0].body);
+      return JSON.parse(chaosResult[0].body);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async addChaos(netId, chaos) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(connection, `INSERT INTO chaos (netId, state, body) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE body = VALUES(body)`, [netId, chaos.type, JSON.stringify(chaos)]);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async removeChaos(netId) {
+    const connection = await this.getConnection();
+    try {
+      const chaos = await this.getChaosByNetId(netId);
+      chaos.type = 'none';
+      delete chaos.fixCode;
+      chaos.fixDate = new Date().toISOString();
+      await this.query(connection, `UPDATE chaos SET state=?, body=? WHERE netId=?`, ['none', JSON.stringify(chaos), netId]);
     } finally {
       connection.end();
     }
@@ -248,6 +287,7 @@ class DB {
       await connection.query(`DELETE FROM vendor WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM authCode WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM connect WHERE vendor1=? OR vendor2=?`, [netId, netId]);
+      await connection.query(`DELETE FROM chaos WHERE netId=?`, [netId]);
     } finally {
       connection.end();
     }

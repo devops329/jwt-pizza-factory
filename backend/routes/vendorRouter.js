@@ -242,25 +242,21 @@ vendorRouter.put(
   vendorAuth,
   asyncHandler(async (req, res) => {
     const type = req.params.type;
-    const vendor = await DB.getVendorByApiKey(req.apiKey);
     if (!['badjwt', 'fail', 'throttle'].includes(type)) {
       return res.status(400).json({ message: 'Invalid chaos type' });
     }
-    if (!vendor) {
-      res.status(404).json({ message: 'Vendor not found' });
-    }
-    if (vendor.website && !(await trafficGenerator.start(vendor))) {
+
+    if (req.vendor.website && !(await trafficGenerator.start(req.vendor))) {
       return res.status(400).json({ message: `website (${vendor.website}) failed to respond` });
     }
 
-    const changes = {
-      chaos: {
-        type: type,
-        fixCode: Math.random().toString(36).substring(2, 10),
-        initiatedDate: new Date().toISOString(),
-      },
+    const chaos = {
+      type: type,
+      fixCode: Math.random().toString(36).substring(2, 10),
+      initiatedDate: new Date().toISOString(),
     };
-    await DB.updateVendorByApiKey(req.apiKey, changes);
+    await DB.addChaos(req.vendor.id, chaos);
+
     res.json({ message: 'Chaos initiated' });
   })
 );

@@ -11,6 +11,13 @@ const tableCreateStatements = [
     INDEX(apiKey)
   )`,
 
+  `CREATE TABLE IF NOT EXISTS chaos (
+    netId VARCHAR(255) PRIMARY KEY,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    state VARCHAR(64) NOT NULL,
+    body TEXT NOT NULL
+  )`,
+
   `CREATE TABLE IF NOT EXISTS connect (
     vendor1 VARCHAR(255) PRIMARY KEY,
     vendor2 VARCHAR(255),
