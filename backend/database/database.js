@@ -208,7 +208,7 @@ class DB {
   async assignRole(netId, role) {
     const connection = await this.getConnection();
     try {
-      await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?)`, [netId, role]);
+      await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?) ON DUPLICATE KEY UPDATE netId=netId`, [netId, role]);
     } finally {
       connection.end();
     }

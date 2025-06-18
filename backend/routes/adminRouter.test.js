@@ -4,19 +4,38 @@ const DB = require('../database/database.js');
 const { createVendor, getVendor } = require('./testUtil.js');
 
 test('admin exists', async () => {
-  const vendor = await DB.getVendorByNetId('admin');
-  expect(vendor).toBeDefined();
-  expect(vendor.id).toBe('admin');
-  expect(vendor.roles).toContain('admin');
-  expect(vendor.roles).toContain('vendor');
+  const admin = await DB.getVendorByNetId('admin');
+  expect(admin).toBeDefined();
+  expect(admin.id).toBe('admin');
+  expect(admin.roles).toContain('admin');
+  expect(admin.roles).toContain('vendor');
 });
 
-test('vendor default role', async () => {
+test('update to admin', async () => {
+  const admin = await DB.getVendorByNetId('admin');
+
   const vendor = await createVendor();
   expect(vendor.roles).toEqual(['vendor']);
 
-  const result = await getVendor(vendor.apiKey);
-  expect(result.roles).toEqual(['vendor']);
+  const updateRes = await request(app)
+    .put('/api/admin/vendor')
+    .set('Authorization', `Bearer ${admin.apiKey}`)
+    .send({ id: vendor.id, roles: ['vendor', 'admin'] });
+  expect(updateRes.status).toBe(200);
+  expect(updateRes.body.roles).toEqual(expect.arrayContaining(['vendor', 'admin']));
+
+  const getRes = await getVendor(vendor.apiKey);
+  expect(getRes.roles).toEqual(expect.arrayContaining(['vendor', 'admin']));
+});
+
+test('update bad params', async () => {
+  const admin = await DB.getVendorByNetId('admin');
+
+  const updateRes = await request(app)
+    .put('/api/admin/vendor')
+    .set('Authorization', `Bearer ${admin.apiKey}`)
+    .send({ roles: ['vendor', 'admin'] });
+  expect(updateRes.status).toBe(400);
 });
 
 test('get vendors', async () => {

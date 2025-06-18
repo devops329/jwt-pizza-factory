@@ -18,6 +18,18 @@ test('Get vendor', async () => {
   expect(getVendorRes.body).toMatchObject({ id: vendor.id, apiKey: vendor.apiKey });
 });
 
+test('Vendor exists', async () => {
+  const getVendorRes = await request(app).get(`/api/vendor/${vendor.id}`);
+  expect(getVendorRes.status).toBe(200);
+  expect(getVendorRes.body).toMatchObject({ exists: true });
+});
+
+test('Vendor not exists', async () => {
+  const getVendorRes = await request(app).get(`/api/vendor/bogus`);
+  expect(getVendorRes.status).toBe(200);
+  expect(getVendorRes.body).toMatchObject({ exists: false });
+});
+
 test('Update vendor', async () => {
   const vendor = await createVendor();
   const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ name: 'Updated Vendor' });
@@ -25,6 +37,14 @@ test('Update vendor', async () => {
   expect(updateRes.body).toMatchObject({ id: vendor.id, name: 'Updated Vendor' });
   const updatedVendor = await getVendor(vendor.apiKey);
   expect(updatedVendor.name).toBe('Updated Vendor');
+});
+
+test('vendor default role', async () => {
+  const vendor = await createVendor();
+  expect(vendor.roles).toEqual(['vendor']);
+
+  const result = await getVendor(vendor.apiKey);
+  expect(result.roles).toEqual(['vendor']);
 });
 
 test('Create vendor with auth code', async () => {
