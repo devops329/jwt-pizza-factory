@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../service.js');
-const { createVendor, randomUserId } = require('./testUtil.js');
+const { getVendor, createVendor, randomUserId } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
 let vendor = null;
@@ -16,6 +16,15 @@ test('Get vendor', async () => {
   const getVendorRes = await request(app).get(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`);
   expect(getVendorRes.status).toBe(200);
   expect(getVendorRes.body).toMatchObject({ id: vendor.id, apiKey: vendor.apiKey });
+});
+
+test('Update vendor', async () => {
+  const vendor = await createVendor();
+  const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ name: 'Updated Vendor' });
+  expect(updateRes.status).toBe(200);
+  expect(updateRes.body).toMatchObject({ id: vendor.id, name: 'Updated Vendor' });
+  const updatedVendor = await getVendor(vendor.apiKey);
+  expect(updatedVendor.name).toBe('Updated Vendor');
 });
 
 test('Create vendor with auth code', async () => {
