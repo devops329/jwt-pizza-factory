@@ -52,6 +52,10 @@ class Service {
     return this.callEndpoint('/api/vendor', 'PUT', vendor);
   }
 
+  async setVendorRoles(vendor: Vendor, roles: string[]): Promise<Vendor | null> {
+    return this.callEndpoint('/api/admin/vendor', 'PUT', { id: vendor.id, roles: roles });
+  }
+
   async getVendor(): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor');
   }
@@ -84,7 +88,13 @@ class Service {
     }
   }
 
-  async generateBadge(venderId: string, badgeId: string, label: string = 'Example', value: string = '100%', color: string = '#44aa44'): Promise<string> {
+  async generateBadge(
+    venderId: string,
+    badgeId: string,
+    label: string = 'Example',
+    value: string = '100%',
+    color: string = '#44aa44'
+  ): Promise<string> {
     const query = new URLSearchParams({ label, value, color }).toString();
     const response = await this.callEndpoint(`/api/badge/${venderId}/${badgeId}?${query}`, 'POST');
     return response.url;

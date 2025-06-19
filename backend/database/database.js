@@ -82,9 +82,11 @@ class DB {
     const connection = await this.getConnection();
     try {
       const result = await this.query(connection, `SELECT body FROM vendor`);
-      const vendors = result.map((row) => {
-        return JSON.parse(row.body);
-      });
+      const vendors = [];
+      for (const row of result) {
+        const vendor = JSON.parse(row.body);
+        vendors.push(await this.joinVendorInfo(vendor));
+      }
       return vendors;
     } finally {
       connection.end();
@@ -107,15 +109,19 @@ class DB {
         return null;
       }
       const vendor = JSON.parse(vendorResult[0].body);
-      const chaos = await this.getChaosByNetId(vendor.id);
-      if (chaos) {
-        vendor.chaos = chaos;
-      }
-      vendor.roles = await this.getRoles(vendor.id);
-      return vendor;
+      return this.joinVendorInfo(vendor);
     } finally {
       connection.end();
     }
+  }
+
+  async joinVendorInfo(vendor) {
+    const chaos = await this.getChaosByNetId(vendor.id);
+    if (chaos) {
+      vendor.chaos = chaos;
+    }
+    vendor.roles = await this.getRoles(vendor.id);
+    return vendor;
   }
 
   async getChaosByNetId(netId) {
@@ -198,16 +204,27 @@ class DB {
     if (connectedVendorId) {
       const connectedVendor = await this.getVendorByNetId(connectedVendorId);
       if (connectedVendor) {
-        connections[purpose] = { id: connectedVendor.id, name: connectedVendor.name, phone: connectedVendor.phone, email: connectedVendor.email, website: connectedVendor.website, purpose };
+        connections[purpose] = {
+          id: connectedVendor.id,
+          name: connectedVendor.name,
+          phone: connectedVendor.phone,
+          email: connectedVendor.email,
+          website: connectedVendor.website,
+          purpose,
+        };
       }
     }
     return this.updateVendorByNetId(vendor.id, { connections });
   }
 
-  async assignRole(netId, role) {
+  async assignRole(netId, role, add) {
     const connection = await this.getConnection();
     try {
-      await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?) ON DUPLICATE KEY UPDATE netId=netId`, [netId, role]);
+      if (add) {
+        await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?) ON DUPLICATE KEY UPDATE netId=netId`, [netId, role]);
+      } else {
+        await connection.query(`DELETE FROM role WHERE netId=? AND role=?`, [netId, role]);
+      }
     } finally {
       connection.end();
     }
@@ -232,7 +249,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       const result = await connection.query(`SELECT role FROM role where netId=? AND role=?`, [netId, role]);
-      return result.affectedRows > 0;
+      return result[0].length > 0;
     } finally {
       connection.end();
     }
@@ -305,7 +322,13 @@ class DB {
         connection.end();
       }
     } catch (err) {
-      console.error(JSON.stringify({ message: 'Error initializing database', exception: err.message, connection: config.db.connection }));
+      console.error(
+        JSON.stringify({
+          message: 'Error initializing database',
+          exception: err.message,
+          connection: config.db.connection,
+        })
+      );
     }
   }
 

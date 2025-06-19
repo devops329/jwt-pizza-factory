@@ -20,7 +20,7 @@ const vendorAuth = asyncHandler(async (req, res, next) => {
 const adminAuth = asyncHandler(async (req, res, next) => {
   req.apiKey = (req.headers.authorization || '').replace(/bearer /i, '');
   const vendor = await DB.getVendorByApiKey(req.apiKey);
-  if (vendor && DB.verifyRole(vendor.id, 'admin')) {
+  if (vendor && vendor.roles?.includes('admin')) {
     req.vendor = vendor;
     next();
   } else {

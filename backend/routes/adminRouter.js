@@ -60,11 +60,7 @@ adminRouter.put(
       return res.status(400).json({ message: 'Missing required parameter' });
     }
     if (roles) {
-      roles.forEach((role) => {
-        if (role !== 'vendor') {
-          DB.assignRole(id, role);
-        }
-      });
+      DB.assignRole(id, 'admin', roles.includes('admin'));
     }
     const vendor = await DB.getVendorByNetId(id);
     res.send(vendor);
