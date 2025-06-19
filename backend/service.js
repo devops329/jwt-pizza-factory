@@ -54,7 +54,7 @@ apiRouter.use('/docs', (_req, res) => {
   res.json({
     message: 'welcome to JWT Pizza Factory',
     version: version.version,
-    endpoints: [...orderRouter.endpoints, ...adminRouter.endpoints, ...supportRouter.endpoints],
+    endpoints: [...orderRouter.endpoints, ...adminRouter.endpoints, ...supportRouter.endpoints, ...vendorRouter.endpoints, ...badgeRouter.endpoints],
   });
 });
 
