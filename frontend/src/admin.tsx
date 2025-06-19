@@ -9,17 +9,22 @@ interface AdminProps {
 
 function Admin({ vendor }: AdminProps) {
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
-  const [filter, setFilter] = React.useState('');
   const [selectedVendor, setSelectedVendor] = React.useState<Vendor | null>(vendor);
+  const [filteredVendors, setFilteredVendors] = React.useState<Vendor[]>([]);
 
   React.useEffect(() => {
     (async () => {
-      const fetchedVendors = await service.getVendors();
-      setVendors(fetchedVendors);
+      const vendors = await service.getVendors();
+      setVendors(vendors);
+      setFilteredVendors(vendors);
     })();
   }, []);
 
-  const filteredVendors = vendors.filter((v) => v.name?.toLowerCase().includes(filter) || v.id?.toLowerCase().includes(filter));
+  function setFilter(filter: string) {
+    const result = vendors.filter((v) => v.name?.toLowerCase().includes(filter) || v.id?.toLowerCase().includes(filter));
+    setFilteredVendors(result);
+    setSelectedVendor(result.length > 0 ? result[0] : null);
+  }
 
   return (
     <div className='mt-6 p-4 border border-gray-300 bg-gray-50 rounded'>
@@ -31,9 +36,7 @@ function Admin({ vendor }: AdminProps) {
           className='border px-2 py-1 rounded w-full'
           onChange={(e) => {
             const selected = vendors.find((v) => v.id === e.target.value);
-            if (selected) {
-              setSelectedVendor(selected);
-            }
+            setSelectedVendor(selected || null);
           }}
         >
           {filteredVendors.map((vendor) => (
