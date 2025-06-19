@@ -83,8 +83,7 @@ class DB {
     try {
       const result = await this.query(connection, `SELECT body FROM vendor`);
       const vendors = result.map((row) => {
-        const vendor = JSON.parse(row.body);
-        return { name: vendor.name, id: vendor.id };
+        return JSON.parse(row.body);
       });
       return vendors;
     } finally {

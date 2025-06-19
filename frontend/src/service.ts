@@ -56,6 +56,10 @@ class Service {
     return this.callEndpoint('/api/vendor');
   }
 
+  async getVendors(): Promise<Vendor[]> {
+    return this.callEndpoint('/api/admin/vendors');
+  }
+
   async connectVendor(purpose: string): Promise<Vendor> {
     return await this.callEndpoint('/api/vendor/connect', 'POST', { purpose: purpose });
   }

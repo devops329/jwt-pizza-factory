@@ -8,22 +8,22 @@ interface VendorDetailsProps {
 }
 
 function VendorDetails({ vendor, setVendor }: VendorDetailsProps): JSX.Element {
+  const [vendorState, setVendorState] = React.useState<Vendor>(vendor);
   const [vendorChanged, setVendorChanged] = React.useState(false);
-  const [gitHubUrl, setGitHubUrl] = React.useState(vendor.gitHubUrl || '');
-  const [name, setName] = React.useState(vendor.name || '');
-  const [phone, setPhone] = React.useState(vendor.phone || '');
-  const [email, setEmail] = React.useState(vendor.email || '');
-  const [website, setWebsite] = React.useState(vendor.website || '');
 
-  async function updateVendorProp(value: string, fn: React.Dispatch<React.SetStateAction<string>>) {
-    fn(value);
-    vendorChanged || setVendorChanged(true);
+  React.useEffect(() => {
+    setVendorState(vendor);
+    setVendorChanged(false);
+  }, [vendor]);
+
+  function updateVendorProp<K extends keyof Vendor>(key: K, value: Vendor[K]) {
+    setVendorState((prev) => ({ ...prev, [key]: value }));
+    setVendorChanged(true);
   }
 
   async function updateVendor(): Promise<void> {
     if (vendorChanged) {
-      const fields = { email, gitHubUrl, name, phone, website };
-      const updatedFields = Object.fromEntries(Object.entries(fields).filter(([key, value]) => value !== vendor[key]));
+      const updatedFields = Object.fromEntries(Object.entries(vendorState).filter(([key, value]) => value !== vendor[key as keyof Vendor]));
       const vendorUpdate = await service.updateVendor({ ...updatedFields, id: vendor.id });
       if (vendorUpdate) {
         setVendor(vendorUpdate);
@@ -33,45 +33,84 @@ function VendorDetails({ vendor, setVendor }: VendorDetailsProps): JSX.Element {
   }
 
   return (
-    <div className="mt-6 p-4 border border-gray-300">
-      <div className="grid grid-cols-[max-content_1fr] gap-2 items-center mb-4">
-        <div className="font-semibold text-gray-700 min-w-max mr-2">Net ID:</div>
-        <div className="text-gray-900">{vendor.id}</div>
+    <div className='mt-6 p-4 border border-gray-300'>
+      <div className='grid grid-cols-[max-content_1fr] gap-2 items-center mb-4'>
+        <div className='font-semibold text-gray-700 min-w-max mr-2'>Net ID:</div>
+        <div className='text-gray-900'>{vendor.id}</div>
 
-        <div className="font-semibold text-gray-700 min-w-max mr-2">API Key:</div>
+        <div className='font-semibold text-gray-700 min-w-max mr-2'>API Key:</div>
         <div>
-          <span className="text-gray-900 truncate">{vendor.apiKey}</span>
-          <button className="ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs " onClick={() => navigator.clipboard.writeText(vendor.apiKey || '')} title="Copy API Key">
+          <span className='text-gray-900 truncate'>{vendor.apiKey}</span>
+          <button className='ml-2 px-2 py-1 bg-gray-200 rounded hover:bg-gray-300 focus:bg-orange-100 text-xs ' onClick={() => navigator.clipboard.writeText(vendor.apiKey || '')} title='Copy API Key'>
             Copy
           </button>
         </div>
 
-        <label htmlFor="vendorName" className="font-semibold text-gray-700">
+        <label htmlFor='vendorName' className='font-semibold text-gray-700'>
           Name:
         </label>
-        <input id="vendorName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your name" value={name} onChange={(e) => updateVendorProp(e.target.value, setName)} />
+        <input
+          id='vendorName'
+          type='text'
+          className='border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full'
+          placeholder='Your name'
+          value={vendorState.name || ''}
+          onChange={(e) => updateVendorProp('name', e.target.value)}
+        />
 
-        <label htmlFor="vendorPhone" className="font-semibold text-gray-700">
+        <label htmlFor='vendorPhone' className='font-semibold text-gray-700'>
           Phone:
         </label>
-        <input id="vendorPhone" type="phone" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your phone" value={phone} onChange={(e) => updateVendorProp(e.target.value, setPhone)} />
+        <input
+          id='vendorPhone'
+          type='phone'
+          className='border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full'
+          placeholder='Your phone'
+          value={vendorState.phone || ''}
+          onChange={(e) => updateVendorProp('phone', e.target.value)}
+        />
 
-        <label htmlFor="vendorEmail" className="font-semibold text-gray-700">
+        <label htmlFor='vendorEmail' className='font-semibold text-gray-700'>
           Email:
         </label>
-        <input id="vendorEmail" type="email" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your email" value={email} onChange={(e) => updateVendorProp(e.target.value, setEmail)} />
+        <input
+          id='vendorEmail'
+          type='email'
+          className='border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full'
+          placeholder='Your email'
+          value={vendorState.email || ''}
+          onChange={(e) => updateVendorProp('email', e.target.value)}
+        />
 
-        <label htmlFor="website" className="font-semibold text-gray-700">
+        <label htmlFor='website' className='font-semibold text-gray-700'>
           Pizza Service:
         </label>
-        <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://pizza-service.yourdomain" value={website} onChange={(e) => updateVendorProp(e.target.value, setWebsite)} />
+        <input
+          id='website'
+          type='url'
+          className='border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full'
+          placeholder='https://pizza-service.yourdomain'
+          value={vendorState.website || ''}
+          onChange={(e) => updateVendorProp('website', e.target.value)}
+        />
 
-        <label htmlFor="gitHubUrl" className="font-semibold text-gray-700">
+        <label htmlFor='gitHubUrl' className='font-semibold text-gray-700'>
           GitHub URL:
         </label>
-        <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://github.com/your-repo" value={gitHubUrl} onChange={(e) => updateVendorProp(e.target.value, setGitHubUrl)} />
+        <input
+          id='gitHubUrl'
+          type='url'
+          className='border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full'
+          placeholder='https://github.com/your-repo'
+          value={vendorState.gitHubUrl || ''}
+          onChange={(e) => updateVendorProp('gitHubUrl', e.target.value)}
+        />
       </div>
-      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!vendorChanged} onClick={() => updateVendor()}>
+      <button
+        className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400'
+        disabled={!vendorChanged}
+        onClick={() => updateVendor()}
+      >
         Update
       </button>
     </div>
