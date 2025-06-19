@@ -15,17 +15,21 @@ test('update to admin', async () => {
   const admin = await DB.getVendorByNetId('admin');
 
   const vendor = await createVendor();
-  expect(vendor.roles).toEqual(['vendor']);
+  try {
+    expect(vendor.roles).toEqual(['vendor']);
 
-  const updateRes = await request(app)
-    .put('/api/admin/vendor')
-    .set('Authorization', `Bearer ${admin.apiKey}`)
-    .send({ id: vendor.id, roles: ['vendor', 'admin'] });
-  expect(updateRes.status).toBe(200);
-  expect(updateRes.body.roles).toEqual(expect.arrayContaining(['vendor', 'admin']));
+    const updateRes = await request(app)
+      .put('/api/admin/vendor')
+      .set('Authorization', `Bearer ${admin.apiKey}`)
+      .send({ id: vendor.id, roles: ['vendor', 'admin'] });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.roles).toEqual(expect.arrayContaining(['vendor', 'admin']));
 
-  const getRes = await getVendor(vendor.apiKey);
-  expect(getRes.roles).toEqual(expect.arrayContaining(['vendor', 'admin']));
+    const getRes = await getVendor(vendor.apiKey);
+    expect(getRes.roles).toEqual(expect.arrayContaining(['vendor', 'admin']));
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
 });
 
 test('update bad params', async () => {

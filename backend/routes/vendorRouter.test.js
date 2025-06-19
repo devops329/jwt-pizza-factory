@@ -32,19 +32,27 @@ test('Vendor not exists', async () => {
 
 test('Update vendor', async () => {
   const vendor = await createVendor();
-  const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ name: 'Updated Vendor' });
-  expect(updateRes.status).toBe(200);
-  expect(updateRes.body).toMatchObject({ id: vendor.id, name: 'Updated Vendor' });
-  const updatedVendor = await getVendor(vendor.apiKey);
-  expect(updatedVendor.name).toBe('Updated Vendor');
+  try {
+    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ name: 'Updated Vendor' });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body).toMatchObject({ id: vendor.id, name: 'Updated Vendor' });
+    const updatedVendor = await getVendor(vendor.apiKey);
+    expect(updatedVendor.name).toBe('Updated Vendor');
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
 });
 
 test('vendor default role', async () => {
   const vendor = await createVendor();
-  expect(vendor.roles).toEqual(['vendor']);
+  try {
+    expect(vendor.roles).toEqual(['vendor']);
 
-  const result = await getVendor(vendor.apiKey);
-  expect(result.roles).toEqual(['vendor']);
+    const result = await getVendor(vendor.apiKey);
+    expect(result.roles).toEqual(['vendor']);
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
 });
 
 test('Create vendor with auth code', async () => {

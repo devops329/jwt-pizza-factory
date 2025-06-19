@@ -5,10 +5,10 @@ const tableCreateStatements = [
   )`,
 
   `CREATE TABLE IF NOT EXISTS vendor (
-    apiKey VARCHAR(255) PRIMARY KEY,
-    netId VARCHAR(255) NOT NULL,
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    netId VARCHAR(255) PRIMARY KEY,
     body TEXT NOT NULL,
+    apiKey VARCHAR(255) NOT NULL,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     INDEX(apiKey)
   )`,
 

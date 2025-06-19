@@ -305,7 +305,7 @@ class DB {
           console.log('Database created');
           if (config.defaultAdmin?.id) {
             this.addVendor({ ...config.defaultAdmin, apiKey: Math.random().toString(36).substring(2, 18) });
-            this.assignRole(config.defaultAdmin.id, 'admin');
+            this.assignRole(config.defaultAdmin.id, 'admin', true);
           }
         }
       } finally {
