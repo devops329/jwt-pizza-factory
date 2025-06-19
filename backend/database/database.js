@@ -245,16 +245,6 @@ class DB {
     }
   }
 
-  async verifyRole(netId, role) {
-    const connection = await this.getConnection();
-    try {
-      const result = await connection.query(`SELECT role FROM role where netId=? AND role=?`, [netId, role]);
-      return result[0].length > 0;
-    } finally {
-      connection.end();
-    }
-  }
-
   async deleteVendor(netId) {
     const connection = await this.getConnection();
     try {
