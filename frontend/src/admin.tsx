@@ -17,6 +17,7 @@ function Admin({ vendor }: AdminProps) {
       const vendors = await service.getVendors();
       setVendors(vendors);
       setFilteredVendors(vendors);
+      setSelectedVendor(vendors.length > 0 ? vendors[0] : null);
     })();
   }, []);
 
@@ -46,6 +47,7 @@ function Admin({ vendor }: AdminProps) {
         <input type="text" placeholder="Filter by name or id..." className="border px-2 py-1 rounded mb-2 w-full" onChange={(e) => setFilter(e.target.value.toLowerCase())} />
         <select
           className="border px-2 py-1 rounded w-full"
+          value={selectedVendor?.id || ''}
           onChange={(e) => {
             const selected = vendors.find((v) => v.id === e.target.value);
             setSelectedVendor(selected || null);
@@ -68,7 +70,14 @@ function Admin({ vendor }: AdminProps) {
                   <span>Admin</span>
                 </label>
               </div>
-              <VendorDetails vendor={selectedVendor} setVendor={() => {}} />
+              <VendorDetails
+                vendor={selectedVendor}
+                setVendor={(vendor) => {
+                  setVendors((prev) => prev.map((v) => (v.id === vendor.id ? { ...v, ...vendor } : v)));
+                  setFilteredVendors((prev) => prev.map((v) => (v.id === vendor.id ? { ...v, ...vendor } : v)));
+                  setSelectedVendor(vendor);
+                }}
+              />
             </div>
           ) : (
             <div className="mt-4 text-gray-500">No vendor selected.</div>
