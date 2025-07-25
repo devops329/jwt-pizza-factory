@@ -25,7 +25,7 @@ adminRouter.endpoints = [
     method: 'PUT',
     path: '/api/admin/vendor',
     requiresAuth: true,
-    description: 'Update a vendor',
+    description: 'Update a vendor to have the given roles',
     example: `curl -X PUT $host/api/admin/vendor -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "roles":["admin"]}'`,
     response: [
       {
@@ -50,7 +50,7 @@ adminRouter.get(
   })
 );
 
-// update vendor
+// update vendor to have the given roles
 adminRouter.put(
   '/vendor',
   adminAuth,
