@@ -23,10 +23,10 @@ adminRouter.endpoints = [
   },
   {
     method: 'PUT',
-    path: '/api/admin/vendor',
+    path: '/api/admin/role',
     requiresAuth: true,
-    description: 'Update a vendor to have the given roles',
-    example: `curl -X PUT $host/api/admin/vendor -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "roles":["admin"]}'`,
+    description: 'Update the role of a vendor',
+    example: `curl -X PUT $host/api/admin/role -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "roles":["admin"]}'`,
     response: [
       {
         id: 'byustudent27',
@@ -52,7 +52,7 @@ adminRouter.get(
 
 // update vendor to have the given roles
 adminRouter.put(
-  '/vendor',
+  '/role',
   adminAuth,
   asyncHandler(async (req, res) => {
     const { id, roles } = req.body;

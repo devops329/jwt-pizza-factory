@@ -44,8 +44,8 @@ vendorRouter.endpoints = [
     method: 'PUT',
     path: '/api/vendor',
     requiresAuth: true,
-    description: 'Updates a vendor. Only supply the changed fields. Use null to remove a field.',
-    example: `curl -X POST $host/api/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"gitHubUrl":"https://github.com/test3"}'`,
+    description: 'Updates a vendor. A vendor can only update their own data unless they are an admin.Only supply the changed fields. Use null to remove a field.',
+    example: `curl -X POST $host/api/vendor -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"id":"test3", "gitHubUrl":"https://github.com/test3"}'`,
     response: {
       id: 'test3',
       name: 'cs student',
@@ -147,6 +147,16 @@ vendorRouter.put(
   '/',
   vendorAuth,
   asyncHandler(async (req, res) => {
+    if (!req.body.id) {
+      return res.status(400).json({ message: 'Missing required parameter: id' });
+    }
+    if (req.body.id !== req.vendor.id && !req.vendor.roles?.includes('admin')) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    let vendor = await DB.getVendorByNetId(req.body.id);
+    if (!vendor) {
+      return res.status(404).json({ message: 'Vendor not found' });
+    }
     const changes = {};
     const allowedFields = ['gitHubUrl', 'name', 'website', 'phone', 'email', 'connections'];
     Object.keys(req.body).forEach((key) => {
@@ -154,7 +164,7 @@ vendorRouter.put(
         changes[key] = req.body[key];
       }
     });
-    const vendor = await DB.updateVendor(req.vendor, changes);
+    vendor = await DB.updateVendor(vendor, changes);
     res.json(vendor);
   })
 );

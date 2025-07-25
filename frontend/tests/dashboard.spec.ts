@@ -2,39 +2,6 @@
 import { test, expect } from 'playwright-test-coverage';
 import { Vendor } from '../src/model';
 
-// Do this:
-// const mockRoutes = [
-//   {
-//     method: 'GET',
-//     url: /\/api\/users$/,
-//     response: [{ id: 1, name: 'Alice' }],
-//     status: 200
-//   },
-//   {
-//     method: 'POST',
-//     url: /\/api\/users$/,
-//     response: { id: 2, name: 'Bob' },
-//     status: 201
-//   }
-// ];
-
-// await page.route('**/*', async (route, request) => {
-//   const match = mockRoutes.find(r =>
-//     r.method === request.method() &&
-//     r.url.test(request.url())
-//   );
-
-//   if (match) {
-//     return route.fulfill({
-//       status: match.status,
-//       contentType: 'application/json',
-//       body: JSON.stringify(match.response)
-//     });
-//   }
-
-//   return route.continue();
-// });
-
 function getUrlParam(route, regex) {
   const url = route.request().url();
   const match = url.match(regex);

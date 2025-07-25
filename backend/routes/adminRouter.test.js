@@ -3,23 +3,31 @@ const app = require('../service');
 const DB = require('../database/database.js');
 const { createVendor, getVendor } = require('./testUtil.js');
 
+let admin = null;
+beforeAll(async () => {
+  admin = await createVendor();
+  DB.assignRole(admin.id, 'admin', true);
+});
+
+afterAll(async () => {
+  await DB.deleteVendor(admin.id);
+});
+
 test('admin exists', async () => {
-  const admin = await DB.getVendorByNetId('admin');
-  expect(admin).toBeDefined();
-  expect(admin.id).toBe('admin');
-  expect(admin.roles).toContain('admin');
-  expect(admin.roles).toContain('vendor');
+  const result = await DB.getVendorByNetId(admin.id);
+  expect(result).toBeDefined();
+  expect(result.id).toBe(admin.id);
+  expect(result.roles).toContain('admin');
+  expect(result.roles).toContain('vendor');
 });
 
 test('update to admin', async () => {
-  const admin = await DB.getVendorByNetId('admin');
-
   const vendor = await createVendor();
   try {
     expect(vendor.roles).toEqual(['vendor']);
 
     const updateRes = await request(app)
-      .put('/api/admin/vendor')
+      .put('/api/admin/role')
       .set('Authorization', `Bearer ${admin.apiKey}`)
       .send({ id: vendor.id, roles: ['vendor', 'admin'] });
     expect(updateRes.status).toBe(200);
@@ -33,17 +41,14 @@ test('update to admin', async () => {
 });
 
 test('update bad params', async () => {
-  const admin = await DB.getVendorByNetId('admin');
-
   const updateRes = await request(app)
-    .put('/api/admin/vendor')
+    .put('/api/admin/role')
     .set('Authorization', `Bearer ${admin.apiKey}`)
     .send({ roles: ['vendor', 'admin'] });
   expect(updateRes.status).toBe(400);
 });
 
 test('get vendors', async () => {
-  const admin = await DB.getVendorByNetId('admin');
   const getVendorsRes = await request(app).get('/api/admin/vendors').set('Authorization', `Bearer ${admin.apiKey}`);
   expect(getVendorsRes.status).toBe(200);
   expect(getVendorsRes.body).toBeDefined();

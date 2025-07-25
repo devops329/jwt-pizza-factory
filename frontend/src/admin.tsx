@@ -21,17 +21,15 @@ function Admin({ vendor }: AdminProps) {
   }, []);
 
   function setFilter(filter: string) {
-    const result = vendors.filter(
-      (v) => v.name?.toLowerCase().includes(filter) || v.id?.toLowerCase().includes(filter)
-    );
+    const result = vendors.filter((v) => v.name?.toLowerCase().includes(filter) || v.id?.toLowerCase().includes(filter));
     setFilteredVendors(result);
     setSelectedVendor(result.length > 0 ? result[0] : null);
   }
 
-  async function setVendorRole(vendor: Vendor, isAdmin: boolean) {
+  async function updateVendorRole(vendor: Vendor, isAdmin: boolean) {
     if (vendor) {
       const roles = isAdmin ? ['admin'] : ['vendor'];
-      const updatedVendor = await service.setVendorRoles(vendor, roles);
+      const updatedVendor = await service.updateVendorRoles(vendor, roles);
       if (updatedVendor) {
         setSelectedVendor(updatedVendor);
         setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
@@ -43,16 +41,9 @@ function Admin({ vendor }: AdminProps) {
   return (
     <div className="mt-6 p-4 border border-gray-300 bg-gray-50 rounded">
       <h3 className="text-lg font-semibold mb-4">Admin Actions</h3>
-      <p className="text-sm text-gray-600">
-        As an admin, you can manage vendors, view logs, and perform other administrative tasks.
-      </p>
+      <p className="text-sm text-gray-600">As an admin, you can manage vendors, view logs, and perform other administrative tasks.</p>
       <div className="mt-4">
-        <input
-          type="text"
-          placeholder="Filter by name or id..."
-          className="border px-2 py-1 rounded mb-2 w-full"
-          onChange={(e) => setFilter(e.target.value.toLowerCase())}
-        />
+        <input type="text" placeholder="Filter by name or id..." className="border px-2 py-1 rounded mb-2 w-full" onChange={(e) => setFilter(e.target.value.toLowerCase())} />
         <select
           className="border px-2 py-1 rounded w-full"
           onChange={(e) => {
@@ -69,18 +60,11 @@ function Admin({ vendor }: AdminProps) {
         <div>
           {selectedVendor ? (
             <div>
-              <pre className={`mt-6 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>
-                {JSON.stringify(selectedVendor, null, 2)}
-              </pre>
+              <pre className={`mt-6 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(selectedVendor, null, 2)}</pre>
 
               <div className="my-4 text-gray-500">
                 <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={selectedVendor?.roles?.includes('admin') || false}
-                    onChange={async (e) => setVendorRole(selectedVendor, e.target.checked)}
-                    className="form-checkbox"
-                  />
+                  <input type="checkbox" checked={selectedVendor?.roles?.includes('admin') || false} onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)} className="form-checkbox" />
                   <span>Admin</span>
                 </label>
               </div>

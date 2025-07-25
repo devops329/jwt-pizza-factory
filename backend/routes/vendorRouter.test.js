@@ -33,13 +33,63 @@ test('Vendor not exists', async () => {
 test('Update vendor', async () => {
   const vendor = await createVendor();
   try {
-    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ name: 'Updated Vendor' });
+    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ id: vendor.id, name: 'Updated Vendor' });
     expect(updateRes.status).toBe(200);
     expect(updateRes.body).toMatchObject({ id: vendor.id, name: 'Updated Vendor' });
     const updatedVendor = await getVendor(vendor.apiKey);
     expect(updatedVendor.name).toBe('Updated Vendor');
   } finally {
     await DB.deleteVendor(vendor.id);
+  }
+});
+
+test('Update vendor without id param', async () => {
+  const vendor = await createVendor();
+  try {
+    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ name: 'Updated Vendor' });
+    expect(updateRes.status).toBe(400);
+    expect(updateRes.body).toMatchObject({ message: 'Missing required parameter: id' });
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
+});
+
+test('Update vendor unknown', async () => {
+  const admin = await createVendor();
+  DB.assignRole(admin.id, 'admin', true);
+  try {
+    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: 'bogusId', name: 'Updated Vendor' });
+    expect(updateRes.status).toBe(404);
+  } finally {
+    await DB.deleteVendor(admin.id);
+  }
+});
+
+test('Update other vendor as non-admin', async () => {
+  const vendor = await createVendor();
+  const otherVendor = await createVendor();
+  try {
+    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${otherVendor.apiKey}`).send({ id: vendor.id, name: 'Updated Vendor' });
+    expect(updateRes.status).toBe(401);
+  } finally {
+    await DB.deleteVendor(vendor.id);
+    await DB.deleteVendor(otherVendor.id);
+  }
+});
+
+test('Update other vendor as admin', async () => {
+  const vendor = await createVendor();
+  const admin = await createVendor();
+  DB.assignRole(admin.id, 'admin', true);
+  try {
+    const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: vendor.id, name: 'Updated Vendor' });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body).toMatchObject({ id: vendor.id, name: 'Updated Vendor' });
+    const updatedVendor = await getVendor(vendor.apiKey);
+    expect(updatedVendor.name).toBe('Updated Vendor');
+  } finally {
+    await DB.deleteVendor(vendor.id);
+    await DB.deleteVendor(admin.id);
   }
 });
 
