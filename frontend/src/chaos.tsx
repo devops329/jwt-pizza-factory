@@ -42,7 +42,7 @@ function Chaos({ vendor }: ChaosProps): JSX.Element {
       <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!chaosAvailable()} onClick={initiateChaos}>
         Initiate chaos
       </button>
-      <div className="text-sm italic">Note: You must provide all vendor information and have your pizza website available before requesting a partner.</div>
+      <div className="text-sm italic">Note: You must provide all vendor information and have your pizza website available before requesting chaos.</div>
     </div>
   );
 }
