@@ -72,7 +72,7 @@ function PenetrationTesting({ vendor, setVendor }: PenetrationTestingProps): JSX
       <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition" disabled={!requestEnabled()} onClick={requestPenetrationTestPartner}>
         Request partner
       </button>
-      <div className="text-sm italic">Note: You must provide all vendor information and have your pizza website available before requesting a partner.</div>
+      <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting a partner.</div>
     </div>
   );
 }

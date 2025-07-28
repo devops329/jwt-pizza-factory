@@ -49,6 +49,12 @@ export default function Login({ setVendor }) {
     }
   }
 
+  function obfuscateEmail(email: string): string {
+    const [localPart, domain] = email.split('@');
+    const obsfucatedLocalPart = localPart.length > 3 ? `${localPart.slice(0, 3)}...` : localPart;
+    return `${obsfucatedLocalPart}@${domain}`;
+  }
+
   return (
     <div>
       {!netId ? (
@@ -70,7 +76,7 @@ export default function Login({ setVendor }) {
               Authenticate code
             </label>
             <div className="text-sm text-gray-500">
-              Provide the code sent to <b>{email}</b>.
+              Provide the code sent to <b>{obfuscateEmail(email)}</b>.
             </div>
             <input id="login" type="text" value={inputValue} placeholder="Code" onChange={(e) => setInputValue(e.target.value)} className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
             <button disabled={!inputValue} type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 transition disabled:bg-gray-400 disabled:cursor-not-allowed">
@@ -121,7 +127,7 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
             <input type="email" name="email" required onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxxx@xxx.xxx" />
           </label>
           <label className="flex flex-col">
-            Phone Number <span className="text-sm italic text-gray-300">For text notifications</span>
+            Phone Number <span className="text-sm italic text-gray-300">For working with a peer</span>
             <input type="tel" name="phone" required onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxx-xxx-xxxx" />
           </label>
           <div className="flex gap-2 mt-4">

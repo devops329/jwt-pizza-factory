@@ -69,6 +69,7 @@ function Badge({ vendor }: BadgeProps): JSX.Element {
       <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!badgeName} onClick={generateBadge}>
         Generate Badge
       </button>
+      <div className="text-sm italic m-3">Note: This is only a demonstration. You must generate your badges in your CI pipeline.</div>
     </div>
   );
 }
