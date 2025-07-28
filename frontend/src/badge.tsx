@@ -9,10 +9,13 @@ interface BadgeProps {
 function Badge({ vendor }: BadgeProps): JSX.Element {
   const [badgeUrl, setBadgeUrl] = React.useState('');
   const [badgeName, setBadgeName] = React.useState('');
+  const [badgeColor, setBadgeColor] = React.useState('#44aa44');
+  const [badgeLabel, setBadgeLabel] = React.useState('Example');
+  const [badgeValue, setBadgeValue] = React.useState('%100');
 
   async function generateBadge(): Promise<void> {
-    const badgeUrl = await service.generateBadge(vendor.id, badgeName);
-    setBadgeUrl(badgeUrl);
+    const badgeUrl = await service.generateBadge(vendor.id, badgeName, badgeLabel, badgeValue, badgeColor);
+    setBadgeUrl(`${badgeUrl}?t=${Date.now()}`);
   }
 
   function validateBadgeName(e: React.ChangeEvent<HTMLInputElement>): void {
@@ -34,7 +37,25 @@ function Badge({ vendor }: BadgeProps): JSX.Element {
         <input id="badgeName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeName} onChange={(e) => validateBadgeName(e)} />
       </div>
       <div className="mb-4 flex items-center">
-        <span className="mr-2 font-semibold text-gray-700">URL:</span>
+        <label htmlFor="badgeLabel" className="mr-2 font-semibold text-gray-700">
+          Label:
+        </label>
+        <input id="badgeLabel" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeLabel} onChange={(e) => setBadgeLabel(e.currentTarget.value)} />
+      </div>
+      <div className="mb-4 flex items-center">
+        <label htmlFor="badgeValue" className="mr-2 font-semibold text-gray-700">
+          Value:
+        </label>
+        <input id="badgeValue" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeValue} onChange={(e) => setBadgeValue(e.currentTarget.value)} />
+      </div>
+      <div className="mb-4 flex items-center">
+        <label htmlFor="badgeColor" className="mr-2 font-semibold text-gray-700">
+          Color:
+        </label>
+        <input id="badgeColor" type="color" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="hex color code" value={badgeColor} onChange={(e) => setBadgeColor(e.currentTarget.value)} />
+      </div>
+      <div className="mb-4 flex items-center">
+        <span className="mr-2 font-semibold text-gray-70</div>0">URL:</span>
         <span id="badgeUrl" className="text-gray-900">
           {badgeUrl ? <a href={badgeUrl}>{badgeUrl}</a> : 'Not generated yet'}
         </span>
