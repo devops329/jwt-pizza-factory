@@ -11,7 +11,7 @@ supportRouter.endpoints = [
     path: '/api/support/:vendorToken/report/:fixCode',
     requiresAuth: false,
     description: 'Report a problem',
-    example: `curl -X POST $host/api/support/abcxyz/report/123`,
+    example: `curl -X GET $host/api/support/abcxyz/report/123`,
     response: {
       message: 'ticket status',
     },
