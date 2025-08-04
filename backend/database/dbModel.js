@@ -20,10 +20,12 @@ const tableCreateStatements = [
   )`,
 
   `CREATE TABLE IF NOT EXISTS connect (
-    vendor1 VARCHAR(255) PRIMARY KEY,
+    vendor1 VARCHAR(255),
     vendor2 VARCHAR(255),
     purpose VARCHAR(64) NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    rating INT DEFAULT 0,
+    PRIMARY KEY (vendor1, purpose),
     INDEX(vendor2)
   )`,
 

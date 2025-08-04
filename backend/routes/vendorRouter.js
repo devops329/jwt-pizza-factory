@@ -92,6 +92,24 @@ vendorRouter.endpoints = [
   },
   {
     method: 'PUT',
+    path: '/api/vendor/connect',
+    requiresAuth: true,
+    description: 'Updates the properties of a vendor connection. Currently this only allows the update of the rating.',
+    example: `curl -X PUT $host/api/vendor/connect  -d '{"id":"connectedVendorId", "purpose":"penetrationTesting", "rating":5}' -H 'Content-Type:application/json'`,
+    response: {
+      id: 'test3',
+      apiKey: 'abcxyz',
+      connections: {
+        penetrationTesting: {
+          id: 'connectedVendorId',
+          purpose: 'penetration',
+          rating: 5,
+        },
+      },
+    },
+  },
+  {
+    method: 'PUT',
     path: '/api/vendor/chaos/:type',
     requiresAuth: true,
     description: 'Initiate chaos testing for a vendor.',
@@ -158,7 +176,7 @@ vendorRouter.put(
       return res.status(404).json({ message: 'Vendor not found' });
     }
     const changes = {};
-    const allowedFields = ['gitHubUrl', 'name', 'website', 'phone', 'email', 'connections'];
+    const allowedFields = ['gitHubUrl', 'name', 'website', 'phone', 'email'];
     Object.keys(req.body).forEach((key) => {
       if (allowedFields.includes(key)) {
         changes[key] = req.body[key];
@@ -246,6 +264,17 @@ vendorRouter.post(
     }
     let vendor = req.vendor;
     vendor = await DB.requestVendorConnection(vendor, purpose);
+    res.json(vendor);
+  })
+);
+
+// update a vendor connection
+vendorRouter.put(
+  '/connect',
+  vendorAuth,
+  asyncHandler(async (req, res) => {
+    let vendor = req.vendor;
+    vendor = await DB.updateVendorConnection(vendor, { id: req.body.id, purpose: req.body.purpose, rating: req.body.rating || 0 });
     res.json(vendor);
   })
 );

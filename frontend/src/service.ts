@@ -68,6 +68,10 @@ class Service {
     return await this.callEndpoint('/api/vendor/connect', 'POST', { purpose: purpose });
   }
 
+  async updateVendorConnection(connection: any): Promise<Vendor> {
+    return await this.callEndpoint('/api/vendor/connect', 'PUT', connection);
+  }
+
   async requestCode(netId: string): Promise<string> {
     const response = await this.callEndpoint('/api/vendor/code', 'POST', { id: netId });
     return response.email;

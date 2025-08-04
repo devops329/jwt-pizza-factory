@@ -44,10 +44,7 @@ function PenetrationTesting({ vendor, setVendor }: PenetrationTestingProps): JSX
                   className={`text-2xl focus:outline-none ${penetrationTest.rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
                   onClick={async () => {
                     penetrationTest.rating = star;
-                    service.updateVendor({
-                      id: vendor.id,
-                      connections: vendor.connections,
-                    });
+                    service.updateVendorConnection(penetrationTest);
                     setVendor({ ...vendor });
                   }}
                 >
