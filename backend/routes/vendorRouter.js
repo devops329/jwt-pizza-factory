@@ -261,7 +261,7 @@ vendorRouter.put(
     }
 
     if (req.vendor.website && !(await trafficGenerator.start(req.vendor))) {
-      return res.status(400).json({ message: `website (${vendor.website}) failed to respond` });
+      return res.status(400).json({ message: `website (${req.vendor.website}) failed to respond` });
     }
 
     const chaos = {

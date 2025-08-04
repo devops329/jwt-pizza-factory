@@ -11,9 +11,7 @@ function Chaos({ vendor }: ChaosProps): JSX.Element {
 
   function chaosAvailable() {
     if (vendor.name && vendor.website && vendor.phone && vendor.email && vendor.gitHubUrl) {
-      if (chaosState === 'calm') {
-        return true;
-      }
+      return true;
     }
     return false;
   }
@@ -39,10 +37,14 @@ function Chaos({ vendor }: ChaosProps): JSX.Element {
           {chaosState}
         </span>
       </div>
-      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!chaosAvailable()} onClick={initiateChaos}>
-        Initiate chaos
-      </button>
-      <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting chaos.</div>
+      {chaosState === 'calm' && (
+        <div>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!chaosAvailable()} onClick={initiateChaos}>
+            Initiate chaos
+          </button>
+          {!chaosAvailable() && <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting chaos.</div>}
+        </div>
+      )}
     </div>
   );
 }

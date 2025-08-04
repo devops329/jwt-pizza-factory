@@ -58,9 +58,9 @@ function PenetrationTesting({ vendor, setVendor }: PenetrationTestingProps): JSX
           )}
         </div>
       );
+    } else {
+      connectionJsx = <span>Waiting for available partner</span>;
     }
-  } else {
-    connectionJsx = <span>Waiting for available partner</span>;
   }
 
   return (
@@ -69,10 +69,14 @@ function PenetrationTesting({ vendor, setVendor }: PenetrationTestingProps): JSX
         <div className="mr-2 font-semibold text-gray-700">Pentest partner:</div>
         {connectionJsx}
       </div>
-      <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition" disabled={!requestEnabled()} onClick={requestPenetrationTestPartner}>
-        Request partner
-      </button>
-      <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting a partner.</div>
+      {!penetrationTest && (
+        <div>
+          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 transition" disabled={!requestEnabled()} onClick={requestPenetrationTestPartner}>
+            Request partner
+          </button>
+          {!requestEnabled() && <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting a partner.</div>}
+        </div>
+      )}
     </div>
   );
 }

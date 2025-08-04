@@ -69,6 +69,9 @@ class DB {
   }
 
   async writeVendor(apiKey, vendor) {
+    delete vendor['chaos'];
+    delete vendor['roles'];
+
     const connection = await this.getConnection();
     try {
       const result = await this.query(connection, `UPDATE vendor SET body=? WHERE apiKey=?`, [JSON.stringify(vendor), apiKey]);
