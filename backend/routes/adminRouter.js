@@ -41,10 +41,10 @@ adminRouter.endpoints = [
   },
   {
     method: 'DELETE',
-    path: '/api/admin/vendor/:id',
+    path: '/api/admin/vendor',
     requiresAuth: true,
     description: 'Delete a vendor',
-    example: `curl -X DELETE $host/api/admin/vendor/xyz -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "deleteType":"all"}'`,
+    example: `curl -X DELETE $host/api/admin/vendor -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "deleteType":"all"}'`,
     response: [],
   },
 ];
@@ -89,11 +89,8 @@ adminRouter.delete(
     if (deleteType === 'connection') {
       await DB.deleteVendorConnection(id, req.body.purpose);
     } else if (deleteType === 'chaos') {
-      const vendor = await DB.getVendorByNetId(id);
-      if (vendor) {
-        await DB.removeChaos(vendor.id);
-        trafficGenerator.stop(vendor.id);
-      }
+      await DB.removeChaos(id);
+      trafficGenerator.stop(id);
     } else if (deleteType === 'all') {
       await DB.deleteVendor(id);
     }

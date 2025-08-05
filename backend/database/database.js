@@ -185,13 +185,7 @@ class DB {
   async removeChaos(netId) {
     const connection = await this.getConnection();
     try {
-      const chaos = await this.getChaosByNetId(netId);
-      if (chaos) {
-        chaos.type = 'none';
-        delete chaos.fixCode;
-        chaos.fixDate = new Date().toISOString();
-        await this.query(connection, `UPDATE chaos SET state=?, body=? WHERE netId=?`, ['none', JSON.stringify(chaos), netId]);
-      }
+      await this.query(connection, `DELETE FROM chaos WHERE netId=?`, [netId]);
     } finally {
       connection.end();
     }

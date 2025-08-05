@@ -11,6 +11,7 @@ function Admin({ vendor }: AdminProps) {
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [selectedVendor, setSelectedVendor] = React.useState<Vendor | null>(vendor);
   const [filteredVendors, setFilteredVendors] = React.useState<Vendor[]>([]);
+  const [displayVendorDetails, setDisplayVendorDetails] = React.useState<boolean>(true);
 
   React.useEffect(() => {
     (async () => {
@@ -39,6 +40,28 @@ function Admin({ vendor }: AdminProps) {
     }
   }
 
+  async function deleteVendor(deleteType: 'all' | 'chaos' | 'connection') {
+    if (selectedVendor) {
+      if (deleteType === 'chaos') {
+        await service.cancelChaos(selectedVendor.id);
+      } else if (deleteType === 'connection') {
+        await service.deleteVendorConnection(selectedVendor.id, 'penetrationTest');
+      } else if (deleteType === 'all') {
+        if (window.confirm(`Are you sure you want to delete vendor ${selectedVendor.name} (${selectedVendor.id})? This action cannot be undone.`)) {
+          try {
+            await service.deleteVendor(selectedVendor.id);
+            const updatedVendors = vendors.filter((v) => v.id !== selectedVendor.id);
+            setVendors(updatedVendors);
+            setFilteredVendors(updatedVendors);
+            setSelectedVendor(updatedVendors.length > 0 ? updatedVendors[0] : null);
+          } catch (error) {
+            alert('Failed to delete vendor: ' + (error as any).message || error);
+          }
+        }
+      }
+    }
+  }
+
   return (
     <div className="mt-6 p-4 border border-gray-300 bg-gray-50 rounded">
       <h3 className="text-lg font-semibold mb-4">Admin Actions</h3>
@@ -62,14 +85,33 @@ function Admin({ vendor }: AdminProps) {
         <div>
           {selectedVendor ? (
             <div>
-              <pre className={`mt-6 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(selectedVendor, null, 2)}</pre>
+              <div>
+                <button className="py-1 text-blue-500" onClick={() => setDisplayVendorDetails(!displayVendorDetails)}>
+                  {displayVendorDetails ? '▼ Hide' : '▶ Show'} tools
+                </button>
+                {displayVendorDetails && (
+                  <div className="border border-gray-400 p-2 rounded space-y-2 flex flex-col w-48">
+                    <div className="py-1 text-gray-500">
+                      <label className="flex items-center space-x-2">
+                        <input type="checkbox" checked={selectedVendor?.roles?.includes('admin') || false} onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)} className="form-checkbox" />
+                        <span>Admin</span>
+                      </label>
+                    </div>
 
-              <div className="my-4 text-gray-500">
-                <label className="flex items-center space-x-2">
-                  <input type="checkbox" checked={selectedVendor?.roles?.includes('admin') || false} onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)} className="form-checkbox" />
-                  <span>Admin</span>
-                </label>
+                    <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('all')}>
+                      Delete
+                    </button>
+                    <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('chaos')}>
+                      Delete Chaos
+                    </button>
+                    <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('connection')}>
+                      Delete Pen Test
+                    </button>
+                    <pre className={`mt-2 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(selectedVendor, null, 2)}</pre>
+                  </div>
+                )}
               </div>
+
               <VendorDetails
                 vendor={selectedVendor}
                 setVendor={(vendor) => {

@@ -27,7 +27,11 @@ class Service {
         }
 
         const r = await fetch(path, options);
-        const j = await r.json();
+        let j: any = null;
+        const contentType = r.headers.get('content-type');
+        if (r.status !== 204 && contentType && contentType.includes('application/json')) {
+          j = await r.json();
+        }
         if (r.ok) {
           resolve(j);
         } else {
@@ -56,6 +60,10 @@ class Service {
     return this.callEndpoint('/api/admin/role', 'PUT', { id: vendor.id, roles: roles });
   }
 
+  async deleteVendor(netId: string): Promise<void> {
+    return await this.callEndpoint('/api/admin/vendor', 'DELETE', { id: netId, deleteType: 'all' });
+  }
+
   async getVendor(): Promise<Vendor | null> {
     return this.callEndpoint('/api/vendor');
   }
@@ -70,6 +78,10 @@ class Service {
 
   async updateVendorConnection(connection: any): Promise<Vendor> {
     return await this.callEndpoint('/api/vendor/connect', 'PUT', connection);
+  }
+
+  async deleteVendorConnection(netId: string, purpose: string): Promise<Vendor> {
+    return await this.callEndpoint('/api/admin/vendor', 'DELETE', { id: netId, deleteType: 'connection', purpose: purpose });
   }
 
   async requestCode(netId: string): Promise<string> {
@@ -90,6 +102,10 @@ class Service {
     } catch (error) {
       return { success: false, message: error.message || 'An error occurred while initiating chaos.' };
     }
+  }
+
+  async cancelChaos(netId: string): Promise<void> {
+    return await this.callEndpoint('/api/admin/vendor', 'DELETE', { id: netId, deleteType: 'chaos' });
   }
 
   async generateBadge(venderId: string, badgeId: string, label: string = 'Example', value: string = '100%', color: string = '#44aa44'): Promise<string> {
