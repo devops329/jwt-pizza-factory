@@ -1,6 +1,7 @@
 const express = require('express');
 const DB = require('../database/database');
 const { adminAuth, asyncHandler } = require('./routerUtil');
+const trafficGenerator = require('../trafficGenerator/trafficGenerator.js');
 
 const adminRouter = express.Router();
 
@@ -26,7 +27,7 @@ adminRouter.endpoints = [
     path: '/api/admin/role',
     requiresAuth: true,
     description: 'Update the role of a vendor',
-    example: `curl -X PUT $host/api/admin/role -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "roles":["admin"]}'`,
+    example: `curl -X PUT $host/api/admin/role -H 'authorization: Bearer adminAuthToken' -H 'Content-Type:application/json' -d '{"id":"xyz", "roles":["admin"]}'`,
     response: [
       {
         id: 'byustudent27',
@@ -37,6 +38,14 @@ adminRouter.endpoints = [
         roles: ['admin', 'vendor'],
       },
     ],
+  },
+  {
+    method: 'DELETE',
+    path: '/api/admin/vendor/:id',
+    requiresAuth: true,
+    description: 'Delete a vendor',
+    example: `curl -X DELETE $host/api/admin/vendor/xyz -H 'authorization: Bearer adminAuthToken'  -H 'Content-Type:application/json' -d '{"id":"xyz", "deleteType":"all"}'`,
+    response: [],
   },
 ];
 
@@ -64,6 +73,31 @@ adminRouter.put(
     }
     const vendor = await DB.getVendorByNetId(id);
     res.send(vendor);
+  })
+);
+
+// delete vendor connection or chaos
+adminRouter.delete(
+  '/vendor',
+  adminAuth,
+  asyncHandler(async (req, res) => {
+    const { id, deleteType } = req.body;
+    if (!id || !deleteType || (deleteType !== 'connection' && deleteType !== 'chaos' && deleteType !== 'all')) {
+      return res.status(400).json({ message: 'Missing required parameter' });
+    }
+
+    if (deleteType === 'connection') {
+      await DB.deleteVendorConnection(id, req.body.purpose);
+    } else if (deleteType === 'chaos') {
+      const vendor = await DB.getVendorByNetId(id);
+      if (vendor) {
+        await DB.removeChaos(vendor.id);
+        trafficGenerator.stop(vendor.id);
+      }
+    } else if (deleteType === 'all') {
+      await DB.deleteVendor(id);
+    }
+    res.status(204).send();
   })
 );
 

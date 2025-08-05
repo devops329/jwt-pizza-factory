@@ -186,10 +186,12 @@ class DB {
     const connection = await this.getConnection();
     try {
       const chaos = await this.getChaosByNetId(netId);
-      chaos.type = 'none';
-      delete chaos.fixCode;
-      chaos.fixDate = new Date().toISOString();
-      await this.query(connection, `UPDATE chaos SET state=?, body=? WHERE netId=?`, ['none', JSON.stringify(chaos), netId]);
+      if (chaos) {
+        chaos.type = 'none';
+        delete chaos.fixCode;
+        chaos.fixDate = new Date().toISOString();
+        await this.query(connection, `UPDATE chaos SET state=?, body=? WHERE netId=?`, ['none', JSON.stringify(chaos), netId]);
+      }
     } finally {
       connection.end();
     }
@@ -229,6 +231,16 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `UPDATE connect SET rating=? WHERE vendor1=? AND vendor2=? AND purpose=?`, [rating, vendor.id, id, purpose]);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteVendorConnection(vendorId, purpose) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(connection, `DELETE FROM connect WHERE vendor1=? AND purpose=?`, [vendorId, purpose]);
+      await this.query(connection, `DELETE FROM connect WHERE vendor2=? AND purpose=?`, [vendorId, purpose]);
     } finally {
       connection.end();
     }

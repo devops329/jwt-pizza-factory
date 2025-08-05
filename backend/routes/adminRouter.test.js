@@ -59,3 +59,53 @@ test('get vendors', async () => {
     expect(vendor).toHaveProperty('name');
   });
 });
+
+test('delete vendor all', async () => {
+  const vendor = await createVendor();
+  try {
+    const deleteRes = await request(app).delete(`/api/admin/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: vendor.id, deleteType: 'all' });
+    expect(deleteRes.status).toBe(204);
+
+    const getRes = await getVendor(vendor.apiKey);
+    expect(getRes.message).toBe('invalid authentication');
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
+});
+
+test('delete vendor chaos', async () => {
+  const vendor = await createVendor();
+  try {
+    const chaosResp = await request(app).put(`/api/vendor/chaos/badjwt`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+    expect(chaosResp.status).toBe(200);
+
+    const getRes1 = await getVendor(vendor.apiKey);
+    expect(getRes1.chaos.type).toBe('badjwt');
+
+    const deleteRes = await request(app).delete(`/api/admin/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: vendor.id, deleteType: 'chaos' });
+    expect(deleteRes.status).toBe(204);
+
+    const getRes2 = await getVendor(vendor.apiKey);
+    expect(getRes2.chaos.type).toBe('none');
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
+});
+
+test('delete vendor connection', async () => {
+  const vendor = await createVendor();
+  try {
+    await request(app).post(`/api/vendor/connect`).set('Authorization', `Bearer ${vendor.apiKey}`).send({ purpose: 'test' });
+
+    const getRes1 = await getVendor(vendor.apiKey);
+    expect(getRes1.connections.test.purpose).toBe('test');
+
+    const deleteRes = await request(app).delete(`/api/admin/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: vendor.id, deleteType: 'connection', purpose: 'test' });
+    expect(deleteRes.status).toBe(204);
+
+    const getRes2 = await getVendor(vendor.apiKey);
+    expect(getRes2.connections.test).not.toBeDefined();
+  } finally {
+    await DB.deleteVendor(vendor.id);
+  }
+});

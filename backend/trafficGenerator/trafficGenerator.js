@@ -15,7 +15,6 @@ class TrafficGenerator {
             }
           } catch (error) {
             // keep trying. They should be in chaos or they might just be down
-            console.error(`Error calling endpoint for vendor ${vendor.website}:`, error);
           }
         }
       };
@@ -40,9 +39,9 @@ class TrafficGenerator {
     return false;
   }
 
-  stop(vendor) {
-    if (this.trafficVendors[vendor.id]) {
-      delete this.trafficVendors[vendor.id];
+  stop(vendorId) {
+    if (this.trafficVendors[vendorId]) {
+      delete this.trafficVendors[vendorId];
       return true;
     }
     return false;

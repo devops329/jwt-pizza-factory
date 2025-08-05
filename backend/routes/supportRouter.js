@@ -1,7 +1,7 @@
 const express = require('express');
 const DB = require('../database/database.js');
 const { asyncHandler } = require('./routerUtil.js');
-const trafficGenerator = require('./trafficGenerator.js');
+const trafficGenerator = require('../trafficGenerator/trafficGenerator.js');
 
 const supportRouter = express.Router();
 
@@ -25,7 +25,7 @@ supportRouter.get(
     const vendor = await DB.getVendorByApiKey(req.params.vendorToken);
     if (vendor && vendor.chaos && req.params.fixCode === vendor.chaos.fixCode) {
       await DB.removeChaos(vendor.id);
-      trafficGenerator.stop(vendor);
+      trafficGenerator.stop(vendor.id);
       res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
     } else {
       return res.status(400).json({ message: 'Problem unresolved' });

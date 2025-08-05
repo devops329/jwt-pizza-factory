@@ -1,7 +1,7 @@
 const express = require('express');
 const DB = require('../database/database');
 const { vendorAuth, asyncHandler } = require('./routerUtil');
-const trafficGenerator = require('./trafficGenerator');
+const trafficGenerator = require('../trafficGenerator/trafficGenerator');
 const { v4: uuid } = require('uuid');
 
 const vendorRouter = express.Router();
