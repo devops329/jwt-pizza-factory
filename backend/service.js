@@ -5,6 +5,7 @@ const adminRouter = require('./routes/adminRouter');
 const supportRouter = require('./routes/supportRouter');
 const vendorRouter = require('./routes/vendorRouter');
 const badgeRouter = require('./routes/badgeRouter');
+const logRouter = require('./routes/logRouter');
 const fs = require('fs');
 const path = require('path');
 const { sendEmail } = require('./email/sesEmail.js');
@@ -43,6 +44,7 @@ apiRouter.use('/admin', adminRouter);
 apiRouter.use('/support', supportRouter);
 apiRouter.use('/vendor', vendorRouter);
 apiRouter.use('/badge', badgeRouter);
+apiRouter.use('/log', logRouter);
 
 const { sendText } = require('./email/snsText.js');
 app.get('/sms', async (_req, res) => {
