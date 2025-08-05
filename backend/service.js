@@ -46,12 +46,6 @@ apiRouter.use('/vendor', vendorRouter);
 apiRouter.use('/badge', badgeRouter);
 apiRouter.use('/log', logRouter);
 
-const { sendText } = require('./email/snsText.js');
-app.get('/sms', async (_req, res) => {
-  const result = await sendText('+18018679611', 'Authorization code: 3459332');
-  res.send(result);
-});
-
 apiRouter.use('/docs', (_req, res) => {
   res.json({
     message: 'welcome to JWT Pizza Factory',
