@@ -11,7 +11,7 @@ function Badge({ vendor }: BadgeProps): JSX.Element {
   const [badgeName, setBadgeName] = React.useState('');
   const [badgeColor, setBadgeColor] = React.useState('#44aa44');
   const [badgeLabel, setBadgeLabel] = React.useState('Example');
-  const [badgeValue, setBadgeValue] = React.useState('%100');
+  const [badgeValue, setBadgeValue] = React.useState('100%');
 
   async function generateBadge(): Promise<void> {
     const badgeUrl = await service.generateBadge(vendor.id, badgeName, badgeLabel, badgeValue, badgeColor);

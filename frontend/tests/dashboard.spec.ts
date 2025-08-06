@@ -97,7 +97,7 @@ test('Login', async ({ page }) => {
   await expect(page.getByText('Login')).toBeVisible();
   await page.getByRole('textbox', { name: 'Login' }).fill(vendor.id);
   await page.getByRole('button', { name: 'Get code' }).click();
-  await expect(page.locator('b')).toContainText(vendor.email);
+  await expect(page.locator('b')).toContainText('tes...@byu.edu');
   await page.getByRole('textbox', { name: 'Authenticate code' }).fill('1234');
   await page.getByRole('button', { name: 'Validate code' }).click();
 
@@ -129,11 +129,11 @@ test('Register', async ({ page }) => {
 
   await page.getByRole('textbox', { name: 'Name' }).fill('Test 1');
   await page.getByRole('textbox', { name: 'Email That you check' }).fill('test1@byu.edu');
-  await page.getByRole('textbox', { name: 'Phone Number For text' }).fill('111-111-1111');
+  await page.getByRole('textbox', { name: 'For working with a peer' }).fill('111-111-1111');
 
   await page.getByRole('button', { name: 'Submit' }).click();
 
-  await expect(page.locator('b')).toContainText('test1@byu.edu');
+  await expect(page.locator('b')).toContainText('tes...@byu.edu');
   await page.getByRole('textbox', { name: 'Authenticate code' }).fill('1234');
   await page.getByRole('button', { name: 'Validate code' }).click();
 
@@ -143,20 +143,16 @@ test('Register', async ({ page }) => {
 });
 
 test('Badge', async ({ page }) => {
-  const vendor: Vendor = { id: 'test3', name: 'Test 3', apiKey: 'xyz', website: 'https://pizza.test.com' };
+  const vendor: Vendor = { id: 'test3', name: 'Test 3', phone: '333-333-3333', email: 'test3@byu.edu', apiKey: 'xyz', website: 'https://pizza.test.com', gitHubUrl: 'https://github.com/test3' };
 
-  await page.route('**/api/badge/test3/a?label=Example&value=100%25&color=%2344aa44', async (route) => {
+  await page.route('**/api/badge/test3/a?*', async (route) => {
     if (route.request().method() === 'POST') {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({ url: 'http://localhost:3000/api/badge/test3/a' }),
       });
-    }
-  });
-
-  await page.route('**/api/badge/test3/a', async (route) => {
-    if (route.request().method() === 'GET') {
+    } else if (route.request().method() === 'GET') {
       await route.fulfill({
         status: 201,
         contentType: 'image/svg+xml',
@@ -168,8 +164,9 @@ test('Badge', async ({ page }) => {
   await registerLoginHandlers(page, vendor);
   await login(page);
 
-  await page.getByRole('textbox', { name: 'Badge Name:' }).click();
   await page.getByRole('textbox', { name: 'Badge Name:' }).fill('a');
+  await page.getByRole('textbox', { name: 'Label:' }).fill('Taco');
+  await page.getByRole('textbox', { name: 'Value:' }).fill('5');
   await page.getByRole('button', { name: 'Generate Badge' }).click();
 
   await expect(page.getByRole('img', { name: 'Badge' })).toBeVisible();
