@@ -1,6 +1,6 @@
 import { test, expect } from 'playwright-test-coverage';
 import { Vendor } from '../src/model';
-import { login, registerLoginHandlers } from './user';
+import { login, registerLoginHandlers } from './authTestUtils';
 
 async function registerAdminHandlers(page, vendor) {
   await page.route('**/api/admin/vendors', async (route) => {
@@ -72,25 +72,18 @@ async function registerAdminHandlers(page, vendor) {
 }
 
 test('Admin selection', async ({ page }) => {
-  const vendor: Vendor = {
+  const admin: Vendor = {
     id: 'test3',
     name: 'Test 3',
     phone: '333-333-3333',
     email: 'test3@byu.edu',
     apiKey: 'xyz',
-    website: 'https://pizza.test.com',
-    gitHubUrl: 'https://github.com/test3',
     roles: ['admin', 'vendor'],
-    chaos: {
-      type: 'none',
-      initiatedDate: '2025-08-04T19:53:36.838Z',
-      fixDate: '2025-08-04T20:01:12.252Z',
-    },
     connections: {},
   };
 
-  await registerAdminHandlers(page, vendor);
-  await registerLoginHandlers(page, vendor);
+  await registerAdminHandlers(page, admin);
+  await registerLoginHandlers(page, admin);
   await login(page);
 
   await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue('Test 3');
@@ -109,7 +102,7 @@ test('Admin selection', async ({ page }) => {
 });
 
 test('Admin modify', async ({ page }) => {
-  const vendor: Vendor = {
+  const admin: Vendor = {
     id: 'test3',
     name: 'Test 3',
     phone: '333-333-3333',
@@ -126,8 +119,8 @@ test('Admin modify', async ({ page }) => {
     connections: {},
   };
 
-  await registerAdminHandlers(page, vendor);
-  await registerLoginHandlers(page, vendor);
+  await registerAdminHandlers(page, admin);
+  await registerLoginHandlers(page, admin);
   await login(page);
 
   await page.getByRole('button', { name: '▶ Show tools' }).click();
@@ -143,4 +136,5 @@ test('Admin modify', async ({ page }) => {
   await expect(page.getByRole('main')).toContainText('"roles": [ "vendor" ]');
 
   await page.getByRole('button', { name: 'Delete Chaos' }).click();
+  await expect(page.getByText('{ "id": "test3", "name": "').first()).not.toContainText('"chaos": {');
 });

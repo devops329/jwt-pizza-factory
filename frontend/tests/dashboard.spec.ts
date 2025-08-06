@@ -1,6 +1,6 @@
 import { test, expect } from 'playwright-test-coverage';
 import { Vendor } from '../src/model';
-import { login, registerLoginHandlers } from './user';
+import { login, registerLoginHandlers } from './authTestUtils';
 
 test('Login', async ({ page }) => {
   const vendor = { id: 'test3', name: 'Test 3', email: 'test3@byu.edu', apiKey: 'xyz', website: 'https://pizza.test.com' };
