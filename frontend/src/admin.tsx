@@ -11,7 +11,7 @@ function Admin({ vendor }: AdminProps) {
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [selectedVendor, setSelectedVendor] = React.useState<Vendor | null>(vendor);
   const [filteredVendors, setFilteredVendors] = React.useState<Vendor[]>([]);
-  const [displayVendorDetails, setDisplayVendorDetails] = React.useState<boolean>(true);
+  const [displayVendorDetails, setDisplayVendorDetails] = React.useState<boolean>(false);
 
   React.useEffect(() => {
     (async () => {
@@ -44,8 +44,16 @@ function Admin({ vendor }: AdminProps) {
     if (selectedVendor) {
       if (deleteType === 'chaos') {
         await service.cancelChaos(selectedVendor.id);
+        const updatedVendor = { ...selectedVendor };
+        delete updatedVendor.chaos;
+        setSelectedVendor(updatedVendor);
+        setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
+        setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
       } else if (deleteType === 'connection') {
         await service.deleteVendorConnection(selectedVendor.id, 'penetrationTest');
+        if (selectedVendor.connections) {
+          delete selectedVendor.connections.penetrationTest;
+        }
       } else if (deleteType === 'all') {
         if (window.confirm(`Are you sure you want to delete vendor ${selectedVendor.name} (${selectedVendor.id})? This action cannot be undone.`)) {
           try {
@@ -93,7 +101,12 @@ function Admin({ vendor }: AdminProps) {
                   <div className="border border-gray-400 p-2 rounded space-y-2 flex flex-col w-48">
                     <div className="py-1 text-gray-500">
                       <label className="flex items-center space-x-2">
-                        <input type="checkbox" checked={selectedVendor?.roles?.includes('admin') || false} onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)} className="form-checkbox" />
+                        <input
+                          type="checkbox"
+                          checked={selectedVendor?.roles?.includes('admin') || false}
+                          onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)}
+                          className="form-checkbox"
+                        />
                         <span>Admin</span>
                       </label>
                     </div>
