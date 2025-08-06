@@ -2,24 +2,7 @@ import { test, expect } from 'playwright-test-coverage';
 import { Vendor } from '../src/model';
 import { login, registerLoginHandlers } from './user';
 
-test('Admin', async ({ page }) => {
-  const vendor: Vendor = {
-    id: 'test3',
-    name: 'Test 3',
-    phone: '333-333-3333',
-    email: 'test3@byu.edu',
-    apiKey: 'xyz',
-    website: 'https://pizza.test.com',
-    gitHubUrl: 'https://github.com/test3',
-    roles: ['admin', 'vendor'],
-    chaos: {
-      type: 'none',
-      initiatedDate: '2025-08-04T19:53:36.838Z',
-      fixDate: '2025-08-04T20:01:12.252Z',
-    },
-    connections: {},
-  };
-
+async function registerAdminHandlers(page, vendor) {
   await page.route('**/api/admin/vendors', async (route) => {
     if (route.request().method() === 'GET') {
       const body = [
@@ -86,7 +69,27 @@ test('Admin', async ({ page }) => {
       });
     }
   });
+}
 
+test('Admin selection', async ({ page }) => {
+  const vendor: Vendor = {
+    id: 'test3',
+    name: 'Test 3',
+    phone: '333-333-3333',
+    email: 'test3@byu.edu',
+    apiKey: 'xyz',
+    website: 'https://pizza.test.com',
+    gitHubUrl: 'https://github.com/test3',
+    roles: ['admin', 'vendor'],
+    chaos: {
+      type: 'none',
+      initiatedDate: '2025-08-04T19:53:36.838Z',
+      fixDate: '2025-08-04T20:01:12.252Z',
+    },
+    connections: {},
+  };
+
+  await registerAdminHandlers(page, vendor);
   await registerLoginHandlers(page, vendor);
   await login(page);
 
@@ -103,6 +106,29 @@ test('Admin', async ({ page }) => {
   await expect(page.getByRole('main')).toContainText('No vendor selected.');
   await page.getByRole('textbox', { name: 'Filter by name or id...' }).fill('');
   await expect(page.getByRole('textbox', { name: 'Name:' })).toHaveValue('Test 3');
+});
+
+test('Admin modify', async ({ page }) => {
+  const vendor: Vendor = {
+    id: 'test3',
+    name: 'Test 3',
+    phone: '333-333-3333',
+    email: 'test3@byu.edu',
+    apiKey: 'xyz',
+    website: 'https://pizza.test.com',
+    gitHubUrl: 'https://github.com/test3',
+    roles: ['admin', 'vendor'],
+    chaos: {
+      type: 'none',
+      initiatedDate: '2025-08-04T19:53:36.838Z',
+      fixDate: '2025-08-04T20:01:12.252Z',
+    },
+    connections: {},
+  };
+
+  await registerAdminHandlers(page, vendor);
+  await registerLoginHandlers(page, vendor);
+  await login(page);
 
   await page.getByRole('button', { name: '▶ Show tools' }).click();
   await expect(page.getByRole('textbox', { name: 'Name:' })).toHaveValue('Test 3');
