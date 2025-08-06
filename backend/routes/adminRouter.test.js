@@ -86,7 +86,7 @@ test('delete vendor chaos', async () => {
     expect(deleteRes.status).toBe(204);
 
     const getRes2 = await getVendor(vendor.apiKey);
-    expect(getRes2.chaos.type).toBe('none');
+    expect(getRes2.chaos).not.toBeDefined();
   } finally {
     await DB.deleteVendor(vendor.id);
   }

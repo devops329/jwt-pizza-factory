@@ -24,7 +24,7 @@ supportRouter.get(
   asyncHandler(async (req, res) => {
     const vendor = await DB.getVendorByApiKey(req.params.vendorToken);
     if (vendor && vendor.chaos && req.params.fixCode === vendor.chaos.fixCode) {
-      await DB.removeChaos(vendor.id);
+      await DB.resolveChaos(vendor.id);
       trafficGenerator.stop(vendor.id);
       res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
     } else {
