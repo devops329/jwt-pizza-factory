@@ -97,6 +97,16 @@ function Admin({ vendor }: AdminProps) {
           {selectedVendor ? (
             <div>
               <div>
+                <button
+                  className="my-1 py-1 px-2 bg-blue-300 rounded hover:bg-blue-100 mr-2"
+                  onClick={async () => {
+                    const vendors = await service.getVendors();
+                    const updatedVendor = vendors.find((v) => v.id === selectedVendor.id) || selectedVendor;
+                    updateVendor(updatedVendor);
+                  }}
+                >
+                  ↻
+                </button>
                 <button className="py-1 text-blue-500" onClick={() => setDisplayVendorDetails(!displayVendorDetails)}>
                   {displayVendorDetails ? '▼ Hide' : '▶ Show'} tools
                 </button>
