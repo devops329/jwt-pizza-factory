@@ -17,7 +17,6 @@ afterAll(async () => {
 });
 
 test('Log message', async () => {
-  const vendor = await createVendor();
   const logRes = await sendLogMessage(vendor, 'Test log message');
   expect(logRes.status).toBe(200);
   expect(logRes.text).toBe('Log received');
