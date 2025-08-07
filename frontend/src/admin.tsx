@@ -104,23 +104,18 @@ function Admin({ vendor }: AdminProps) {
                   <div className="border border-gray-400 p-2 rounded space-y-2 flex flex-col w-48">
                     <div className="py-1 text-gray-500">
                       <label className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={selectedVendor?.roles?.includes('admin') || false}
-                          onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)}
-                          className="form-checkbox"
-                        />
+                        <input disabled={selectedVendor?.id === vendor.id} type="checkbox" checked={selectedVendor?.roles?.includes('admin') || false} onChange={async (e) => updateVendorRole(selectedVendor, e.target.checked)} className="form-checkbox" />
                         <span>Admin</span>
                       </label>
                     </div>
 
-                    <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('all')}>
+                    <button disabled={selectedVendor?.id === vendor.id} className="disabled:bg-gray-300 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('all')}>
                       Delete
                     </button>
-                    <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('chaos')}>
+                    <button disabled={!selectedVendor.chaos} className="disabled:bg-gray-300 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('chaos')}>
                       Delete Chaos
                     </button>
-                    <button className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('connection')}>
+                    <button disabled={!selectedVendor.connections?.penetrationTest} className="disabled:bg-gray-300 px-2 py-1 bg-red-600 text-white rounded hover:bg-red-400 transition" onClick={() => deleteVendor('connection')}>
                       Delete Pen Test
                     </button>
                     <pre className={`mt-2 bg-gray-100 p-2 rounded text-xs overflow-x-auto`}>{JSON.stringify(selectedVendor, null, 2)}</pre>
