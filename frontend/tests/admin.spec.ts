@@ -87,7 +87,7 @@ async function registerAdminHandlers(page, vendor) {
   });
 }
 
-test('Admin select vendor', async ({ page }) => {
+test('Select vendor', async ({ page }) => {
   await registerAdminHandlers(page, admin);
   await registerLoginHandlers(page, admin);
   await login(page);
@@ -107,7 +107,7 @@ test('Admin select vendor', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: 'Name:' })).toHaveValue('Test 3');
 });
 
-test('Admin enable admin', async ({ page }) => {
+test('Enable admin', async ({ page }) => {
   await registerAdminHandlers(page, admin);
   await registerLoginHandlers(page, admin);
   await login(page);
@@ -128,7 +128,7 @@ test('Admin enable admin', async ({ page }) => {
   await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor" ]');
 });
 
-test('Admin delete chaos', async ({ page }) => {
+test('Delete chaos', async ({ page }) => {
   await registerAdminHandlers(page, admin);
   await registerLoginHandlers(page, admin);
   await login(page);
@@ -141,7 +141,7 @@ test('Admin delete chaos', async ({ page }) => {
   await expect(page.getByText('{ "name": "test1",')).not.toContainText('"chaos": {');
 });
 
-test('Admin delete connection', async ({ page }) => {
+test('Delete connection', async ({ page }) => {
   await registerAdminHandlers(page, admin);
   await registerLoginHandlers(page, admin);
   await login(page);

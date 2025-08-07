@@ -31,12 +31,15 @@ function Admin({ vendor }: AdminProps) {
   async function updateVendorRole(vendor: Vendor, isAdmin: boolean) {
     if (vendor) {
       const roles = isAdmin ? ['admin', 'vendor'] : ['vendor'];
-      const updatedVendor = await service.updateVendorRoles(vendor, roles);
-      if (updatedVendor) {
-        setSelectedVendor(updatedVendor);
-        setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
-        setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
-      }
+      updateVendor(await service.updateVendorRoles(vendor, roles));
+    }
+  }
+
+  function updateVendor(updatedVendor: Vendor | null) {
+    if (updatedVendor) {
+      setSelectedVendor(updatedVendor);
+      setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
+      setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
     }
   }
 
@@ -46,17 +49,13 @@ function Admin({ vendor }: AdminProps) {
         await service.cancelChaos(selectedVendor.id);
         const updatedVendor = { ...selectedVendor };
         delete updatedVendor.chaos;
-        setSelectedVendor(updatedVendor);
-        setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
-        setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
+        updateVendor(updatedVendor);
       } else if (deleteType === 'connection') {
         await service.deleteVendorConnection(selectedVendor.id, 'penetrationTest');
         const updatedVendor = { ...selectedVendor };
         if (updatedVendor.connections) {
           delete updatedVendor.connections.penetrationTest;
-          setSelectedVendor(updatedVendor);
-          setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
-          setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
+          updateVendor(updatedVendor);
         }
       } else if (deleteType === 'all') {
         if (window.confirm(`Are you sure you want to delete vendor ${selectedVendor.name} (${selectedVendor.id})? This action cannot be undone.`)) {
@@ -132,9 +131,7 @@ function Admin({ vendor }: AdminProps) {
               <VendorDetails
                 vendor={selectedVendor}
                 setVendor={(vendor) => {
-                  setVendors((prev) => prev.map((v) => (v.id === vendor.id ? { ...v, ...vendor } : v)));
-                  setFilteredVendors((prev) => prev.map((v) => (v.id === vendor.id ? { ...v, ...vendor } : v)));
-                  setSelectedVendor(vendor);
+                  updateVendor(vendor);
                 }}
               />
             </div>
