@@ -107,7 +107,7 @@ function Admin({ vendor }: AdminProps) {
                 >
                   ↻
                 </button>
-                <button className="py-1 text-blue-500" onClick={() => setDisplayVendorDetails(!displayVendorDetails)}>
+                <button className="py-1 text-blue-500 hover:text-blue-300" onClick={() => setDisplayVendorDetails(!displayVendorDetails)}>
                   {displayVendorDetails ? '▼ Hide' : '▶ Show'} tools
                 </button>
                 {displayVendorDetails && (
