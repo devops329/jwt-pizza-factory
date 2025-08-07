@@ -51,8 +51,12 @@ function Admin({ vendor }: AdminProps) {
         setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
       } else if (deleteType === 'connection') {
         await service.deleteVendorConnection(selectedVendor.id, 'penetrationTest');
-        if (selectedVendor.connections) {
-          delete selectedVendor.connections.penetrationTest;
+        const updatedVendor = { ...selectedVendor };
+        if (updatedVendor.connections) {
+          delete updatedVendor.connections.penetrationTest;
+          setSelectedVendor(updatedVendor);
+          setVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
+          setFilteredVendors((prev) => prev.map((v) => (v.id === updatedVendor.id ? updatedVendor : v)));
         }
       } else if (deleteType === 'all') {
         if (window.confirm(`Are you sure you want to delete vendor ${selectedVendor.name} (${selectedVendor.id})? This action cannot be undone.`)) {

@@ -2,6 +2,18 @@ import { test, expect } from 'playwright-test-coverage';
 import { Vendor } from '../src/model';
 import { login, registerLoginHandlers } from './authTestUtils';
 
+const admin: Vendor = {
+  id: 'test3',
+  name: 'Test 3',
+  phone: '333-333-3333',
+  email: 'test3@byu.edu',
+  apiKey: 'xyz',
+  website: 'https://pizza.test.com',
+  gitHubUrl: 'https://github.com/test3',
+  roles: ['admin', 'vendor'],
+  connections: {},
+};
+
 async function registerAdminHandlers(page, vendor) {
   const vendors = [
     vendor,
@@ -65,7 +77,7 @@ async function registerAdminHandlers(page, vendor) {
       const json = JSON.parse(postData);
       if (json.deleteType === 'chaos') {
         delete vendor.chaos;
-      } else if (json.deleteType === 'connections') {
+      } else if (json.deleteType === 'connection') {
         vendor.connections = {};
       }
       await route.fulfill({
@@ -75,17 +87,7 @@ async function registerAdminHandlers(page, vendor) {
   });
 }
 
-test('Admin selection', async ({ page }) => {
-  const admin: Vendor = {
-    id: 'test3',
-    name: 'Test 3',
-    phone: '333-333-3333',
-    email: 'test3@byu.edu',
-    apiKey: 'xyz',
-    roles: ['admin', 'vendor'],
-    connections: {},
-  };
-
+test('Admin select vendor', async ({ page }) => {
   await registerAdminHandlers(page, admin);
   await registerLoginHandlers(page, admin);
   await login(page);
@@ -105,19 +107,7 @@ test('Admin selection', async ({ page }) => {
   await expect(page.getByRole('textbox', { name: 'Name:' })).toHaveValue('Test 3');
 });
 
-test('Admin modify', async ({ page }) => {
-  const admin: Vendor = {
-    id: 'test3',
-    name: 'Test 3',
-    phone: '333-333-3333',
-    email: 'test3@byu.edu',
-    apiKey: 'xyz',
-    website: 'https://pizza.test.com',
-    gitHubUrl: 'https://github.com/test3',
-    roles: ['admin', 'vendor'],
-    connections: {},
-  };
-
+test('Admin enable admin', async ({ page }) => {
   await registerAdminHandlers(page, admin);
   await registerLoginHandlers(page, admin);
   await login(page);
@@ -136,8 +126,30 @@ test('Admin modify', async ({ page }) => {
   await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "admin", "vendor" ]');
   await page.getByRole('checkbox', { name: 'Admin' }).click();
   await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor" ]');
+});
+
+test('Admin delete chaos', async ({ page }) => {
+  await registerAdminHandlers(page, admin);
+  await registerLoginHandlers(page, admin);
+  await login(page);
+
+  await page.getByRole('combobox').selectOption('test1');
+  await page.getByRole('button', { name: '▶ Show tools' }).click();
 
   await expect(page.getByText('{ "name": "test1",')).toContainText('"chaos": {');
   await page.getByRole('button', { name: 'Delete Chaos' }).click();
   await expect(page.getByText('{ "name": "test1",')).not.toContainText('"chaos": {');
+});
+
+test('Admin delete connection', async ({ page }) => {
+  await registerAdminHandlers(page, admin);
+  await registerLoginHandlers(page, admin);
+  await login(page);
+
+  await page.getByRole('combobox').selectOption('test1');
+  await page.getByRole('button', { name: '▶ Show tools' }).click();
+
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"connections": { "penetrationTest": {');
+  await page.getByRole('button', { name: 'Delete Pen Test' }).click();
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"connections": {}');
 });
