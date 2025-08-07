@@ -50,7 +50,7 @@ async function registerAdminHandlers(page, vendor) {
     if (route.request().method() === 'PUT') {
       const vendorId = requestBody.id;
       const targetVendor = vendors.find((v) => v.id === vendorId);
-      targetVendor.roles = Array.from(new Set([...(targetVendor.roles || []), ...(requestBody.roles || [])]));
+      targetVendor.roles = requestBody.roles;
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -133,8 +133,9 @@ test('Admin modify', async ({ page }) => {
   await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor" ]');
   await page.getByRole('checkbox', { name: 'Admin' }).click();
   await expect(page.getByRole('checkbox', { name: 'Admin' })).toBeChecked();
-  await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor", "admin" ]');
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "admin", "vendor" ]');
   await page.getByRole('checkbox', { name: 'Admin' }).click();
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor" ]');
 
   await expect(page.getByText('{ "name": "test1",')).toContainText('"chaos": {');
   await page.getByRole('button', { name: 'Delete Chaos' }).click();

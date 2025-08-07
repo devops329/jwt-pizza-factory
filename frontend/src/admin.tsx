@@ -30,7 +30,7 @@ function Admin({ vendor }: AdminProps) {
 
   async function updateVendorRole(vendor: Vendor, isAdmin: boolean) {
     if (vendor) {
-      const roles = isAdmin ? ['admin'] : ['vendor'];
+      const roles = isAdmin ? ['admin', 'vendor'] : ['vendor'];
       const updatedVendor = await service.updateVendorRoles(vendor, roles);
       if (updatedVendor) {
         setSelectedVendor(updatedVendor);
