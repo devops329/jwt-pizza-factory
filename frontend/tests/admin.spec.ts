@@ -3,54 +3,58 @@ import { Vendor } from '../src/model';
 import { login, registerLoginHandlers } from './authTestUtils';
 
 async function registerAdminHandlers(page, vendor) {
+  const vendors = [
+    vendor,
+    {
+      name: 'test1',
+      email: 'test1@mailinator.com',
+      phone: '111-111-1111',
+      id: 'test1',
+      apiKey: 'af4fca30016c4910bd4fa190558a03de',
+      created: '2025-08-04T19:49:33.594Z',
+      website: 'https://pizza-service.cs329.click',
+      gitHubUrl: 'https://pizza-service.cs329.click',
+      chaos: {
+        type: 'fail',
+        initiatedDate: '2025-08-04T19:53:36.838Z',
+        fixDate: '2025-08-04T20:01:12.252Z',
+      },
+      roles: ['vendor'],
+      connections: {
+        penetrationTest: {
+          id: 'test2',
+          purpose: 'penetrationTest',
+          created: '2025-08-04T19:51:32.000Z',
+          name: 'test2',
+          phone: '222-222-2222',
+          email: 'test2@mailinator.com',
+          website: 'https://pizza-service.cs329.click',
+          rating: 1,
+        },
+      },
+    },
+  ];
+
   await page.route('**/api/admin/vendors', async (route) => {
     if (route.request().method() === 'GET') {
-      const body = [
-        vendor,
-        {
-          name: 'test1',
-          email: 'test1@mailinator.com',
-          phone: '111-111-1111',
-          id: 'test1',
-          apiKey: 'af4fca30016c4910bd4fa190558a03de',
-          created: '2025-08-04T19:49:33.594Z',
-          website: 'https://pizza-service.cs329.click',
-          gitHubUrl: 'https://pizza-service.cs329.click',
-          chaos: {
-            type: 'fail',
-            initiatedDate: '2025-08-04T19:53:36.838Z',
-            fixDate: '2025-08-04T20:01:12.252Z',
-          },
-          roles: ['vendor'],
-          connections: {
-            penetrationTest: {
-              id: 'test2',
-              purpose: 'penetrationTest',
-              created: '2025-08-04T19:51:32.000Z',
-              name: 'test2',
-              phone: '222-222-2222',
-              email: 'test2@mailinator.com',
-              website: 'https://pizza-service.cs329.click',
-              rating: 1,
-            },
-          },
-        },
-      ];
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(body),
+        body: JSON.stringify(vendors),
       });
     }
   });
 
   await page.route('**/api/admin/role', async (route) => {
+    const requestBody = JSON.parse(route.request().postData() || '{}');
     if (route.request().method() === 'PUT') {
-      vendor.roles = ['vendor'];
+      const vendorId = requestBody.id;
+      const targetVendor = vendors.find((v) => v.id === vendorId);
+      targetVendor.roles = Array.from(new Set([...(targetVendor.roles || []), ...(requestBody.roles || [])]));
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(vendor),
+        body: JSON.stringify(targetVendor),
       });
     }
   });
@@ -111,11 +115,6 @@ test('Admin modify', async ({ page }) => {
     website: 'https://pizza.test.com',
     gitHubUrl: 'https://github.com/test3',
     roles: ['admin', 'vendor'],
-    chaos: {
-      type: 'none',
-      initiatedDate: '2025-08-04T19:53:36.838Z',
-      fixDate: '2025-08-04T20:01:12.252Z',
-    },
     connections: {},
   };
 
@@ -123,18 +122,21 @@ test('Admin modify', async ({ page }) => {
   await registerLoginHandlers(page, admin);
   await login(page);
 
+  await page.getByRole('combobox').selectOption('test1');
+
   await page.getByRole('button', { name: '▶ Show tools' }).click();
-  await expect(page.getByRole('textbox', { name: 'Name:' })).toHaveValue('Test 3');
+  await expect(page.getByRole('textbox', { name: 'Name:' })).toHaveValue('test1');
 
   await expect(page.getByRole('button', { name: '▼ Hide tools' })).toBeVisible();
-  await expect(page.getByRole('checkbox', { name: 'Admin' })).toBeChecked();
-
-  await expect(page.getByRole('main')).toContainText('"roles": [ "admin", "vendor" ]');
-  await page.getByRole('checkbox', { name: 'Admin' }).click();
   await expect(page.getByRole('checkbox', { name: 'Admin' })).not.toBeChecked();
 
-  await expect(page.getByRole('main')).toContainText('"roles": [ "vendor" ]');
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor" ]');
+  await page.getByRole('checkbox', { name: 'Admin' }).click();
+  await expect(page.getByRole('checkbox', { name: 'Admin' })).toBeChecked();
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"roles": [ "vendor", "admin" ]');
+  await page.getByRole('checkbox', { name: 'Admin' }).click();
 
+  await expect(page.getByText('{ "name": "test1",')).toContainText('"chaos": {');
   await page.getByRole('button', { name: 'Delete Chaos' }).click();
-  await expect(page.getByText('{ "id": "test3", "name": "').first()).not.toContainText('"chaos": {');
+  await expect(page.getByText('{ "name": "test1",')).not.toContainText('"chaos": {');
 });
