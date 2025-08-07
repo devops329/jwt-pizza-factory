@@ -8,36 +8,27 @@ class DB {
   }
 
   async addAuthCode(id, authCode) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await this.query(
         connection,
         `INSERT INTO authCode (code, netId) VALUES (?, ?)
-         ON DUPLICATE KEY UPDATE code = VALUES(code)`,
+           ON DUPLICATE KEY UPDATE code = VALUES(code)`,
         [authCode, id]
       );
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async validateAuthCode(id, authCode) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const validateRes = await this.query(connection, `SELECT code FROM authCode WHERE netId=?`, [id]);
       return validateRes.length > 0 && validateRes[0].code === authCode;
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async addVendor(vendor) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await this.query(connection, `INSERT INTO vendor (apiKey, netId, body) VALUES (?, ?, ?)`, [vendor.apiKey, vendor.id, JSON.stringify(vendor)]);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async updateVendor(vendor, changes) {
@@ -73,18 +64,14 @@ class DB {
     delete vendor['roles'];
     delete vendor['connections'];
 
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const result = await this.query(connection, `UPDATE vendor SET body=? WHERE apiKey=?`, [JSON.stringify(vendor), apiKey]);
       return result.affectedRows > 0;
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async getVendors() {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const result = await this.query(connection, `SELECT body FROM vendor`);
       const vendors = [];
       for (const row of result) {
@@ -92,9 +79,7 @@ class DB {
         vendors.push(await this.joinVendorInfo(vendor));
       }
       return vendors;
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async getVendorByApiKey(apiKey, includeJoin = true) {
@@ -106,8 +91,7 @@ class DB {
   }
 
   async getVendorWithQuery(query, params, includeJoin) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const vendorResult = await this.query(connection, query, params);
       if (vendorResult.length === 0) {
         return null;
@@ -117,9 +101,7 @@ class DB {
         vendor = await this.joinVendorInfo(vendor);
       }
       return vendor;
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async joinVendorInfo(vendor) {
@@ -133,8 +115,7 @@ class DB {
   }
 
   async getVendorConnections(vendorId) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const connectionResult = await this.query(connection, `SELECT vendor1, vendor2, purpose, created, rating FROM connect WHERE vendor1=?`, [vendorId]);
       const results = {};
       for (const row of connectionResult) {
@@ -155,36 +136,27 @@ class DB {
         results[row.purpose] = result;
       }
       return results;
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async getChaosByNetId(netId) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const chaosResult = await this.query(connection, `SELECT body FROM chaos WHERE netId=?`, [netId]);
       if (chaosResult.length === 0) {
         return null;
       }
       return JSON.parse(chaosResult[0].body);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async addChaos(netId, chaos) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await this.query(connection, `INSERT INTO chaos (netId, state, body) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE body = VALUES(body)`, [netId, chaos.type, JSON.stringify(chaos)]);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async resolveChaos(netId) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const chaos = await this.getChaosByNetId(netId);
       if (chaos) {
         chaos.type = 'none';
@@ -192,24 +164,17 @@ class DB {
         chaos.fixDate = new Date().toISOString();
         await this.query(connection, `UPDATE chaos SET state=?, body=? WHERE netId=?`, ['none', JSON.stringify(chaos), netId]);
       }
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async removeChaos(netId) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await this.query(connection, `DELETE FROM chaos WHERE netId=?`, [netId]);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async requestVendorConnection(vendor, purpose) {
-    const connection = await this.getConnection();
-
-    try {
+    return this.withConnection(async (connection) => {
       await connection.beginTransaction();
       try {
         // Make sure the vendor is marked as wanting a connection
@@ -231,46 +196,34 @@ class DB {
         await connection.rollback();
         throw err;
       }
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async updateVendorConnection(vendor, { id, purpose, rating }) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await this.query(connection, `UPDATE connect SET rating=? WHERE vendor1=? AND vendor2=? AND purpose=?`, [rating, vendor.id, id, purpose]);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async deleteVendorConnection(vendorId, purpose) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await this.query(connection, `DELETE FROM connect WHERE vendor1=? AND purpose=?`, [vendorId, purpose]);
       await this.query(connection, `DELETE FROM connect WHERE vendor2=? AND purpose=?`, [vendorId, purpose]);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async assignRole(netId, role, add) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       if (add) {
         await connection.query(`INSERT INTO role (netId, role) VALUES (?, ?) ON DUPLICATE KEY UPDATE netId=netId`, [netId, role]);
       } else {
         await connection.query(`DELETE FROM role WHERE netId=? AND role=?`, [netId, role]);
       }
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async getRoles(netId) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       const result = await connection.query(`SELECT role FROM role WHERE netId=?`, [netId]);
       const roles = [];
       for (const row of result[0]) {
@@ -278,22 +231,17 @@ class DB {
       }
       roles.push('vendor');
       return roles;
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async deleteVendor(netId) {
-    const connection = await this.getConnection();
-    try {
+    return this.withConnection(async (connection) => {
       await connection.query(`DELETE FROM vendor WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM authCode WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM connect WHERE vendor1=? OR vendor2=?`, [netId, netId]);
       await connection.query(`DELETE FROM chaos WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM role WHERE netId=?`, [netId]);
-    } finally {
-      await connection.end();
-    }
+    });
   }
 
   async query(connection, sql, params) {
@@ -306,10 +254,15 @@ class DB {
     }
   }
 
-  async getConnection() {
+  async withConnection(op) {
     // Make sure the database is initialized before trying to get a connection.
     await this.initialized;
-    return this._getConnection();
+    const connection = await this._getConnection();
+    try {
+      return await op(connection);
+    } finally {
+      await connection.end();
+    }
   }
 
   async _getConnection(setUse = true) {

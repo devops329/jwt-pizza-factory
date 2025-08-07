@@ -3,8 +3,8 @@ const app = require('./service');
 const DB = require('./database/database.js');
 
 beforeAll(async () => {
-  const connection = await DB.getConnection();
-  connection.end();
+  // Make sure the database is initialized before running tests
+  await DB.withConnection(async (op) => {});
 });
 
 test('docs', async () => {
