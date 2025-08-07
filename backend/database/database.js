@@ -17,7 +17,7 @@ class DB {
         [authCode, id]
       );
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -27,7 +27,7 @@ class DB {
       const validateRes = await this.query(connection, `SELECT code FROM authCode WHERE netId=?`, [id]);
       return validateRes.length > 0 && validateRes[0].code === authCode;
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -36,7 +36,7 @@ class DB {
     try {
       await this.query(connection, `INSERT INTO vendor (apiKey, netId, body) VALUES (?, ?, ?)`, [vendor.apiKey, vendor.id, JSON.stringify(vendor)]);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -78,7 +78,7 @@ class DB {
       const result = await this.query(connection, `UPDATE vendor SET body=? WHERE apiKey=?`, [JSON.stringify(vendor), apiKey]);
       return result.affectedRows > 0;
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -93,7 +93,7 @@ class DB {
       }
       return vendors;
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -118,7 +118,7 @@ class DB {
       }
       return vendor;
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -156,7 +156,7 @@ class DB {
       }
       return results;
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -169,7 +169,7 @@ class DB {
       }
       return JSON.parse(chaosResult[0].body);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -178,7 +178,7 @@ class DB {
     try {
       await this.query(connection, `INSERT INTO chaos (netId, state, body) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE body = VALUES(body)`, [netId, chaos.type, JSON.stringify(chaos)]);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -193,7 +193,7 @@ class DB {
         await this.query(connection, `UPDATE chaos SET state=?, body=? WHERE netId=?`, ['none', JSON.stringify(chaos), netId]);
       }
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -202,7 +202,7 @@ class DB {
     try {
       await this.query(connection, `DELETE FROM chaos WHERE netId=?`, [netId]);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -232,7 +232,7 @@ class DB {
         throw err;
       }
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -241,7 +241,7 @@ class DB {
     try {
       await this.query(connection, `UPDATE connect SET rating=? WHERE vendor1=? AND vendor2=? AND purpose=?`, [rating, vendor.id, id, purpose]);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -251,7 +251,7 @@ class DB {
       await this.query(connection, `DELETE FROM connect WHERE vendor1=? AND purpose=?`, [vendorId, purpose]);
       await this.query(connection, `DELETE FROM connect WHERE vendor2=? AND purpose=?`, [vendorId, purpose]);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -264,7 +264,7 @@ class DB {
         await connection.query(`DELETE FROM role WHERE netId=? AND role=?`, [netId, role]);
       }
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -279,7 +279,7 @@ class DB {
       roles.push('vendor');
       return roles;
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -292,7 +292,7 @@ class DB {
       await connection.query(`DELETE FROM chaos WHERE netId=?`, [netId]);
       await connection.query(`DELETE FROM role WHERE netId=?`, [netId]);
     } finally {
-      connection.end();
+      await connection.end();
     }
   }
 
@@ -347,7 +347,7 @@ class DB {
           }
         }
       } finally {
-        connection.end();
+        await connection.end();
       }
     } catch (err) {
       console.error(
