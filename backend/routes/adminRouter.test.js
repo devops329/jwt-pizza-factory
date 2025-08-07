@@ -6,7 +6,7 @@ const { createVendor, getVendor } = require('./testUtil.js');
 let admin = null;
 beforeAll(async () => {
   admin = await createVendor();
-  DB.assignRole(admin.id, 'admin', true);
+  await DB.assignRole(admin.id, 'admin', true);
 });
 
 afterAll(async () => {

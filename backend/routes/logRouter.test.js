@@ -8,7 +8,7 @@ let vendor = null;
 beforeAll(async () => {
   vendor = await createVendor();
   admin = await createVendor();
-  DB.assignRole(admin.id, 'admin', true);
+  await DB.assignRole(admin.id, 'admin', true);
 });
 
 afterAll(async () => {

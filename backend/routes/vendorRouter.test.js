@@ -56,7 +56,7 @@ test('Update vendor without id param', async () => {
 
 test('Update vendor unknown', async () => {
   const admin = await createVendor();
-  DB.assignRole(admin.id, 'admin', true);
+  await DB.assignRole(admin.id, 'admin', true);
   try {
     const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: 'bogusId', name: 'Updated Vendor' });
     expect(updateRes.status).toBe(404);
@@ -80,7 +80,7 @@ test('Update other vendor as non-admin', async () => {
 test('Update other vendor as admin', async () => {
   const vendor = await createVendor();
   const admin = await createVendor();
-  DB.assignRole(admin.id, 'admin', true);
+  await DB.assignRole(admin.id, 'admin', true);
   try {
     const updateRes = await request(app).put(`/api/vendor`).set('Authorization', `Bearer ${admin.apiKey}`).send({ id: vendor.id, name: 'Updated Vendor' });
     expect(updateRes.status).toBe(200);
