@@ -11,6 +11,11 @@ async function getVendor(apiKey) {
   return vendorRes.body;
 }
 
+async function updateVendorChaos(id, chaos) {
+  await DB.removeChaos(id);
+  await DB.addChaos(id, chaos);
+}
+
 async function createVendor() {
   const id = randomUserId();
   const vendor = {
@@ -34,6 +39,7 @@ function randomUserId() {
 }
 module.exports = {
   getVendor,
+  updateVendorChaos,
   createOrder,
   createVendor,
   randomUserId,

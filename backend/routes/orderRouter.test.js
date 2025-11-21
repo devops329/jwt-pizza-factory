@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../service');
 const orderRouter = require('./orderRouter');
 const DB = require('../database/database.js');
-const { createOrder, createVendor } = require('./testUtil.js');
+const { createOrder, createVendor, getVendor, updateVendorChaos } = require('./testUtil.js');
 
 let vendor = null;
 beforeAll(async () => {
@@ -41,23 +41,46 @@ test('create order with chaos badjwt', async () => {
   const chaosResp = await request(app).put(`/api/vendor/chaos/badjwt`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
   expect(chaosResp.status).toBe(200);
 
-  const [status, body] = await createOrder(vendor.apiKey);
+  const [statusBefore, bodyBefore] = await createOrder(vendor.apiKey);
+  expect(statusBefore).toBe(200);
+  expect(bodyBefore.jwt).not.toMatch(/^dead.*/);
 
-  expect(status).toBe(200);
-  expect(body.jwt).toMatch(/^dead.*/);
-  expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
-  await request(app).get(new URL(body.reportUrl).pathname);
+  const chaos = await DB.getChaosByNetId(vendor.id);
+  expect(chaos.type).toBe('badjwt');
+  expect(new Date(chaos.startDate).getTime()).toBeGreaterThan(new Date(chaos.initiatedDate).getTime());
+
+  await updateVendorChaos(vendor.id, { ...chaos, startDate: chaos.initiatedDate });
+  const [statusAfter, bodyAfter] = await createOrder(vendor.apiKey);
+  expect(bodyAfter.jwt).toMatch(/^dead.*/);
+  expect(statusAfter).toBe(200);
+  expect(bodyAfter.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
+  await request(app).get(new URL(bodyAfter.reportUrl).pathname);
+
+  const chaosAfter = await DB.getChaosByNetId(vendor.id);
+  expect(chaosAfter.type).toBe('none');
 });
 
 test('create order with chaos throttle', async () => {
   try {
     orderRouter.settings.orderDelay = 1;
     await request(app).put(`/api/vendor/chaos/throttle`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
-    const [status, body] = await createOrder(vendor.apiKey);
+    const [statusBefore, bodyBefore] = await createOrder(vendor.apiKey);
+    expect(statusBefore).toBe(200);
+    expect(bodyBefore.reportUrl).toBeUndefined();
 
-    expect(status).toBe(200);
-    expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
-    await request(app).get(new URL(body.reportUrl).pathname);
+    const chaos = await DB.getChaosByNetId(vendor.id);
+    expect(chaos.type).toBe('throttle');
+    expect(new Date(chaos.startDate).getTime()).toBeGreaterThan(new Date(chaos.initiatedDate).getTime());
+
+    await updateVendorChaos(vendor.id, { ...chaos, startDate: chaos.initiatedDate });
+    const [statusAfter, bodyAfter] = await createOrder(vendor.apiKey);
+    expect(statusAfter).toBe(200);
+    expect(bodyAfter.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
+
+    await request(app).get(new URL(bodyAfter.reportUrl).pathname);
+
+    const chaosAfter = await DB.getChaosByNetId(vendor.id);
+    expect(chaosAfter.type).toBe('none');
   } finally {
     orderRouter.settings.orderDelay = 32000;
   }
@@ -65,12 +88,23 @@ test('create order with chaos throttle', async () => {
 
 test('create order with chaos failure', async () => {
   await request(app).put(`/api/vendor/chaos/fail`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
+  const [statusOk] = await createOrder(vendor.apiKey);
+  expect(statusOk).toBe(200);
+
+  const chaos = await DB.getChaosByNetId(vendor.id);
+  expect(chaos.type).toBe('fail');
+  expect(new Date(chaos.startDate).getTime()).toBeGreaterThan(new Date(chaos.initiatedDate).getTime());
+
+  await updateVendorChaos(vendor.id, { ...chaos, startDate: chaos.initiatedDate });
   const [status, body] = await createOrder(vendor.apiKey);
 
   expect(status).toBe(500);
   expect(body.message).toBe('chaos monkey');
   expect(body.reportUrl).toContain(`api/support/${vendor.apiKey}/report/`);
   await request(app).get(new URL(body.reportUrl).pathname);
+
+  const chaosAfter = await DB.getChaosByNetId(vendor.id);
+  expect(chaosAfter.type).toBe('none');
 });
 
 test('verify order', async () => {

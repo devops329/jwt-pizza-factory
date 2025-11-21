@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../service.js');
-const { createOrder, createVendor, getVendor } = require('./testUtil.js');
+const { createOrder, createVendor, getVendor, updateVendorChaos } = require('./testUtil.js');
 const DB = require('../database/database.js');
 
 let vendor = null;
@@ -16,6 +16,9 @@ test('Report problem', async () => {
   try {
     const initChaosRes = await request(app).put(`/api/vendor/chaos/fail`).set('Authorization', `Bearer ${vendor.apiKey}`).send({});
     expect(initChaosRes.status).toBe(200);
+
+    const chaos = await DB.getChaosByNetId(vendor.id);
+    await updateVendorChaos(vendor.id, { ...chaos, startDate: chaos.initiatedDate });
 
     const [, body] = await createOrder(vendor.apiKey);
     const reportRes = await request(app).get(new URL(body.reportUrl).pathname);

@@ -293,10 +293,20 @@ vendorRouter.put(
       return res.status(400).json({ message: `website (${req.vendor.website}) failed to respond` });
     }
 
+    const initiatedDate = new Date();
+
+    // Set random hour between 8 AM and 2 PM the next day
+    const nextDay = new Date(initiatedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const randomHour = Math.floor(Math.random() * 6) + 8;
+    const randomMinute = Math.floor(Math.random() * 60);
+    nextDay.setHours(randomHour, randomMinute, 0, 0);
+
     const chaos = {
       type: type,
       fixCode: Math.random().toString(36).substring(2, 10),
-      initiatedDate: new Date().toISOString(),
+      initiatedDate: initiatedDate.toISOString(),
+      startDate: nextDay.toISOString(),
     };
     await DB.addChaos(req.vendor.id, chaos);
 
