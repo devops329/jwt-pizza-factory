@@ -295,12 +295,7 @@ vendorRouter.put(
 
     const initiatedDate = new Date();
 
-    // Set random hour between 8 AM and 2 PM the next day
-    const nextDay = new Date(initiatedDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-    const randomHour = Math.floor(Math.random() * 6) + 8;
-    const randomMinute = Math.floor(Math.random() * 60);
-    nextDay.setHours(randomHour, randomMinute, 0, 0);
+    const nextDay = getRandomStartDate(initiatedDate);
 
     const chaos = {
       type: type,
@@ -313,5 +308,14 @@ vendorRouter.put(
     res.json({ message: 'Chaos initiated' });
   })
 );
+
+function getRandomStartDate(initiatedDate) {
+  const nextDay = new Date(initiatedDate);
+  nextDay.setDate(nextDay.getDate() + 1);
+  const randomHour = Math.floor(Math.random() * 6) + 8;
+  const randomMinute = Math.floor(Math.random() * 60);
+  nextDay.setHours(randomHour, randomMinute, 0, 0);
+  return nextDay;
+}
 
 module.exports = vendorRouter;
