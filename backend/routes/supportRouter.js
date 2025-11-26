@@ -23,12 +23,16 @@ supportRouter.get(
   '/:vendorToken/report/:fixCode',
   asyncHandler(async (req, res) => {
     const vendor = await DB.getVendorByApiKey(req.params.vendorToken);
-    if (vendor && vendor.chaos && req.params.fixCode === vendor.chaos.fixCode) {
-      await DB.resolveChaos(vendor.id);
-      trafficGenerator.stop(vendor.id);
-      res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
+    if (vendor?.chaos?.type && vendor.chaos.type !== 'none') {
+      if (req.params.fixCode === vendor.chaos.fixCode) {
+        await DB.resolveChaos(vendor.id);
+        trafficGenerator.stop(vendor.id);
+        return res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
+      } else {
+        return res.status(400).json({ message: 'Problem unresolved' });
+      }
     } else {
-      return res.status(400).json({ message: 'Problem unresolved' });
+      return res.status(200).json({ message: 'No chaos currently executing' });
     }
   })
 );

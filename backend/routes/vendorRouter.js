@@ -295,13 +295,13 @@ vendorRouter.put(
 
     const initiatedDate = new Date();
 
-    const nextDay = getRandomStartDate(initiatedDate);
+    const startDate = getRandomStartDate(initiatedDate);
 
     const chaos = {
       type: type,
       fixCode: Math.random().toString(36).substring(2, 10),
       initiatedDate: initiatedDate.toISOString(),
-      startDate: nextDay.toISOString(),
+      startDate,
     };
     await DB.addChaos(req.vendor.id, chaos);
 
@@ -310,12 +310,17 @@ vendorRouter.put(
 );
 
 function getRandomStartDate(initiatedDate) {
-  const nextDay = new Date(initiatedDate);
-  nextDay.setDate(nextDay.getDate() + 1);
-  const randomHour = Math.floor(Math.random() * 6) + 8;
+  const mstOffset = 7 * 60 * 60 * 1000;
+  const localDate = new Date(initiatedDate.getTime() - mstOffset);
+
+  const randomHour = Math.floor(Math.random() * 6);
   const randomMinute = Math.floor(Math.random() * 60);
-  nextDay.setHours(randomHour, randomMinute, 0, 0);
-  return nextDay;
+  localDate.setDate(localDate.getDate() + 1);
+  localDate.setHours(8 + randomHour, randomMinute, 0, 0);
+
+  const utcDate = new Date(localDate.getTime() + mstOffset);
+
+  return utcDate.toISOString();
 }
 
 module.exports = vendorRouter;

@@ -27,6 +27,10 @@ test('Report problem', async () => {
 
     const updatedVendor = await getVendor(vendor.apiKey);
     expect(updatedVendor.chaos.type).toBe('none');
+
+    const reportRes2 = await request(app).get(new URL(body.reportUrl).pathname);
+    expect(reportRes2.status).toBe(200);
+    expect(reportRes2.body.message).toBe('No chaos currently executing');
   } finally {
     await DB.removeChaos(vendor.id);
   }
@@ -34,6 +38,6 @@ test('Report problem', async () => {
 
 test('Report problem unknown vendor', async () => {
   const reportRes = await request(app).get(`/api/support/xyz/report/33333`);
-  expect(reportRes.status).toBe(400);
-  expect(reportRes.body.message).toBe('Problem unresolved');
+  expect(reportRes.status).toBe(200);
+  expect(reportRes.body.message).toBe('No chaos currently executing');
 });
