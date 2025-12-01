@@ -26,7 +26,7 @@ supportRouter.get(
     if (vendor?.chaos?.type && vendor.chaos.type !== 'none') {
       if (req.params.fixCode === vendor.chaos.fixCode) {
         await DB.resolveChaos(vendor.id);
-        trafficGenerator.stop(vendor.id);
+        //trafficGenerator.stop(vendor.id);
         return res.json({ message: 'Problem resolved. Pizza is back on the menu!' });
       } else {
         return res.status(400).json({ message: 'Problem unresolved' });

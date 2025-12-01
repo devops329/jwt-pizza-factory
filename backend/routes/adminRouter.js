@@ -90,7 +90,7 @@ adminRouter.delete(
       await DB.deleteVendorConnection(id, req.body.purpose);
     } else if (deleteType === 'chaos') {
       await DB.removeChaos(id);
-      trafficGenerator.stop(id);
+      //trafficGenerator.stop(id);
     } else if (deleteType === 'all') {
       await DB.deleteVendor(id);
     }
