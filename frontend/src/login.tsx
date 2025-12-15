@@ -97,6 +97,13 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
   const [gitHubUrl, setGitHubUrl] = React.useState('');
   const [website, setWebsite] = React.useState('');
 
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
+
+  const isEmailValid = emailPattern.test(email);
+  const isPhoneValid = phonePattern.test(phone);
+  const isFormValid = name.trim() && isEmailValid && isPhoneValid && gitHubUrl.trim() && website.trim();
+
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 overflow-y-auto">
       <dialog id="vendorDialog" open className="rounded shadow-md p-6 bg-white max-w-md w-full mt-8 sm:mt-16 mx-auto">
@@ -105,16 +112,6 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
           className="flex flex-col gap-4 w-full"
           onSubmit={(e) => {
             e.preventDefault();
-            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-            if (!emailPattern.test(email)) {
-              alert('Please enter a valid email address of the form xxx@xxx.xxx');
-              return;
-            }
-            const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
-            if (!phonePattern.test(phone)) {
-              alert('Please enter a valid phone number of the form xxx-xxx-xxxx');
-              return;
-            }
             createVendor({ name, email, phone, gitHubUrl, website });
           }}
         >
@@ -141,7 +138,7 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
             <input type="url" name="website" required onChange={(e) => setWebsite(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://yourpizzawebsite.com" />
           </label>
           <div className="flex gap-2 mt-4">
-            <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700">
+            <button type="submit" disabled={!isFormValid} className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
               Submit
             </button>
             <button type="button" onClick={() => setShowVendorDialog(false)} className="bg-gray-300 rounded px-4 py-2 font-semibold hover:bg-gray-400">
