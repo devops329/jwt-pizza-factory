@@ -85,60 +85,57 @@ export default function Login({ setVendor }) {
           </form>
         </div>
       )}
-      {vendorDialogVisible && <VendorDialog setShowVendorDialog={setVendorDialogVisible} createVendor={createVendor} />}
+      {vendorDialogVisible && <NewVendorDialog setShowVendorDialog={setVendorDialogVisible} createVendor={createVendor} />}
     </div>
   );
 }
 
-function VendorDialog({ setShowVendorDialog, createVendor }) {
-  const [name, setName] = React.useState('');
-  const [email, setEmail] = React.useState('');
-  const [phone, setPhone] = React.useState('');
-  const [gitHubUrl, setGitHubUrl] = React.useState('');
-  const [website, setWebsite] = React.useState('');
+function NewVendorDialog({ setShowVendorDialog, createVendor }) {
+  const [vendor, setVendor] = React.useState({
+    name: '',
+    email: '',
+    phone: '',
+    gitHubUrl: '',
+    website: '',
+  });
 
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const phonePattern = /^\d{3}-\d{3}-\d{4}$/;
+  const handleChange = (field: keyof typeof vendor) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setVendor((prev) => ({ ...prev, [field]: e.target.value }));
+  };
 
-  const isEmailValid = emailPattern.test(email);
-  const isPhoneValid = phonePattern.test(phone);
-  const isFormValid = name.trim() && isEmailValid && isPhoneValid && gitHubUrl.trim() && website.trim();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    createVendor(vendor);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 overflow-y-auto">
       <dialog id="vendorDialog" open className="rounded shadow-md p-6 bg-white max-w-md w-full mt-8 sm:mt-16 mx-auto">
-        <form
-          method="dialog"
-          className="flex flex-col gap-4 w-full"
-          onSubmit={(e) => {
-            e.preventDefault();
-            createVendor({ name, email, phone, gitHubUrl, website });
-          }}
-        >
+        <form method="dialog" className="flex flex-col gap-4 w-full" onSubmit={handleSubmit}>
           <h2 className="text-lg font-semibold mb-2">Create Vendor Account</h2>
           <p className="text-sm">This information is used by your peers to contact you for collaborative activities. Please add accurate information for accounts that you frequently check.</p>
           <label className="flex flex-col">
             Name
-            <input type="text" name="name" required onChange={(e) => setName(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1 font-normal" placeholder="Your real name" />
+            <input type="text" value={vendor.name} onChange={handleChange('name')} required className="border border-gray-300 rounded px-3 py-2 mt-1 font-normal" placeholder="Your real name" />
           </label>
           <label className="flex flex-col">
             Email <span className="text-sm italic text-gray-300">That you check frequently</span>
-            <input type="email" name="email" required onChange={(e) => setEmail(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxxx@xxx.xxx" />
+            <input type="email" value={vendor.email} onChange={handleChange('email')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxxx@xxx.xxx" />
           </label>
           <label className="flex flex-col">
             Phone Number <span className="text-sm italic text-gray-300">For working with a peer</span>
-            <input type="tel" name="phone" required onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxx-xxx-xxxx" />
+            <input type="tel" value={vendor.phone} onChange={handleChange('phone')} required pattern="\d{3}-\d{3}-\d{4}" className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxx-xxx-xxxx" />
           </label>
           <label className="flex flex-col">
             GitHub URL <span className="text-sm italic text-gray-300">GitHub repo used for course</span>
-            <input type="url" name="gitHubUrl" required onChange={(e) => setGitHubUrl(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://github.com/youraccount" />
+            <input type="url" value={vendor.gitHubUrl} onChange={handleChange('gitHubUrl')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://github.com/youraccount" />
           </label>
           <label className="flex flex-col">
             Pizza website <span className="text-sm italic text-gray-300">Pizza website used for course</span>
-            <input type="url" name="website" required onChange={(e) => setWebsite(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://yourpizzawebsite.com" />
+            <input type="url" value={vendor.website} onChange={handleChange('website')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://yourpizzawebsite.com" />
           </label>
           <div className="flex gap-2 mt-4">
-            <button type="submit" disabled={!isFormValid} className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+            <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700">
               Submit
             </button>
             <button type="button" onClick={() => setShowVendorDialog(false)} className="bg-gray-300 rounded px-4 py-2 font-semibold hover:bg-gray-400">
