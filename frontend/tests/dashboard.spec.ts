@@ -3,7 +3,7 @@ import { Vendor } from '../src/model';
 import { login, registerLoginHandlers } from './authTestUtils';
 
 test('Login', async ({ page }) => {
-  const vendor = { id: 'test3', name: 'Test 3', email: 'test3@byu.edu', apiKey: 'xyz', website: 'https://pizza.test.com' };
+  const vendor = { id: 'test3', name: 'Test 3', phone: '333-333-3333', email: 'test3@byu.edu', apiKey: 'xyz', website: 'https://pizza.test.com', gitHubUrl: 'https://github.com/test' };
 
   await registerLoginHandlers(page, vendor);
 
@@ -19,7 +19,9 @@ test('Login', async ({ page }) => {
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
   await expect(page.getByText('test3', { exact: true })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue(vendor.name);
-  await expect(page.getByRole('textbox', { name: 'Pizza Service:', exact: true })).toHaveValue(vendor.website);
+  await expect(page.getByRole('textbox', { name: 'Phone:', exact: true })).toHaveValue(vendor.phone);
+  await expect(page.getByRole('textbox', { name: 'Pizza Website:', exact: true })).toHaveValue(vendor.website);
+  await expect(page.getByRole('textbox', { name: 'GitHub URL:', exact: true })).toHaveValue(vendor.gitHubUrl);
 
   await page.reload();
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
@@ -43,8 +45,10 @@ test('Register', async ({ page }) => {
   await expect(page.locator('h2')).toContainText('Create Vendor Account');
 
   await page.getByRole('textbox', { name: 'Name' }).fill('Test 1');
-  await page.getByRole('textbox', { name: 'Email That you check' }).fill('test1@byu.edu');
-  await page.getByRole('textbox', { name: 'For working with a peer' }).fill('111-111-1111');
+  await page.getByRole('textbox', { name: 'Email' }).fill('test1@byu.edu');
+  await page.getByRole('textbox', { name: 'Phone Number' }).fill('111-111-1111');
+  await page.getByRole('textbox', { name: 'GitHub URL' }).fill('https://github.com/test1');
+  await page.getByRole('textbox', { name: 'Pizza Website' }).fill('https://pizza.test1.com');
 
   await page.getByRole('button', { name: 'Submit' }).click();
 
@@ -53,8 +57,14 @@ test('Register', async ({ page }) => {
   await page.getByRole('button', { name: 'Validate code' }).click();
 
   await expect(page.locator('h2')).toContainText('Pizza Vendor Dashboard');
+
+  await page.goto('http://localhost:5173/');
+  await expect(page.locator('#netId')).toContainText('test1');
   await expect(page.getByText('test1', { exact: true })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue('Test 1');
+  await expect(page.getByRole('textbox', { name: 'Phone:', exact: true })).toHaveValue('111-111-1111');
+  await expect(page.getByRole('textbox', { name: 'Pizza Website:', exact: true })).toHaveValue('https://pizza.test1.com');
+  await expect(page.getByRole('textbox', { name: 'GitHub URL:', exact: true })).toHaveValue('https://github.com/test1');
 });
 
 test('Badge', async ({ page }) => {

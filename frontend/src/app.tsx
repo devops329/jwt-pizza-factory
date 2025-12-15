@@ -26,7 +26,7 @@ export default function App() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col min-h-screen">
       <header className="bg-gray-800 text-white py-6 px-2 flex flex-row justify-between">
         <h1 className="text-4xl font-extrabold text-white text-center drop-shadow-lg tracking-wide">🍕 JWT Pizza Factory</h1>
         {vendor && (
@@ -35,8 +35,8 @@ export default function App() {
           </button>
         )}
       </header>
-      <main className="p-2 bg-gray-100">{vendor ? <Dashboard vendor={vendor} setVendor={setVendor} /> : <Login setVendor={setVendor} />}</main>
-      <footer className="bg-gray-800 text-white py-6">
+      <main className="flex-1 p-2 bg-gray-100">{vendor ? <Dashboard vendor={vendor} setVendor={setVendor} /> : <Login setVendor={setVendor} />}</main>
+      <footer className="bg-gray-800 text-white py-2">
         <p className="text-center text-sm">&copy; 2035 JWT Pizza Factory. All rights reserved.</p>
       </footer>
     </div>

@@ -94,10 +94,12 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [phone, setPhone] = React.useState('');
+  const [gitHubUrl, setGitHubUrl] = React.useState('');
+  const [website, setWebsite] = React.useState('');
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center">
-      <dialog id="vendorDialog" open className="rounded shadow-md p-6 bg-white max-w-md w-full mt-16 mx-auto">
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4 overflow-y-auto">
+      <dialog id="vendorDialog" open className="rounded shadow-md p-6 bg-white max-w-md w-full mt-8 sm:mt-16 mx-auto">
         <form
           method="dialog"
           className="flex flex-col gap-4 w-full"
@@ -113,7 +115,7 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
               alert('Please enter a valid phone number of the form xxx-xxx-xxxx');
               return;
             }
-            createVendor({ name, email, phone });
+            createVendor({ name, email, phone, gitHubUrl, website });
           }}
         >
           <h2 className="text-lg font-semibold mb-2">Create Vendor Account</h2>
@@ -129,6 +131,14 @@ function VendorDialog({ setShowVendorDialog, createVendor }) {
           <label className="flex flex-col">
             Phone Number <span className="text-sm italic text-gray-300">For working with a peer</span>
             <input type="tel" name="phone" required onChange={(e) => setPhone(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxx-xxx-xxxx" />
+          </label>
+          <label className="flex flex-col">
+            GitHub URL <span className="text-sm italic text-gray-300">GitHub repo used for course</span>
+            <input type="url" name="gitHubUrl" required onChange={(e) => setGitHubUrl(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://github.com/youraccount" />
+          </label>
+          <label className="flex flex-col">
+            Pizza website <span className="text-sm italic text-gray-300">Pizza website used for course</span>
+            <input type="url" name="website" required onChange={(e) => setWebsite(e.target.value)} className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://yourpizzawebsite.com" />
           </label>
           <div className="flex gap-2 mt-4">
             <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700">

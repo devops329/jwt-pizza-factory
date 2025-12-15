@@ -36,7 +36,11 @@ function VendorDetails({ vendor, setVendor }: VendorDetailsProps): JSX.Element {
     <div className="mt-6 p-4 border border-gray-300">
       <div className="grid grid-cols-[max-content_1fr] gap-2 items-center mb-4">
         <div className="font-semibold text-gray-700 min-w-max mr-2">Net ID:</div>
-        <div className="text-gray-900">{vendor.id}</div>
+        <label htmlFor="netId">
+          <div id="netId" className="text-gray-900">
+            {vendor.id}
+          </div>
+        </label>
 
         <div className="font-semibold text-gray-700 min-w-max mr-2">API Key:</div>
         <div>
@@ -62,12 +66,16 @@ function VendorDetails({ vendor, setVendor }: VendorDetailsProps): JSX.Element {
         <input id="vendorEmail" type="email" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="Your email" value={vendorState.email || ''} onChange={(e) => updateVendorProp('email', e.target.value)} />
 
         <a href={vendorState.website || undefined} target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-700">
-          <label className="hover:underline">Pizza Service:</label>
+          <label htmlFor="website" className="hover:underline">
+            Pizza Website:
+          </label>
         </a>
         <input id="website" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://pizza-service.yourdomain" value={vendorState.website || ''} onChange={(e) => updateVendorProp('website', e.target.value)} />
 
         <a href={vendorState.gitHubUrl || undefined} target="_blank" rel="noopener noreferrer" className="font-semibold text-gray-700">
-          <label className="hover:underline">GitHub URL:</label>
+          <label htmlFor="gitHubUrl" className="hover:underline">
+            GitHub URL:
+          </label>
         </a>
         <input id="gitHubUrl" type="url" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full" placeholder="https://github.com/your-repo" value={vendorState.gitHubUrl || ''} onChange={(e) => updateVendorProp('gitHubUrl', e.target.value)} />
       </div>
