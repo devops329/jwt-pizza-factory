@@ -289,6 +289,8 @@ vendorRouter.put(
       return res.status(400).json({ message: 'Invalid chaos type' });
     }
 
+    // This is a problem if the student has changed the code. We do not know how to generate traffic.
+
     // if (req.vendor.website && !(await trafficGenerator.start(req.vendor))) {
     //   return res.status(400).json({ message: `website (${req.vendor.website}) failed to respond` });
     // }
