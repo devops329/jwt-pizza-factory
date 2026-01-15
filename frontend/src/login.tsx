@@ -127,12 +127,12 @@ function NewVendorDialog({ setShowVendorDialog, createVendor }) {
             <input type="tel" value={vendor.phone} onChange={handleChange('phone')} required pattern="\d{3}-\d{3}-\d{4}" className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="xxx-xxx-xxxx" />
           </label>
           <label className="flex flex-col">
-            GitHub URL <span className="text-sm italic text-gray-300">GitHub repo used for course</span>
-            <input type="url" value={vendor.gitHubUrl} onChange={handleChange('gitHubUrl')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://github.com/youraccount" />
+            Frontend GitHub URL <span className="text-sm italic text-gray-300">Your GitHub JWT Pizza frontend repository URL</span>
+            <input type="url" value={vendor.gitHubUrl} onChange={handleChange('gitHubUrl')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://github.com/youraccount/pizza" />
           </label>
           <label className="flex flex-col">
-            Pizza website <span className="text-sm italic text-gray-300">Pizza website used for course</span>
-            <input type="url" value={vendor.website} onChange={handleChange('website')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://yourpizzawebsite.com" />
+            Pizza website <span className="text-sm italic text-gray-300">Your pizza website</span>
+            <input type="url" value={vendor.website} onChange={handleChange('website')} required className="border border-gray-300 rounded px-3 py-2 mt-1" placeholder="https://pizza.yourpizzawebsite.com" />
           </label>
           <div className="flex gap-2 mt-4">
             <button type="submit" className="bg-blue-600 text-white rounded px-4 py-2 font-semibold hover:bg-blue-700">

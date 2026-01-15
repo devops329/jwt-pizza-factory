@@ -95,7 +95,7 @@ test('Badge', async ({ page }) => {
   await page.getByRole('button', { name: 'Generate Badge' }).click();
 
   await expect(page.getByRole('img', { name: 'Badge' })).toBeVisible();
-  await expect(page.getByRole('link')).toContainText('http://localhost:3000/api/badge/test3/a');
+  await expect(page.getByRole('link', { name: 'http://localhost:3000/api/badge/test3/a' })).toBeVisible();
 });
 
 test('Chaos', async ({ page }) => {
@@ -140,15 +140,15 @@ test('Update', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Name:', exact: true }).fill('Test 4');
   await page.getByRole('textbox', { name: 'Phone:' }).fill('333-333-3334');
   await page.getByRole('textbox', { name: 'Email:' }).fill('test4@byu.edu');
-  await page.getByRole('textbox', { name: 'Pizza Service:' }).fill('https://pizza.test4.com');
+  await page.getByRole('textbox', { name: 'Pizza Website:' }).fill('https://pizza.test4.com');
   await page.getByRole('textbox', { name: 'GitHub URL:' }).fill('https://github.com/test4');
-  await page.getByText('Name:Phone:Email:Pizza Service:GitHub URL:Update').click();
+  await page.getByText('Name:Phone:Email:Pizza Website:GitHub URL:Update').click();
   await page.getByRole('button', { name: 'Update' }).click();
 
   await expect(page.getByRole('textbox', { name: 'Name:', exact: true })).toHaveValue('Test 4');
   await expect(page.getByRole('textbox', { name: 'Phone:' })).toHaveValue('333-333-3334');
   await expect(page.getByRole('textbox', { name: 'Email:' })).toHaveValue('test4@byu.edu');
-  await expect(page.getByRole('textbox', { name: 'Pizza Service:' })).toHaveValue('https://pizza.test4.com');
+  await expect(page.getByRole('textbox', { name: 'Pizza Website:' })).toHaveValue('https://pizza.test4.com');
   await expect(page.getByRole('textbox', { name: 'GitHub URL:' })).toHaveValue('https://github.com/test4');
 
   await page.reload();
