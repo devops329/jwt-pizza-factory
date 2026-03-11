@@ -38,12 +38,17 @@ function Chaos({ vendor }: ChaosProps): JSX.Element {
         </span>
       </div>
       {chaosState === 'calm' && (
-        <div>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!chaosAvailable()} onClick={initiateChaos}>
-            Initiate chaos
-          </button>
-          {!chaosAvailable() && <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting chaos.</div>}
-        </div>
+        <>
+          <div className="text-sm italic my-2">
+            <span className="font-semibold border-l-red-400 border-l-4 pl-1">Note:</span> Do not request unless you have completed the metrics and logging deliverables.
+          </div>
+          <div>
+            <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400" disabled={!chaosAvailable()} onClick={initiateChaos}>
+              Initiate chaos
+            </button>
+            {!chaosAvailable() && <div className="text-sm italic m-3">Note: You must provide all vendor information and have your pizza website available before requesting chaos.</div>}
+          </div>
+        </>
       )}
     </div>
   );

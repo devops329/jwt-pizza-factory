@@ -22,7 +22,14 @@ function PenetrationTesting({ vendor, setVendor }: PenetrationTestingProps): JSX
     setVendor(connectedVendor);
   }
 
-  let connectionJsx = <span className="text-gray-900">Not yet requested</span>;
+  let connectionJsx = (
+    <div>
+      <span className="text-gray-900">Not yet requested</span>
+      <div className="text-sm italic mt-2">
+        <span className="font-semibold border-l-red-400 border-l-4 pl-1">Note:</span> Do not request unless you have completed the metrics and logging deliverables.
+      </div>
+    </div>
+  );
   const penetrationTest = vendor.connections?.penetrationTest;
   if (penetrationTest) {
     if (penetrationTest.id) {
