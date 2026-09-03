@@ -34,19 +34,19 @@ function Badge({ vendor }: BadgeProps): JSX.Element {
         <label htmlFor="badgeName" className="mr-2 font-semibold text-gray-700">
           Badge Name:
         </label>
-        <input id="badgeName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeName} onChange={(e) => validateBadgeName(e)} />
+        <input id="badgeName" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single word only" value={badgeName} onChange={(e) => validateBadgeName(e)} />
       </div>
       <div className="mb-4 flex items-center">
         <label htmlFor="badgeLabel" className="mr-2 font-semibold text-gray-700">
           Label:
         </label>
-        <input id="badgeLabel" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeLabel} onChange={(e) => setBadgeLabel(e.currentTarget.value)} />
+        <input id="badgeLabel" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single word only" value={badgeLabel} onChange={(e) => setBadgeLabel(e.currentTarget.value)} />
       </div>
       <div className="mb-4 flex items-center">
         <label htmlFor="badgeValue" className="mr-2 font-semibold text-gray-700">
           Value:
         </label>
-        <input id="badgeValue" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single world only" value={badgeValue} onChange={(e) => setBadgeValue(e.currentTarget.value)} />
+        <input id="badgeValue" type="text" className="border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400 w-full flex-1" placeholder="alphabetic single word only" value={badgeValue} onChange={(e) => setBadgeValue(e.currentTarget.value)} />
       </div>
       <div className="mb-4 flex items-center">
         <label htmlFor="badgeColor" className="mr-2 font-semibold text-gray-700">
